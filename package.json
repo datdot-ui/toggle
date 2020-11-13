@@ -1,0 +1,38 @@
+{
+  "name": "datdot-ui-button",
+  "version": "0.0.0",
+  "description": "example ui components",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "budo demo/demo.js:bundle.js --open --live",
+    "build": "browserify demo/demo.js -o bundle.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/playproject-io/datdot-ui-button.git"
+  },
+  "keywords": [
+    "datdot",
+    "ui",
+    "component",
+    "widget",
+    "range selector"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/playproject-io/datdot-ui-button/issues"
+  },
+  "homepage": "https://github.com/playproject-io/datdot-ui-button#readme",
+  "devDependencies": {
+    "budo": "^11.6.4"
+  },
+  "dependencies": {
+    "async-os-utils": "^0.1.3",
+    "bel": "^6.0.0",
+    "csjs-inject": "^1.0.1",
+    "date-fns": "^2.16.1",
+    "debug": "^4.1.1"
+  }
+}
