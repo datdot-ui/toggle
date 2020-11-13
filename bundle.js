@@ -1683,12 +1683,22 @@ function button ({page, name = "button", title, style}, protocol) {
     const widget = 'ui-button'
     const send2Parent = protocol( receive )
     send2Parent({page, from: name, flow: widget, type: 'init', filename, line: 11})
-    let button = bel`<button role="button" class="${css.btn} ${css[style]} ${css.ripple}" name=${name} aria-label=${name}>${title}</button>`
+    let button = bel`<button role="button" class="${css.btn} ${css[style]}" name=${name} aria-label=${name}>${title}</button>`
     button.onclick = click
 
     return button
 
-    function click() {
+    function click(e) {
+        let x = e.clientX - e.target.offsetLeft
+        let y = e.clientY - e.target.offsetTop
+        let ripple = document.createElement('span')
+        ripple.classList.add(css.ripple)
+        ripple.style.left = `${x}px`
+        ripple.style.top = `${y}px`
+
+        button.append(ripple)
+        setTimeout( () => { ripple.remove() }, 600)
+
         send2Parent({page, from: title, flow: widget, type: 'click', filename, line: 18})
     }
 
@@ -1701,12 +1711,15 @@ function button ({page, name = "button", title, style}, protocol) {
 
 const css = csjs`
 .btn {
+    position: relative;
     border: none;
     background: transparent;
     padding: 15px 20px;
     font-size: 14px;
     cursor: pointer;
     outline: none;
+    overflow: hidden;
+    transition: background-color .25s, border .25s, color .25s ease-in-out;
 }
 .solid {
     color: #fff;
@@ -1714,38 +1727,40 @@ const css = csjs`
     background-color: #000;
     border-radius: 8px;
 }
-.ripple {
-    background-position: center;
-    transition: background .8s;
-}
-.solid.ripple:hover {
-    background: rgba(51,51,51,1) radial-gradient(circle, transparent 1%, rgba(0,0,0,1) 1%) center/15000%;
-}
-.solid.ripple:active {
-    background-color: rgba(51,51,51, .8);
-    background-size: 100%;
-    transition: background 0s;
+.solid:hover {
+    background-color: rgba(0, 0, 0, .8);
 }
 .outlined {
     color: #707070;
     border: 1px solid #707070;
     border-radius: 8px;
 }
-.outlined.ripple:hover {
-    background: rgba(255,255,255, .1) radial-gradient(circle, transparent 1%, rgba(234,234,234, .5) 1%) center/15000%;
+.outlined:hover {
+    color: rgba(255, 142, 142, 1);
+    border-color: rgba(255, 142, 142, .15);
+    background-color: rgba(255, 142, 142, .15);
 }
-.outlined.ripple:active {
-    background-color: rgba(255,255,255, .8);
-    background-size: 100%;
-    transition: background 0s;
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background-color: #fff;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    -webkit-animation: ripples .6s linear infinite;
+    animation: ripples .6s linear infinite;
 }
-@keyframes ripple {
-    to {
-        transform: scale(4);
+@keyframes ripples {
+    0% {
+        width: 0px;
+        height: 0px;
+        opacity: .5;
+    }
+    100% {
+        width: 500px;
+        height: 500px;
         opacity: 0;
     }
 }
 `
-
 }).call(this)}).call(this,"/src/index.js")
 },{"bel":3,"csjs-inject":6,"path":26}]},{},[1]);
