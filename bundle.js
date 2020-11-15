@@ -5,18 +5,46 @@ const csjs = require('csjs-inject')
 const path = require('path')
 const filename = path.basename(__filename)
 const button = require('..')
+const svg = require('../src/node_modules/svg')
+
 
 function demoComponent() {
     let count = 1
+    // logs
     const terminal = bel`<div class=${css.terminal}></div>`
-    const confirm = button({page: 'JOBS', name: 'confirm', title: 'Confirm', style: 'solid'}, protocol('confirm'))
-    const cancel = button({page: 'JOBS', name: 'cancel', title: 'Cancel', style: 'outlined'}, protocol('cancel'))
+    // icons
+    const iconCancel = svg( { css: `${css.icon} ${css['icon-cancel']}`, path: 'assets/cancel.svg' })
+    const iconClear = svg( { css: `${css.icon} ${css['icon-clear']}`, path: 'assets/cancel.svg' })
+    const iconCheck = svg( { css: `${css.icon} ${css['icon-check']}`, path: 'assets/check.svg' })
+    // buttons
+    const confirm = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'dark'}, protocol('confirm'))
+    const cancel = button({page: 'JOBS', name: 'cancel', content: 'Cancel', style: 'outlined', color: 'border-grey'}, protocol('cancel'))
+    const cancel1 = button({page: 'JOBS', name: 'cancel', content: iconCancel, style: 'solid', color: 'grey'}, protocol('cancel'))
+    const linkCancel = button({page: 'PLANS', name: 'cancel', content: 'Cancel', style: 'link', color: 'link-grey'}, protocol('cancel'))
+    const previous = button({page: 'JOBS', name: 'previous', content: 'Previous', style: 'outlined', color: 'border-white'}, protocol('cancel'))
+    const confirm1 = button({page: 'JOBS', name: 'confirm', content: iconCheck, style: 'solid', color: 'dark'}, protocol('confirm'))
+    const clear = button({page: 'PLANS', name: 'clear', content: iconClear, style: ['circle-solid', 'small'], color: 'light-grey'}, protocol('cancel'))
+    
     const element = bel`
     <div class=${css.wrap}>
-        <div class=${css.container}>
-            ${confirm}
-            ${cancel}
-        </div>
+        <section class=${css.container}>
+            <div>
+                <h3>Text</h3>
+                ${confirm}
+                ${cancel}
+                ${previous}
+            </div>
+            <div>
+                <h3>Icon</h3>
+                ${confirm1}
+                ${cancel1}
+                ${clear}
+            </div>
+            <div>
+                <h3>Link</h3>
+                ${linkCancel}
+            </div>
+        </section>
         ${terminal}
     </div>`
 
@@ -56,7 +84,7 @@ body {
     padding: 0;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
-    background-color: #F2F2F2;
+    background-color: rgba(0, 0, 0, .1);
     height: 100%;
 }
 .wrap {
@@ -67,8 +95,11 @@ body {
 .container {
     padding: 25px;
 }
-.container > button {
-    margin-right: 25px;
+.container > div {
+    margin-bottom: 20px;
+}
+.container > div button {
+    margin-right: 10px;
 }
 .terminal {
     background-color: #212121;
@@ -99,14 +130,18 @@ body {
     font-size: 14px;
     display: inline-block;
 }
-.code-line {
-
+.code-line {}
+.icon {
+    width: 16px;
 }
+.icon-cancel {}
+.icon-clear {}
+.icon-check {}
 `
 
 document.body.append( demoComponent() )
 }).call(this)}).call(this,"/demo/demo.js")
-},{"..":28,"bel":3,"csjs-inject":6,"path":26}],2:[function(require,module,exports){
+},{"..":28,"../src/node_modules/svg":29,"bel":3,"csjs-inject":6,"path":26}],2:[function(require,module,exports){
 var trailingNewlineRegex = /\n[\s]+$/
 var leadingNewlineRegex = /^\n[\s]+/
 var trailingSpaceRegex = /[\s]+$/
@@ -1679,15 +1714,27 @@ const filename = path.basename(__filename)
 
 module.exports = button
 
-function button ({page, name = "button", title, style}, protocol) {
+function button ({page, name, content, style, color}, protocol) {
     const widget = 'ui-button'
     const send2Parent = protocol( receive )
     send2Parent({page, from: name, flow: widget, type: 'init', filename, line: 11})
-    let button = bel`<button role="button" class="${css.btn} ${css[style]}" name=${name} aria-label=${name}>${title}</button>`
+    
+    let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color && css[color]}" name=${name} aria-label=${name}>${content}</button>`
     button.onclick = click
 
     return button
 
+    function checkStyle() {
+        let arr = []
+        if (Array.isArray(style)) {
+            for (let i = 0; i < style.length; i++) {
+                arr.push(css[style[i]])
+            }
+            return arr.join(' ')
+        } 
+        return css[style]
+    }
+    
     function click(e) {
         let x = e.clientX - e.target.offsetLeft
         let y = e.clientY - e.target.offsetTop
@@ -1699,7 +1746,7 @@ function button ({page, name = "button", title, style}, protocol) {
         button.append(ripple)
         setTimeout( () => { ripple.remove() }, 600)
 
-        send2Parent({page, from: title, flow: widget, type: 'click', filename, line: 18})
+        send2Parent({page, from: name, flow: widget, type: 'click', filename, line: 18})
     }
 
     function receive(message) {
@@ -1724,21 +1771,36 @@ const css = csjs`
 .solid {
     color: #fff;
     font-weight: bold;
-    background-color: #000;
     border-radius: 8px;
 }
 .solid:hover {
     background-color: rgba(0, 0, 0, .8);
 }
+.solid [class^="icon"] path {
+    stroke: #fff;
+}
 .outlined {
-    color: #707070;
-    border: 1px solid #707070;
     border-radius: 8px;
 }
-.outlined:hover {
-    color: rgba(255, 142, 142, 1);
-    border-color: rgba(255, 142, 142, .15);
-    background-color: rgba(255, 142, 142, .15);
+.circle-solid {
+    border-radius: 100%;
+}
+.circle-solid:hover {
+    border-radius: 100%;
+    background-color: #333;
+}
+.link {}
+.link-black {
+    color: #000;
+}
+.link-white {
+    color: #fff;
+}
+.link-grey {
+    color: #707070;
+}
+.link.cancel:hover {
+    background-color: transparent;
 }
 .ripple {
     position: absolute;
@@ -1749,6 +1811,64 @@ const css = csjs`
     -webkit-animation: ripples .6s linear infinite;
     animation: ripples .6s linear infinite;
 }
+.dark {
+    color: #fff;
+    background-color: #000;
+}
+.grey {
+    color: #fff;
+    background-color: #9A9A9A;
+}
+.light-grey {
+    color: #fff;
+    background-color: #BBBBBB;
+}
+.border-grey {
+    color: #707070;
+    border: 1px solid #707070;
+}
+.border-grey:hover {
+    color: rgba(143, 143, 143, 1);
+    border-color: rgba(143, 143, 143, .15);
+    background-color: rgba(143, 143, 143, .15);
+}
+.border-white {
+    color: #fff;
+    border: 1px solid #fff;
+}
+.border-white:hover {
+    background-color: rgba(255, 255, 255, .5);
+}
+.link {}
+.link-black {
+    color: #000;
+}
+.link-white {
+    color: #fff;
+}
+.link-grey {
+    color: #9A9A9A;
+}
+.link:hover {
+    color: rgba(0, 0, 0, .6);
+}
+svg {
+    width: 100%;
+    height: auto;
+}
+.circle-solid [class^="icon"] path {
+    stroke: #fff;
+}
+.small {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+}
+.small [class^='icon'] {
+    display: inline-block;
+    padding-top: 2px;
+}
+
 @keyframes ripples {
     0% {
         width: 0px;
@@ -1763,4 +1883,32 @@ const css = csjs`
 }
 `
 }).call(this)}).call(this,"/src/index.js")
-},{"bel":3,"csjs-inject":6,"path":26}]},{},[1]);
+},{"bel":3,"csjs-inject":6,"path":26}],29:[function(require,module,exports){
+module.exports = svg
+
+function svg(opts) {
+    var { css = null, path }  = opts
+    
+    const el = document.createElement('div')
+    
+    async function load(done) {
+        const res = await fetch(path)
+        const parse = document.createElement('div')
+
+        if (res.status == 200) {
+            let graphic = await res.text()
+            parse.innerHTML = graphic
+            return done(null, parse.children[0])
+        }
+        throw new Error(res.status)
+    }
+
+    load((err, svg) => {
+        if (err) console.error(err)
+        if (css) el.className = css
+        el.append(svg)
+    })
+    
+    return el
+}   
+},{}]},{},[1]);

@@ -3,18 +3,46 @@ const csjs = require('csjs-inject')
 const path = require('path')
 const filename = path.basename(__filename)
 const button = require('..')
+const svg = require('../src/node_modules/svg')
+
 
 function demoComponent() {
     let count = 1
+    // logs
     const terminal = bel`<div class=${css.terminal}></div>`
-    const confirm = button({page: 'JOBS', name: 'confirm', title: 'Confirm', style: 'solid'}, protocol('confirm'))
-    const cancel = button({page: 'JOBS', name: 'cancel', title: 'Cancel', style: 'outlined'}, protocol('cancel'))
+    // icons
+    const iconCancel = svg( { css: `${css.icon} ${css['icon-cancel']}`, path: 'assets/cancel.svg' })
+    const iconClear = svg( { css: `${css.icon} ${css['icon-clear']}`, path: 'assets/cancel.svg' })
+    const iconCheck = svg( { css: `${css.icon} ${css['icon-check']}`, path: 'assets/check.svg' })
+    // buttons
+    const confirm = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'dark'}, protocol('confirm'))
+    const cancel = button({page: 'JOBS', name: 'cancel', content: 'Cancel', style: 'outlined', color: 'border-grey'}, protocol('cancel'))
+    const cancel1 = button({page: 'JOBS', name: 'cancel', content: iconCancel, style: 'solid', color: 'grey'}, protocol('cancel'))
+    const linkCancel = button({page: 'PLANS', name: 'cancel', content: 'Cancel', style: 'link', color: 'link-grey'}, protocol('cancel'))
+    const previous = button({page: 'JOBS', name: 'previous', content: 'Previous', style: 'outlined', color: 'border-white'}, protocol('cancel'))
+    const confirm1 = button({page: 'JOBS', name: 'confirm', content: iconCheck, style: 'solid', color: 'dark'}, protocol('confirm'))
+    const clear = button({page: 'PLANS', name: 'clear', content: iconClear, style: ['circle-solid', 'small'], color: 'light-grey'}, protocol('cancel'))
+    
     const element = bel`
     <div class=${css.wrap}>
-        <div class=${css.container}>
-            ${confirm}
-            ${cancel}
-        </div>
+        <section class=${css.container}>
+            <div>
+                <h3>Text</h3>
+                ${confirm}
+                ${cancel}
+                ${previous}
+            </div>
+            <div>
+                <h3>Icon</h3>
+                ${confirm1}
+                ${cancel1}
+                ${clear}
+            </div>
+            <div>
+                <h3>Link</h3>
+                ${linkCancel}
+            </div>
+        </section>
         ${terminal}
     </div>`
 
@@ -54,7 +82,7 @@ body {
     padding: 0;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
-    background-color: #F2F2F2;
+    background-color: rgba(0, 0, 0, .1);
     height: 100%;
 }
 .wrap {
@@ -65,8 +93,11 @@ body {
 .container {
     padding: 25px;
 }
-.container > button {
-    margin-right: 25px;
+.container > div {
+    margin-bottom: 20px;
+}
+.container > div button {
+    margin-right: 10px;
 }
 .terminal {
     background-color: #212121;
@@ -97,9 +128,13 @@ body {
     font-size: 14px;
     display: inline-block;
 }
-.code-line {
-
+.code-line {}
+.icon {
+    width: 16px;
 }
+.icon-cancel {}
+.icon-clear {}
+.icon-check {}
 `
 
 document.body.append( demoComponent() )

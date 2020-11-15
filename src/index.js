@@ -5,15 +5,27 @@ const filename = path.basename(__filename)
 
 module.exports = button
 
-function button ({page, name = "button", title, style}, protocol) {
+function button ({page, name, content, style, color}, protocol) {
     const widget = 'ui-button'
     const send2Parent = protocol( receive )
     send2Parent({page, from: name, flow: widget, type: 'init', filename, line: 11})
-    let button = bel`<button role="button" class="${css.btn} ${css[style]}" name=${name} aria-label=${name}>${title}</button>`
+    
+    let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color && css[color]}" name=${name} aria-label=${name}>${content}</button>`
     button.onclick = click
 
     return button
 
+    function checkStyle() {
+        let arr = []
+        if (Array.isArray(style)) {
+            for (let i = 0; i < style.length; i++) {
+                arr.push(css[style[i]])
+            }
+            return arr.join(' ')
+        } 
+        return css[style]
+    }
+    
     function click(e) {
         let x = e.clientX - e.target.offsetLeft
         let y = e.clientY - e.target.offsetTop
@@ -25,7 +37,7 @@ function button ({page, name = "button", title, style}, protocol) {
         button.append(ripple)
         setTimeout( () => { ripple.remove() }, 600)
 
-        send2Parent({page, from: title, flow: widget, type: 'click', filename, line: 18})
+        send2Parent({page, from: name, flow: widget, type: 'click', filename, line: 18})
     }
 
     function receive(message) {
@@ -50,21 +62,36 @@ const css = csjs`
 .solid {
     color: #fff;
     font-weight: bold;
-    background-color: #000;
     border-radius: 8px;
 }
 .solid:hover {
     background-color: rgba(0, 0, 0, .8);
 }
+.solid [class^="icon"] path {
+    stroke: #fff;
+}
 .outlined {
-    color: #707070;
-    border: 1px solid #707070;
     border-radius: 8px;
 }
-.outlined:hover {
-    color: rgba(255, 142, 142, 1);
-    border-color: rgba(255, 142, 142, .15);
-    background-color: rgba(255, 142, 142, .15);
+.circle-solid {
+    border-radius: 100%;
+}
+.circle-solid:hover {
+    border-radius: 100%;
+    background-color: #333;
+}
+.link {}
+.link-black {
+    color: #000;
+}
+.link-white {
+    color: #fff;
+}
+.link-grey {
+    color: #707070;
+}
+.link.cancel:hover {
+    background-color: transparent;
 }
 .ripple {
     position: absolute;
@@ -75,6 +102,64 @@ const css = csjs`
     -webkit-animation: ripples .6s linear infinite;
     animation: ripples .6s linear infinite;
 }
+.dark {
+    color: #fff;
+    background-color: #000;
+}
+.grey {
+    color: #fff;
+    background-color: #9A9A9A;
+}
+.light-grey {
+    color: #fff;
+    background-color: #BBBBBB;
+}
+.border-grey {
+    color: #707070;
+    border: 1px solid #707070;
+}
+.border-grey:hover {
+    color: rgba(143, 143, 143, 1);
+    border-color: rgba(143, 143, 143, .15);
+    background-color: rgba(143, 143, 143, .15);
+}
+.border-white {
+    color: #fff;
+    border: 1px solid #fff;
+}
+.border-white:hover {
+    background-color: rgba(255, 255, 255, .5);
+}
+.link {}
+.link-black {
+    color: #000;
+}
+.link-white {
+    color: #fff;
+}
+.link-grey {
+    color: #9A9A9A;
+}
+.link:hover {
+    color: rgba(0, 0, 0, .6);
+}
+svg {
+    width: 100%;
+    height: auto;
+}
+.circle-solid [class^="icon"] path {
+    stroke: #fff;
+}
+.small {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+}
+.small [class^='icon'] {
+    display: inline-block;
+    padding-top: 2px;
+}
+
 @keyframes ripples {
     0% {
         width: 0px;
