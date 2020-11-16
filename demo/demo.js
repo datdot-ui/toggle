@@ -46,12 +46,17 @@ function demoComponent() {
         ${terminal}
     </div>`
 
+    // always be on bottom when displaying a lots elements 
+    window.addEventListener('DOMContentLoaded', () => {
+        terminal.scrollTop = terminal.scrollHeight
+    })
+
     return element
 
     function protocol (name) {
         return send => {
-            send(({page: 'JOBS', flow: 'ui-button', type: 'ready', filename, line: 15}))
-            domlog({page: 'JOBS', flow: 'ui-button', type: 'ready', filename, line: 15})
+            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 15}))
+            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 15})
             return receive
         }
     }
