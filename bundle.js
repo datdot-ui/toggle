@@ -26,25 +26,36 @@ function demoComponent() {
     const iconMinus1= svg( { css: `${css.icon} ${css['icon-plus']}`, path: 'assets/minus.svg' })
     const iconOption = svg( { css: `${css.icon} ${css['icon-option']}`, path: 'assets/option.svg' })
     // default buttons
-    const confirm = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'dark'}, protocol('confirm'))
+    const confirm = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'black'}, protocol('confirm'))
     const cancel = button({page: 'JOBS', name: 'cancel', content: 'Cancel', style: 'outlined', color: 'border-grey'}, protocol('cancel'))
-    const cancel1 = button({page: 'JOBS', name: 'cancel', content: iconCancel, style: 'solid', color: 'grey'}, protocol('cancel'))
     const previous = button({page: 'JOBS', name: 'previous', content: 'Previous', style: 'outlined', color: 'border-white'}, protocol('cancel'))
-    const confirm1 = button({page: 'JOBS', name: 'confirm', content: iconCheck, style: 'solid', color: 'dark'}, protocol('confirm'))
+    const plan1 = button({page: 'JOBS', name: 'plan1', content: 'Plan1', style: 'solid', color: 'list', current: true}, plansProtocol('plan1'))
+    const plan2 = button({page: 'JOBS', name: 'plan2', content: 'Plan2', style: 'solid', color: 'list', current: false}, plansProtocol('plan2'))
+    const plan3 = button({page: 'JOBS', name: 'plan3', content: 'Plan3', style: 'solid', color: 'list', current: false}, plansProtocol('plan3'))
+    // icon buttons
+    const cancel1 = button({page: 'JOBS', name: 'cancel', content: iconCancel, style: 'solid', color: 'grey'}, protocol('cancel'))
+    const confirm1 = button({page: 'JOBS', name: 'confirm', content: iconCheck, style: 'solid', color: 'black'}, protocol('confirm'))
     const clear = button({page: 'PLANS', name: 'clear', content: iconClear, style: ['circle-solid', 'small'], color: 'light-grey'}, protocol('cancel'))
-    const create = button({page: 'JOBS', name: 'create', content: iconPlus, style: 'solid', color: 'dark'}, protocol('create'))
+    const create = button({page: 'JOBS', name: 'create', content: iconPlus, style: 'solid', color: 'black'}, protocol('create'))
     const option = button({page: 'JOBS', name: 'option', content: iconOption, style: 'default', color: 'fill-grey'}, protocol('option'))
-    // link buttons
-    const linkCancel = button({page: 'PLANS', name: 'cancel', content: 'Cancel', style: 'link', color: 'link-grey'}, protocol('cancel'))
-    const link1 = button({page: 'PLANS', name: 'link1', content: 'Link1', style: 'link', color: 'link-blue'}, protocol('link1'))
-    // increment and decrement buttons
+     // increment and decrement buttons
     const minus = button({page: 'JOBS', name: 'decrement', content: iconMinus, style: 'default', color: 'stroke-black'}, protocol('decrement'))
     const minusDisabled = button({page: 'JOBS', name: 'decrement', content: iconMinus1, style: 'default', color: 'stroke-black', disabled: true}, protocol('decrement'))
     const plus = button({page: 'JOBS', name: 'increment', content: iconPlus2, style: 'default', color: 'stroke-black'}, protocol('increment'))
+    // link buttons
+    const linkCancel = button({page: 'PLANS', name: 'cancel', content: 'Cancel', style: 'link', color: 'link-grey'}, protocol('cancel'))
+    const link1 = button({page: 'PLANS', name: 'link1', content: 'Link1', style: 'link', color: 'link-blue'}, protocol('link1'))
     // disabled buttons
-    const confirmDisabled = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'dark', disabled: true}, protocol('confirm'))
+    const confirmDisabled = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'black', disabled: true}, protocol('confirm'))
     const clearDisabled = button({page: 'PLANS', name: 'clear', content: iconClear1, style: ['circle-solid', 'small'], color: 'light-grey', disabled: true}, protocol('cancel'))
-    const createDisabled = button({page: 'JOBS', name: 'create', content: iconPlus1, style: 'solid', color: 'dark', disabled: true}, protocol('create'))
+    const createDisabled = button({page: 'JOBS', name: 'create', content: iconPlus1, style: 'solid', color: 'black', disabled: true}, protocol('create'))
+    const plansList = bel`<div class=${css.plansList}>${plan1}${plan2}${plan3}</div>`
+    const plans = plansList.children
+    // location buttons
+    const location1 = button({page: 'JOBS', name: 'central-europe', content: 'Central Europe', style: 'rounded', color: 'transparent', current: true}, locationsProtocol('central-europe'))
+    const location2 = button({page: 'JOBS', name: 'eastern-europe', content: 'Eastern Europe', style: 'rounded', color: 'transparent', current: false}, locationsProtocol('eastern-europe'))
+    const locationsList = bel`<div class=${css.locationsList}>${location1}</div>`
+    
     const element = bel`
     <div class=${css.wrap}>
         <section class=${css.container}>
@@ -76,19 +87,17 @@ function demoComponent() {
                 ${createDisabled}
                 ${minusDisabled}
             </div>
+            <div>
+                <h3>Plans list</h3>
+                ${plansList}
+            </div>
+            <div>
+                <h3>Options</h3>
+                ${locationsList}
+            </div>
         </section>
         ${terminal}
     </div>`
-
-    
-    const buttons = document.body.getElementsByTagName('button')
-    let radio = bel`<input type="radio" checked="false">`
-    Array.prototype.forEach.call(buttons, button => {
-        if ( button.getAttribute('name') === 'option' ) {
-            button.insertBefore(radio, button.firstChild) 
-        }
-    })
-
 
     // always be on bottom when displaying a lots elements 
     window.addEventListener('DOMContentLoaded', () => {
@@ -97,15 +106,31 @@ function demoComponent() {
 
     return element
 
+    function locationsProtocol(name) {
+
+        return send => {
+            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 103}))
+            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 104})
+            return plansReceive
+        }
+    }
+    function plansProtocol(name) {
+        return send => {
+            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 111}))
+            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 112})
+            return plansReceive
+        }
+    }
+
     // addtion and Subtraction
     function actionIncrement (from) {
         number++
-        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 106})
+        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 120})
     }
     function actionDecrement (from) {
         if (number < 1 ) return
         number--
-        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 111})
+        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 125})
     }
     function calculate (from) {
         (from === 'increment') ? actionIncrement(from) : actionDecrement (from)
@@ -114,10 +139,24 @@ function demoComponent() {
     // original protocol for all use
     function protocol (name) {
         return send => {
-            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 120}))
-            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 121})
+            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 134}))
+            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 135})
             return receive
         }
+    }
+    // Plans list
+    function plansReceive (message) {
+        const { page, from, flow, type, action, body, filename, line } = message
+        if ( type === 'click') {
+            [...plans].forEach( btn => {
+                btn.classList.remove( [...btn.classList][3] )
+                if ( btn.getAttribute('name') === from ) {
+                    btn.classList.add(css.current)
+
+                }
+            } )
+        }
+        domlog(message)
     }
 
     function receive (message) {
@@ -204,6 +243,13 @@ body {
 .icon-check {}
 .icon-plus {}
 .icon-option {}
+.plansList {
+
+}
+.current {
+    color: #fff;
+    background-color: #333;
+}
 `
 
 document.body.append( demoComponent() )
@@ -1781,12 +1827,12 @@ const filename = path.basename(__filename)
 
 module.exports = button
 
-function button ({page, name, content, style, color, disabled = false}, protocol) {
+function button ({page, name, content, style, color, current, disabled = false}, protocol) {
     const widget = 'ui-button'
     const send2Parent = protocol( receive )
     send2Parent({page, from: name, flow: widget, type: 'init', filename, line: 11})
     
-    let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color ? css[color] : ''}" name=${name} aria-label=${name} disabled=${disabled}>${content}</button>`
+    let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color ? css[color] : ''} ${current ? css.current : '' }" name=${name} aria-label=${name} disabled=${disabled}>${content}</button>`
     button.onclick = click
 
     return button
@@ -1882,6 +1928,11 @@ const css = csjs`
 .btn.link-blue:hover {
     color: #008af9;
 }
+.rounded {
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 30px;
+    border: 2px solid #000;
 }
 .link-black {
     color: #000;
@@ -1904,16 +1955,30 @@ const css = csjs`
     -webkit-animation: ripples .6s linear infinite;
     animation: ripples .6s linear infinite;
 }
-.dark {
+.transparent {
+    background-color: none;
+}
+.black {
     color: #fff;
     background-color: #000;
+}
+.dark {
+    background-color: #333;
 }
 .grey {
     color: #fff;
     background-color: #9A9A9A;
 }
-.transparent {
-    background-color: none;
+.list {
+    color: #707070;
+    background-color: #DDD;
+}
+.list.current {
+    color: #fff;
+    background-color: #333;
+}
+.list:hover {
+    color: #fff;
 }
 .light-grey {
     color: #fff;
@@ -1968,7 +2033,6 @@ svg {
     background-color: rgba(217, 217, 217, 1);
     cursor: not-allowed;
 }
-
 [disabled].default {
     background-color: transparent;
 }
@@ -1978,7 +2042,7 @@ svg {
 [disabled].default path {
     stroke: #BBB;
 }
-
+.current {}
 @keyframes ripples {
     0% {
         width: 0px;

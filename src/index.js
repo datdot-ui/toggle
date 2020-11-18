@@ -5,12 +5,12 @@ const filename = path.basename(__filename)
 
 module.exports = button
 
-function button ({page, name, content, style, color, disabled = false}, protocol) {
+function button ({page, name, content, style, color, current, disabled = false}, protocol) {
     const widget = 'ui-button'
     const send2Parent = protocol( receive )
     send2Parent({page, from: name, flow: widget, type: 'init', filename, line: 11})
     
-    let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color ? css[color] : ''}" name=${name} aria-label=${name} disabled=${disabled}>${content}</button>`
+    let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color ? css[color] : ''} ${current ? css.current : '' }" name=${name} aria-label=${name} disabled=${disabled}>${content}</button>`
     button.onclick = click
 
     return button
@@ -106,6 +106,11 @@ const css = csjs`
 .btn.link-blue:hover {
     color: #008af9;
 }
+.rounded {
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 30px;
+    border: 2px solid #000;
 }
 .link-black {
     color: #000;
@@ -128,16 +133,30 @@ const css = csjs`
     -webkit-animation: ripples .6s linear infinite;
     animation: ripples .6s linear infinite;
 }
-.dark {
+.transparent {
+    background-color: none;
+}
+.black {
     color: #fff;
     background-color: #000;
+}
+.dark {
+    background-color: #333;
 }
 .grey {
     color: #fff;
     background-color: #9A9A9A;
 }
-.transparent {
-    background-color: none;
+.list {
+    color: #707070;
+    background-color: #DDD;
+}
+.list.current {
+    color: #fff;
+    background-color: #333;
+}
+.list:hover {
+    color: #fff;
 }
 .light-grey {
     color: #fff;
@@ -192,7 +211,6 @@ svg {
     background-color: rgba(217, 217, 217, 1);
     cursor: not-allowed;
 }
-
 [disabled].default {
     background-color: transparent;
 }
@@ -202,7 +220,7 @@ svg {
 [disabled].default path {
     stroke: #BBB;
 }
-
+.current {}
 @keyframes ripples {
     0% {
         width: 0px;
