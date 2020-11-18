@@ -10,20 +10,41 @@ const svg = require('../src/node_modules/svg')
 
 function demoComponent() {
     let count = 1
+    let number = 0
     // logs
     const terminal = bel`<div class=${css.terminal}></div>`
     // icons
     const iconCancel = svg( { css: `${css.icon} ${css['icon-cancel']}`, path: 'assets/cancel.svg' })
     const iconClear = svg( { css: `${css.icon} ${css['icon-clear']}`, path: 'assets/cancel.svg' })
+    const iconClear1 = svg( { css: `${css.icon} ${css['icon-clear']}`, path: 'assets/cancel.svg' })
     const iconCheck = svg( { css: `${css.icon} ${css['icon-check']}`, path: 'assets/check.svg' })
-    // buttons
+    const iconPlus = svg( { css: `${css.icon} ${css['icon-plus']}`, path: 'assets/plus.svg' })
+    const iconPlus1 = svg( { css: `${css.icon} ${css['icon-plus']}`, path: 'assets/plus.svg' })
+    const iconPlus2 = svg( { css: `${css.icon} ${css['icon-plus']}`, path: 'assets/plus.svg' })
+    const iconMinus= svg( { css: `${css.icon} ${css['icon-plus']}`, path: 'assets/minus.svg' })
+    const iconMinus1= svg( { css: `${css.icon} ${css['icon-plus']}`, path: 'assets/minus.svg' })
+    const iconOption = svg( { css: `${css.icon} ${css['icon-option']}`, path: 'assets/option.svg' })
+    // default buttons
     const confirm = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'dark'}, protocol('confirm'))
     const cancel = button({page: 'JOBS', name: 'cancel', content: 'Cancel', style: 'outlined', color: 'border-grey'}, protocol('cancel'))
     const cancel1 = button({page: 'JOBS', name: 'cancel', content: iconCancel, style: 'solid', color: 'grey'}, protocol('cancel'))
-    const linkCancel = button({page: 'PLANS', name: 'cancel', content: 'Cancel', style: 'link', color: 'link-grey'}, protocol('cancel'))
     const previous = button({page: 'JOBS', name: 'previous', content: 'Previous', style: 'outlined', color: 'border-white'}, protocol('cancel'))
     const confirm1 = button({page: 'JOBS', name: 'confirm', content: iconCheck, style: 'solid', color: 'dark'}, protocol('confirm'))
     const clear = button({page: 'PLANS', name: 'clear', content: iconClear, style: ['circle-solid', 'small'], color: 'light-grey'}, protocol('cancel'))
+    const create = button({page: 'JOBS', name: 'create', content: iconPlus, style: 'solid', color: 'dark'}, protocol('create'))
+    const option = button({page: 'JOBS', name: 'option', content: iconOption, style: 'default', color: 'fill-grey'}, protocol('option'))
+    const rounded = button({page: 'PLANS', name: 'western-europe', content: 'Western Europe', style: 'rounded'}, protocol('western-europe'))
+    // link buttons
+    const linkCancel = button({page: 'PLANS', name: 'cancel', content: 'Cancel', style: 'link', color: 'link-grey'}, protocol('cancel'))
+    const link1 = button({page: 'PLANS', name: 'link1', content: 'Link1', style: 'link', color: 'link-blue'}, protocol('link1'))
+    // increment and decrement buttons
+    const minus = button({page: 'JOBS', name: 'decrement', content: iconMinus, style: 'default', color: 'stroke-black'}, protocol('decrement'))
+    const minusDisabled = button({page: 'JOBS', name: 'decrement', content: iconMinus1, style: 'default', color: 'stroke-black', disabled: true}, protocol('decrement'))
+    const plus = button({page: 'JOBS', name: 'increment', content: iconPlus2, style: 'default', color: 'stroke-black'}, protocol('increment'))
+    // disabled buttons
+    const confirmDisabled = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'dark', disabled: true}, protocol('confirm'))
+    const clearDisabled = button({page: 'PLANS', name: 'clear', content: iconClear1, style: ['circle-solid', 'small'], color: 'light-grey', disabled: true}, protocol('cancel'))
+    const createDisabled = button({page: 'JOBS', name: 'create', content: iconPlus1, style: 'solid', color: 'dark', disabled: true}, protocol('create'))
     
     const element = bel`
     <div class=${css.wrap}>
@@ -33,16 +54,29 @@ function demoComponent() {
                 ${confirm}
                 ${cancel}
                 ${previous}
+                ${rounded}
             </div>
             <div>
                 <h3>Icon</h3>
                 ${confirm1}
                 ${cancel1}
+                ${create}
                 ${clear}
+                ${option}
+                ${minus}
+                ${plus}
             </div>
             <div>
                 <h3>Link</h3>
                 ${linkCancel}
+                ${link1}
+            </div>
+            <div>
+                <h3>Disabeld</h3>
+                ${confirmDisabled}
+                ${clearDisabled}
+                ${createDisabled}
+                ${minusDisabled}
             </div>
         </section>
         ${terminal}
@@ -57,12 +91,12 @@ function demoComponent() {
 
     function protocol (name) {
         return send => {
-            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 15}))
-            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 15})
+            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 88}))
+            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 89})
             return receive
         }
     }
-    
+
     function receive (message) {
         const { page, from, flow, type, action, body, filename, line } = message
         domlog(message)
@@ -142,6 +176,8 @@ body {
 .icon-cancel {}
 .icon-clear {}
 .icon-check {}
+.icon-plus {}
+.icon-option {}
 `
 
 document.body.append( demoComponent() )
@@ -1719,12 +1755,12 @@ const filename = path.basename(__filename)
 
 module.exports = button
 
-function button ({page, name, content, style, color}, protocol) {
+function button ({page, name, content, style, color, disabled = false}, protocol) {
     const widget = 'ui-button'
     const send2Parent = protocol( receive )
     send2Parent({page, from: name, flow: widget, type: 'init', filename, line: 11})
     
-    let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color && css[color]}" name=${name} aria-label=${name}>${content}</button>`
+    let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color ? css[color] : ''}" name=${name} aria-label=${name} disabled=${disabled}>${content}</button>`
     button.onclick = click
 
     return button
@@ -1751,7 +1787,7 @@ function button ({page, name, content, style, color}, protocol) {
         button.append(ripple)
         setTimeout( () => { ripple.remove() }, 600)
 
-        send2Parent({page, from: name, flow: widget, type: 'click', filename, line: 18})
+        send2Parent({page, from: name, flow: widget, type: 'click', filename, line: 40})
     }
 
     function receive(message) {
@@ -1794,7 +1830,37 @@ const css = csjs`
     border-radius: 100%;
     background-color: #333;
 }
+.rounded {
+    border-radius: 18px;
+    border: 1px solid #000;
+}
+.default {
+    border-radius: 8px;
+    background-color: transparent;
+}
+.fill-grey g {
+    fill: #BBBBBB;
+}
+.fill-grey:hover {
+    background-color: rgba(0, 0, 0, .15);
+}
+.fill-grey:hover g {
+    fill: #fff;
+}
+.stroke-black path {
+    stroke: #000;
+}
+.stroke-grey path {
+    stroke: #BBB;
+}
 .link {}
+.link-blue {
+    color: #4BAFFF;
+}
+.btn.link-blue:hover {
+    color: #008af9;
+}
+}
 .link-black {
     color: #000;
 }
@@ -1823,6 +1889,9 @@ const css = csjs`
 .grey {
     color: #fff;
     background-color: #9A9A9A;
+}
+.transparent {
+    background-color: none;
 }
 .light-grey {
     color: #fff;
@@ -1872,6 +1941,20 @@ svg {
 .small [class^='icon'] {
     display: inline-block;
     padding-top: 2px;
+}
+[disabled], [disabled]:hover {
+    background-color: rgba(217, 217, 217, 1);
+    cursor: not-allowed;
+}
+
+[disabled].default {
+    background-color: transparent;
+}
+[disabled].default:hover g {
+    fill: #BBB;
+}
+[disabled].default path {
+    stroke: #BBB;
 }
 
 @keyframes ripples {

@@ -5,12 +5,12 @@ const filename = path.basename(__filename)
 
 module.exports = button
 
-function button ({page, name, content, style, color}, protocol) {
+function button ({page, name, content, style, color, disabled = false}, protocol) {
     const widget = 'ui-button'
     const send2Parent = protocol( receive )
     send2Parent({page, from: name, flow: widget, type: 'init', filename, line: 11})
     
-    let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color && css[color]}" name=${name} aria-label=${name}>${content}</button>`
+    let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color ? css[color] : ''}" name=${name} aria-label=${name} disabled=${disabled}>${content}</button>`
     button.onclick = click
 
     return button
@@ -37,7 +37,7 @@ function button ({page, name, content, style, color}, protocol) {
         button.append(ripple)
         setTimeout( () => { ripple.remove() }, 600)
 
-        send2Parent({page, from: name, flow: widget, type: 'click', filename, line: 18})
+        send2Parent({page, from: name, flow: widget, type: 'click', filename, line: 40})
     }
 
     function receive(message) {
@@ -80,7 +80,37 @@ const css = csjs`
     border-radius: 100%;
     background-color: #333;
 }
+.rounded {
+    border-radius: 18px;
+    border: 1px solid #000;
+}
+.default {
+    border-radius: 8px;
+    background-color: transparent;
+}
+.fill-grey g {
+    fill: #BBBBBB;
+}
+.fill-grey:hover {
+    background-color: rgba(0, 0, 0, .15);
+}
+.fill-grey:hover g {
+    fill: #fff;
+}
+.stroke-black path {
+    stroke: #000;
+}
+.stroke-grey path {
+    stroke: #BBB;
+}
 .link {}
+.link-blue {
+    color: #4BAFFF;
+}
+.btn.link-blue:hover {
+    color: #008af9;
+}
+}
 .link-black {
     color: #000;
 }
@@ -109,6 +139,9 @@ const css = csjs`
 .grey {
     color: #fff;
     background-color: #9A9A9A;
+}
+.transparent {
+    background-color: none;
 }
 .light-grey {
     color: #fff;
@@ -158,6 +191,20 @@ svg {
 .small [class^='icon'] {
     display: inline-block;
     padding-top: 2px;
+}
+[disabled], [disabled]:hover {
+    background-color: rgba(217, 217, 217, 1);
+    cursor: not-allowed;
+}
+
+[disabled].default {
+    background-color: transparent;
+}
+[disabled].default:hover g {
+    fill: #BBB;
+}
+[disabled].default path {
+    stroke: #BBB;
 }
 
 @keyframes ripples {
