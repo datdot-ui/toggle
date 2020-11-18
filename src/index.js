@@ -80,10 +80,6 @@ const css = csjs`
     border-radius: 100%;
     background-color: #333;
 }
-.rounded {
-    border-radius: 18px;
-    border: 1px solid #000;
-}
 .default {
     border-radius: 8px;
     background-color: transparent;

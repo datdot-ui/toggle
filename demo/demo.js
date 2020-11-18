@@ -9,6 +9,7 @@ const svg = require('../src/node_modules/svg')
 function demoComponent() {
     let count = 1
     let number = 0
+    let recipients = []
     // logs
     const terminal = bel`<div class=${css.terminal}></div>`
     // icons
@@ -31,7 +32,6 @@ function demoComponent() {
     const clear = button({page: 'PLANS', name: 'clear', content: iconClear, style: ['circle-solid', 'small'], color: 'light-grey'}, protocol('cancel'))
     const create = button({page: 'JOBS', name: 'create', content: iconPlus, style: 'solid', color: 'dark'}, protocol('create'))
     const option = button({page: 'JOBS', name: 'option', content: iconOption, style: 'default', color: 'fill-grey'}, protocol('option'))
-    const rounded = button({page: 'PLANS', name: 'western-europe', content: 'Western Europe', style: 'rounded'}, protocol('western-europe'))
     // link buttons
     const linkCancel = button({page: 'PLANS', name: 'cancel', content: 'Cancel', style: 'link', color: 'link-grey'}, protocol('cancel'))
     const link1 = button({page: 'PLANS', name: 'link1', content: 'Link1', style: 'link', color: 'link-blue'}, protocol('link1'))
@@ -43,7 +43,6 @@ function demoComponent() {
     const confirmDisabled = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'dark', disabled: true}, protocol('confirm'))
     const clearDisabled = button({page: 'PLANS', name: 'clear', content: iconClear1, style: ['circle-solid', 'small'], color: 'light-grey', disabled: true}, protocol('cancel'))
     const createDisabled = button({page: 'JOBS', name: 'create', content: iconPlus1, style: 'solid', color: 'dark', disabled: true}, protocol('create'))
-    
     const element = bel`
     <div class=${css.wrap}>
         <section class=${css.container}>
@@ -52,7 +51,6 @@ function demoComponent() {
                 ${confirm}
                 ${cancel}
                 ${previous}
-                ${rounded}
             </div>
             <div>
                 <h3>Icon</h3>
@@ -80,6 +78,16 @@ function demoComponent() {
         ${terminal}
     </div>`
 
+    
+    const buttons = document.body.getElementsByTagName('button')
+    let radio = bel`<input type="radio" checked="false">`
+    Array.prototype.forEach.call(buttons, button => {
+        if ( button.getAttribute('name') === 'option' ) {
+            button.insertBefore(radio, button.firstChild) 
+        }
+    })
+
+
     // always be on bottom when displaying a lots elements 
     window.addEventListener('DOMContentLoaded', () => {
         terminal.scrollTop = terminal.scrollHeight
@@ -87,16 +95,34 @@ function demoComponent() {
 
     return element
 
+    // addtion and Subtraction
+    function actionIncrement (from) {
+        number++
+        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 106})
+    }
+    function actionDecrement (from) {
+        if (number < 1 ) return
+        number--
+        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 111})
+    }
+    function calculate (from) {
+        (from === 'increment') ? actionIncrement(from) : actionDecrement (from)
+        
+    }
+    // original protocol for all use
     function protocol (name) {
         return send => {
-            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 88}))
-            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 89})
+            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 120}))
+            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 121})
             return receive
         }
     }
 
     function receive (message) {
         const { page, from, flow, type, action, body, filename, line } = message
+        if ( type === 'click') {
+            calculate(from)
+        }
         domlog(message)
     }
     
