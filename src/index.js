@@ -141,6 +141,7 @@ const css = csjs`
     background-color: #000;
 }
 .dark {
+    color: #fff;
     background-color: #333;
 }
 .grey {

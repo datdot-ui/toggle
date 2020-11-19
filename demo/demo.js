@@ -3,7 +3,7 @@ const csjs = require('csjs-inject')
 const path = require('path')
 const filename = path.basename(__filename)
 const button = require('..')
-const svg = require('../src/node_modules/svg')
+const svg = require('datdot-ui-graphic')
 
 
 function demoComponent() {
@@ -104,15 +104,15 @@ function demoComponent() {
 
     return element
 
-    function locationsProtocol(name) {
-
+    function locationsProtocol (name) {
         return send => {
             send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 103}))
             domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 104})
             return plansReceive
         }
     }
-    function plansProtocol(name) {
+
+    function plansProtocol (name) {
         return send => {
             send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 111}))
             domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 112})
@@ -125,11 +125,13 @@ function demoComponent() {
         number++
         return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 120})
     }
+
     function actionDecrement (from) {
         if (number < 1 ) return
         number--
         return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 125})
     }
+
     function calculate (from) {
         (from === 'increment') ? actionIncrement(from) : actionDecrement (from)
         
@@ -142,6 +144,7 @@ function demoComponent() {
             return receive
         }
     }
+
     // Plans list
     function plansReceive (message) {
         const { page, from, flow, type, action, body, filename, line } = message
@@ -164,7 +167,7 @@ function demoComponent() {
         }
         domlog(message)
     }
-    
+
     function domlog (message) {
         const { page, from, flow, type, body, action, filename, line } = message
         const log = bel`

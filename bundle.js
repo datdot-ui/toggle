@@ -5,7 +5,7 @@ const csjs = require('csjs-inject')
 const path = require('path')
 const filename = path.basename(__filename)
 const button = require('..')
-const svg = require('../src/node_modules/svg')
+const svg = require('datdot-ui-graphic')
 
 
 function demoComponent() {
@@ -106,15 +106,15 @@ function demoComponent() {
 
     return element
 
-    function locationsProtocol(name) {
-
+    function locationsProtocol (name) {
         return send => {
             send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 103}))
             domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 104})
             return plansReceive
         }
     }
-    function plansProtocol(name) {
+
+    function plansProtocol (name) {
         return send => {
             send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 111}))
             domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 112})
@@ -127,11 +127,13 @@ function demoComponent() {
         number++
         return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 120})
     }
+
     function actionDecrement (from) {
         if (number < 1 ) return
         number--
         return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 125})
     }
+
     function calculate (from) {
         (from === 'increment') ? actionIncrement(from) : actionDecrement (from)
         
@@ -144,6 +146,7 @@ function demoComponent() {
             return receive
         }
     }
+
     // Plans list
     function plansReceive (message) {
         const { page, from, flow, type, action, body, filename, line } = message
@@ -166,7 +169,7 @@ function demoComponent() {
         }
         domlog(message)
     }
-    
+
     function domlog (message) {
         const { page, from, flow, type, body, action, filename, line } = message
         const log = bel`
@@ -254,7 +257,7 @@ body {
 
 document.body.append( demoComponent() )
 }).call(this)}).call(this,"/demo/demo.js")
-},{"..":28,"../src/node_modules/svg":29,"bel":3,"csjs-inject":6,"path":26}],2:[function(require,module,exports){
+},{"..":29,"bel":3,"csjs-inject":6,"datdot-ui-graphic":23,"path":27}],2:[function(require,module,exports){
 var trailingNewlineRegex = /\n[\s]+$/
 var leadingNewlineRegex = /^\n[\s]+/
 var trailingSpaceRegex = /[\s]+$/
@@ -488,7 +491,7 @@ module.exports = hyperx(belCreateElement, {comments: true})
 module.exports.default = module.exports
 module.exports.createElement = belCreateElement
 
-},{"./appendChild":2,"hyperx":24}],4:[function(require,module,exports){
+},{"./appendChild":2,"hyperx":25}],4:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -507,7 +510,7 @@ function csjsInserter() {
 module.exports = csjsInserter;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"csjs":9,"insert-css":25}],5:[function(require,module,exports){
+},{"csjs":9,"insert-css":26}],5:[function(require,module,exports){
 'use strict';
 
 module.exports = require('csjs/get-css');
@@ -985,6 +988,34 @@ function scopify(css, ignores) {
 }
 
 },{"./regex":19,"./replace-animations":20,"./scoped-name":21}],23:[function(require,module,exports){
+module.exports = svg
+
+function svg(opts) {
+    var { css = null, path }  = opts
+    
+    const el = document.createElement('div')
+    
+    async function load(done) {
+        const res = await fetch(path)
+        const parse = document.createElement('div')
+
+        if (res.status == 200) {
+            let graphic = await res.text()
+            parse.innerHTML = graphic
+            return done(null, parse.children[0])
+        }
+        throw new Error(res.status)
+    }
+
+    load((err, svg) => {
+        if (err) console.error(err)
+        if (css) el.className = css
+        el.append(svg)
+    })
+    
+    return el
+}   
+},{}],24:[function(require,module,exports){
 module.exports = attributeToProperty
 
 var transform = {
@@ -1005,7 +1036,7 @@ function attributeToProperty (h) {
   }
 }
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var attrToProp = require('hyperscript-attribute-to-property')
 
 var VAR = 0, TEXT = 1, OPEN = 2, CLOSE = 3, ATTR = 4
@@ -1302,7 +1333,7 @@ var closeRE = RegExp('^(' + [
 ].join('|') + ')(?:[\.#][a-zA-Z0-9\u007F-\uFFFF_:-]+)*$')
 function selfClosing (tag) { return closeRE.test(tag) }
 
-},{"hyperscript-attribute-to-property":23}],25:[function(require,module,exports){
+},{"hyperscript-attribute-to-property":24}],26:[function(require,module,exports){
 var inserted = {};
 
 module.exports = function (css, options) {
@@ -1326,7 +1357,7 @@ module.exports = function (css, options) {
     }
 };
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 (function (process){(function (){
 // .dirname, .basename, and .extname methods are extracted from Node.js v8.11.1,
 // backported and transplited with Babel, with backwards-compat fixes
@@ -1632,7 +1663,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":27}],27:[function(require,module,exports){
+},{"_process":28}],28:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -1818,7 +1849,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 (function (__filename){(function (){
 const bel = require('bel')
 const csjs = require('csjs-inject')
@@ -1963,6 +1994,7 @@ const css = csjs`
     background-color: #000;
 }
 .dark {
+    color: #fff;
     background-color: #333;
 }
 .grey {
@@ -2057,32 +2089,4 @@ svg {
 }
 `
 }).call(this)}).call(this,"/src/index.js")
-},{"bel":3,"csjs-inject":6,"path":26}],29:[function(require,module,exports){
-module.exports = svg
-
-function svg(opts) {
-    var { css = null, path }  = opts
-    
-    const el = document.createElement('div')
-    
-    async function load(done) {
-        const res = await fetch(path)
-        const parse = document.createElement('div')
-
-        if (res.status == 200) {
-            let graphic = await res.text()
-            parse.innerHTML = graphic
-            return done(null, parse.children[0])
-        }
-        throw new Error(res.status)
-    }
-
-    load((err, svg) => {
-        if (err) console.error(err)
-        if (css) el.className = css
-        el.append(svg)
-    })
-    
-    return el
-}   
-},{}]},{},[1]);
+},{"bel":3,"csjs-inject":6,"path":27}]},{},[1]);
