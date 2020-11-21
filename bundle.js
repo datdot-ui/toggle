@@ -43,7 +43,7 @@ function demoComponent() {
     const minusDisabled = button({page: 'JOBS', name: 'decrement', content: iconMinus1, style: 'default', color: 'stroke-black', disabled: true}, protocol('decrement'))
     const plus = button({page: 'JOBS', name: 'increment', content: iconPlus2, style: 'default', color: 'stroke-black'}, protocol('increment'))
     // link buttons
-    const linkCancel = button({page: 'PLANS', name: 'cancel', content: 'Cancel', style: 'link', color: 'link-grey'}, protocol('cancel'))
+    const linkCancel = button({page: 'PLANS', name: 'cancel', content: 'Cancel', style: 'link', color: 'link-cancel'}, protocol('cancel'))
     const link1 = button({page: 'PLANS', name: 'link1', content: 'Link1', style: 'link', color: 'link-blue'}, protocol('link1'))
     // disabled buttons
     const confirmDisabled = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'black', disabled: true}, protocol('confirm'))
@@ -52,10 +52,19 @@ function demoComponent() {
     const plansList = bel`<div class=${css.plansList}>${plan1}${plan2}${plan3}</div>`
     const plans = plansList.children
     // location buttons
-    const location1 = button({page: 'JOBS', name: 'central-europe', content: 'Central Europe', style: 'rounded', color: 'transparent', current: true}, locationsProtocol('central-europe'))
-    const location2 = button({page: 'JOBS', name: 'eastern-europe', content: 'Eastern Europe', style: 'rounded', color: 'transparent', current: false}, locationsProtocol('eastern-europe'))
-    const locationsList = bel`<div class=${css.locationsList}>${location1}</div>`
-    
+    const location1 = button({page: 'JOBS', name: 'central-europe', content: 'Central Europe', style: 'option', color: 'link-grey', current: true}, locationProtocol('central-europe'))
+    const location2 = button({page: 'JOBS', name: 'eastern-europe', content: 'Eastern Europe', style: 'option', color: 'link-grey'}, locationProtocol('eastern-europe'))
+    const location3 = button({page: 'JOBS', name: 'northern-europe', content: 'Northern Europe', style: 'option', color: 'link-grey'}, locationProtocol('northern-europe'))
+    const locationList = bel`<div class=${css.locationList}>${location1}${location2}${location3}</div>`
+    const locations = locationList.children
+    // navgation buttons
+    const nav1 = button({page: 'PLANS', name: 'user', content: 'USER', style: 'nav', color: 'white'}, navgationProtocol('user'))
+    const nav2 = button({page: 'PLANS', name: 'plans', content: 'PLANS', style: 'nav', color: 'white', current: true}, navgationProtocol('plans'))
+    const nav3 = button({page: 'PLANS', name: 'jobs', content: 'JOBS', style: 'nav', color: 'white'}, navgationProtocol('jobs'))
+    const nav4 = button({page: 'PLANS', name: 'apps', content: 'APPS', style: 'nav', color: 'white'}, navgationProtocol('apps'))
+    const navgation = bel`<nav class=${css.nav}>${nav1}${nav2}${nav3}${nav4}</nav>`
+    const navs = navgation.children
+
     const element = bel`
     <div class=${css.wrap}>
         <section class=${css.container}>
@@ -92,8 +101,12 @@ function demoComponent() {
                 ${plansList}
             </div>
             <div>
-                <h3>Options</h3>
-                ${locationsList}
+                <h3>Location list</h3>
+                ${locationList}
+            </div>
+            <div>
+                <h3>Navgation</h3>
+                ${navgation}
             </div>
         </section>
         ${terminal}
@@ -106,18 +119,29 @@ function demoComponent() {
 
     return element
 
-    function locationsProtocol (name) {
+    function navgationProtocol (name) {
         return send => {
-            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 103}))
-            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 104})
-            return plansReceive
+            recipients[name] = send
+            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 109}))
+            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 110})
+            return navgationReceive
+        }
+    }
+
+    function locationProtocol (name) {
+        return send => {
+            recipients[name] = send
+            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 109}))
+            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 110})
+            return locationReceive
         }
     }
 
     function plansProtocol (name) {
         return send => {
-            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 111}))
-            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 112})
+            recipients[name] = send
+            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 119}))
+            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 120})
             return plansReceive
         }
     }
@@ -125,13 +149,13 @@ function demoComponent() {
     // addtion and Subtraction
     function actionIncrement (from) {
         number++
-        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 120})
+        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 128})
     }
 
     function actionDecrement (from) {
         if (number < 1 ) return
         number--
-        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 125})
+        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 134})
     }
 
     function calculate (from) {
@@ -141,10 +165,38 @@ function demoComponent() {
     // original protocol for all use
     function protocol (name) {
         return send => {
-            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 134}))
-            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 135})
+            recipients[name] = send
+            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 144}))
+            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 145})
             return receive
         }
+    }
+
+    // navgation menu
+    function navgationReceive (message) {
+        const { page, from, flow, type, action, body, filename, line } = message
+        if ( type === 'click') {
+            [...navs].forEach( btn => {
+                btn.classList.remove( [...btn.classList][3] )
+                if ( btn.getAttribute('name') === from ) {
+                    recipients[from]({page, from, type: 'active'})
+                }
+            } )
+        }
+        domlog(message)
+    }
+    // location list
+    function locationReceive (message) {
+        const { page, from, flow, type, action, body, filename, line } = message
+        if ( type === 'click') {
+            [...locations].forEach( btn => {
+                btn.classList.remove( [...btn.classList][3] )
+                if ( btn.getAttribute('name') === from ) {
+                    recipients[from]({page, from, type: 'active'})
+                }
+            } )
+        }
+        domlog(message)
     }
 
     // Plans list
@@ -154,8 +206,7 @@ function demoComponent() {
             [...plans].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
-                    btn.classList.add(css.current)
-
+                    recipients[from]({page, from, type: 'active'})
                 }
             } )
         }
@@ -201,6 +252,7 @@ body {
 }
 .container {
     padding: 25px;
+    overflow-y: auto;
 }
 .container > div {
     margin-bottom: 20px;
@@ -217,7 +269,6 @@ body {
 .log:last-child {
     color: #FFF500;
     font-weight: bold;
-    
 }
 .log {
     display: grid;
@@ -246,18 +297,21 @@ body {
 .icon-check {}
 .icon-plus {}
 .icon-option {}
-.plansList {
-
-}
-.current {
-    color: #fff;
-    background-color: #333;
-}
+.plansList {}
+.locationList {}
 .customColor {
     color: #e0fbfc;
 }
 .customBackgroundColor {
     background-color: #457b9d;
+}
+.nav {
+    width: 50%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+.nav button {
+    margin-right: 0 !important;
 }
 `
 
@@ -1902,6 +1956,7 @@ function button ({page, name, content, style, color, custom, current, disabled =
     function receive(message) {
         const {page, from, type, action, body} = message
         // console.log('received from main component', message )
+        if ( type === 'active' ) button.classList.add(css.current)
     }
 }
 
@@ -1959,17 +2014,8 @@ const css = csjs`
     stroke: #BBB;
 }
 .link {}
-.link-blue {
-    color: #4BAFFF;
-}
-.btn.link-blue:hover {
-    color: #008af9;
-}
-.rounded {
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 30px;
-    border: 2px solid #000;
+.link:hover {
+    color: rgba(0, 0, 0, .6);
 }
 .link-black {
     color: #000;
@@ -1977,8 +2023,20 @@ const css = csjs`
 .link-white {
     color: #fff;
 }
+.link-blue {
+    color: #4BAFFF;
+}
+.link-blue:hover {
+    color: #008af9;
+}
 .link-grey {
     color: #707070;
+}
+.link-grey:hover {
+    color: #333;
+}
+.link-cancel {
+    color: #9A9A9A;
 }
 .link.cancel:hover {
     background-color: transparent;
@@ -1993,7 +2051,7 @@ const css = csjs`
     animation: ripples .6s linear infinite;
 }
 .transparent {
-    background-color: none;
+    background-color: transparent;
 }
 .black {
     color: #fff;
@@ -2006,6 +2064,10 @@ const css = csjs`
 .grey {
     color: #fff;
     background-color: #9A9A9A;
+}
+.white {
+    color: #707070;
+    background-color: #fff;
 }
 .list {
     color: #707070;
@@ -2038,19 +2100,6 @@ const css = csjs`
 .border-white:hover {
     background-color: rgba(255, 255, 255, .5);
 }
-.link {}
-.link-black {
-    color: #000;
-}
-.link-white {
-    color: #fff;
-}
-.link-grey {
-    color: #9A9A9A;
-}
-.link:hover {
-    color: rgba(0, 0, 0, .6);
-}
 svg {
     width: 100%;
     height: auto;
@@ -2081,6 +2130,23 @@ svg {
     stroke: #BBB;
 }
 .current {}
+.option.current {
+    font-size: 16px;
+    color: #000;
+    font-weight: bold;
+    border-radius: 30px;
+    border: 2px solid #000;
+    padding: 10px 15px;
+}
+.nav {
+    padding: 0;
+    line-height: 40px;
+}
+.nav.current {
+    color: #242424;
+    font-weight: bold;
+    background-color: #F2F2F2;
+}
 @keyframes ripples {
     0% {
         width: 0px;

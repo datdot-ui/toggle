@@ -43,6 +43,7 @@ function button ({page, name, content, style, color, custom, current, disabled =
     function receive(message) {
         const {page, from, type, action, body} = message
         // console.log('received from main component', message )
+        if ( type === 'active' ) button.classList.add(css.current)
     }
 }
 
@@ -100,17 +101,8 @@ const css = csjs`
     stroke: #BBB;
 }
 .link {}
-.link-blue {
-    color: #4BAFFF;
-}
-.btn.link-blue:hover {
-    color: #008af9;
-}
-.rounded {
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 30px;
-    border: 2px solid #000;
+.link:hover {
+    color: rgba(0, 0, 0, .6);
 }
 .link-black {
     color: #000;
@@ -118,8 +110,20 @@ const css = csjs`
 .link-white {
     color: #fff;
 }
+.link-blue {
+    color: #4BAFFF;
+}
+.link-blue:hover {
+    color: #008af9;
+}
 .link-grey {
     color: #707070;
+}
+.link-grey:hover {
+    color: #333;
+}
+.link-cancel {
+    color: #9A9A9A;
 }
 .link.cancel:hover {
     background-color: transparent;
@@ -134,7 +138,7 @@ const css = csjs`
     animation: ripples .6s linear infinite;
 }
 .transparent {
-    background-color: none;
+    background-color: transparent;
 }
 .black {
     color: #fff;
@@ -147,6 +151,10 @@ const css = csjs`
 .grey {
     color: #fff;
     background-color: #9A9A9A;
+}
+.white {
+    color: #707070;
+    background-color: #fff;
 }
 .list {
     color: #707070;
@@ -179,19 +187,6 @@ const css = csjs`
 .border-white:hover {
     background-color: rgba(255, 255, 255, .5);
 }
-.link {}
-.link-black {
-    color: #000;
-}
-.link-white {
-    color: #fff;
-}
-.link-grey {
-    color: #9A9A9A;
-}
-.link:hover {
-    color: rgba(0, 0, 0, .6);
-}
 svg {
     width: 100%;
     height: auto;
@@ -222,6 +217,23 @@ svg {
     stroke: #BBB;
 }
 .current {}
+.option.current {
+    font-size: 16px;
+    color: #000;
+    font-weight: bold;
+    border-radius: 30px;
+    border: 2px solid #000;
+    padding: 10px 15px;
+}
+.nav {
+    padding: 0;
+    line-height: 40px;
+}
+.nav.current {
+    color: #242424;
+    font-weight: bold;
+    background-color: #F2F2F2;
+}
 @keyframes ripples {
     0% {
         width: 0px;
