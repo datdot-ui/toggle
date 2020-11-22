@@ -1957,6 +1957,7 @@ function button ({page, name, content, style, color, custom, current, disabled =
         const {page, from, type, action, body} = message
         // console.log('received from main component', message )
         if ( type === 'active' ) button.classList.add(css.current)
+        if ( type === 'disabled' ) button.setAttribute('disabled', true)
     }
 }
 
@@ -2116,17 +2117,18 @@ svg {
     display: inline-block;
     padding-top: 2px;
 }
-[disabled], [disabled]:hover {
+.btn[disabled], .btn[disabled]:hover {
+    color: #fff;
     background-color: rgba(217, 217, 217, 1);
     cursor: not-allowed;
 }
-[disabled].default {
+.btn[disabled].default {
     background-color: transparent;
 }
-[disabled].default:hover g {
+.btn[disabled].default:hover g {
     fill: #BBB;
 }
-[disabled].default path {
+.btn[disabled].default path {
     stroke: #BBB;
 }
 .current {}
