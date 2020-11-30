@@ -59,7 +59,10 @@ const css = csjs`
     cursor: pointer;
     outline: none;
     overflow: hidden;
-    transition: background-color .25s, border .25s, color .25s ease-in-out;
+    transition: background-color .3s, border .3s, color .3s ease-in-out;
+}
+.btn svg g {
+    transition: fill .3s linear;
 }
 .solid {
     color: #fff;
@@ -86,14 +89,26 @@ const css = csjs`
     border-radius: 8px;
     background-color: transparent;
 }
-.fill-grey g {
+.fill-grey svg g {
     fill: #BBBBBB;
 }
 .fill-grey:hover {
-    background-color: rgba(0, 0, 0, .15);
+    background-color: rgba(0, 0, 0, .75);
 }
-.fill-grey:hover g {
+.fill-grey:hover svg g {
     fill: #fff;
+}
+.fill-dark svg g {
+    fill: #333;
+}
+.fill-dark:hover {
+    background-color: rgba(255,255,255, .5);
+}
+.fill-white svg g {
+    fill: #fff;
+}
+.fill-white:hover {
+    background-color: rgba(188,188,188, .5);
 }
 .stroke-black path {
     stroke: #000;
