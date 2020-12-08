@@ -25,6 +25,7 @@ function demoComponent() {
     const iconOption = svg( { css: `${css.icon} ${css['icon-option']}`, path: 'assets/option.svg' })
     // default buttons
     const confirm = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'black', custom: [css.customColor, css.customBackgroundColor]}, protocol('confirm'))
+    const click = button({page: 'JOBS', name: 'confirm', content: 'Click', style: 'solid', color: 'white'}, protocol('click'))
     const cancel = button({page: 'JOBS', name: 'cancel', content: 'Cancel', style: 'outlined', color: 'border-grey'}, protocol('cancel'))
     const previous = button({page: 'JOBS', name: 'previous', content: 'Previous', style: 'outlined', color: 'border-white'}, protocol('cancel'))
     const plan1 = button({page: 'JOBS', name: 'plan1', content: 'Plan1', style: 'solid', color: 'list', current: true}, plansProtocol('plan1'))
@@ -71,6 +72,7 @@ function demoComponent() {
                 ${confirm}
                 ${cancel}
                 ${previous}
+                ${click}
             </div>
             <div>
                 <h3>Icon</h3>

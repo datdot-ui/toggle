@@ -172,6 +172,10 @@ const css = csjs`
     color: #707070;
     background-color: #fff;
 }
+.white:hover {
+    color: #fff;
+    background-color: #d3d3d3;
+}
 .list {
     color: #707070;
     background-color: #DDD;
