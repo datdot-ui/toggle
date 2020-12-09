@@ -26,7 +26,8 @@
   },
   "homepage": "https://github.com/playproject-io/datdot-ui-button#readme",
   "devDependencies": {
-    "budo": "^11.6.4"
+    "budo": "^11.6.4",
+    "ui-domlog": "github:fionataeyang/ui-domlog"
   },
   "dependencies": {
     "bel": "^6.0.0",

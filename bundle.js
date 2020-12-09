@@ -6,14 +6,12 @@ const path = require('path')
 const filename = path.basename(__filename)
 const button = require('..')
 const svg = require('datdot-ui-graphic')
-
+const domlog = require('ui-domlog')
 
 function demoComponent() {
     let count = 1
     let number = 0
     let recipients = []
-    // logs
-    const terminal = bel`<div class=${css.terminal}></div>`
     // icons
     const iconCancel = svg( { css: `${css.icon} ${css['icon-cancel']}`, path: 'assets/cancel.svg' })
     const iconClear = svg( { css: `${css.icon} ${css['icon-clear']}`, path: 'assets/cancel.svg' })
@@ -66,9 +64,9 @@ function demoComponent() {
     const navgation = bel`<nav class=${css.nav}>${nav1}${nav2}${nav3}${nav4}</nav>`
     const navs = navgation.children
 
-    const element = bel`
-    <div class=${css.wrap}>
-        <section class=${css.container}>
+    // content
+    const content = bel`
+    <div class=${css.content}>
             <div>
                 <h3>Text</h3>
                 ${confirm}
@@ -110,22 +108,33 @@ function demoComponent() {
                 <h3>Navgation</h3>
                 ${navgation}
             </div>
-        </section>
-        ${terminal}
+        
     </div>`
 
-    // always be on bottom when displaying a lots elements 
-    window.addEventListener('DOMContentLoaded', () => {
-        terminal.scrollTop = terminal.scrollHeight
-    })
+    // show logs
+    let terminal = bel`<div class=${css.terminal}></div>`
+    // container
+    const container = wrap(content, terminal)
+    return container
 
-    return element
+    function wrap (content) {
+        const container = bel`
+        <div class=${css.wrap}>
+            <section class=${css.container}>
+                ${content}
+            </section>
+            ${terminal}
+        </div>
+        `
+        return container
+    }
 
     function navgationProtocol (name) {
         return send => {
             recipients[name] = send
-            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 109}))
-            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 110})
+            send({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 133})
+            const log = {page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 134}
+            showLog(log)
             return navgationReceive
         }
     }
@@ -133,8 +142,9 @@ function demoComponent() {
     function locationProtocol (name) {
         return send => {
             recipients[name] = send
-            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 109}))
-            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 110})
+            send({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 143})
+            const log = {page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 144}
+            showLog(log)
             return locationReceive
         }
     }
@@ -142,8 +152,9 @@ function demoComponent() {
     function plansProtocol (name) {
         return send => {
             recipients[name] = send
-            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 119}))
-            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 120})
+            send({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 153})
+            const log = {page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 154}
+            showLog(log)
             return plansReceive
         }
     }
@@ -151,25 +162,27 @@ function demoComponent() {
     // addtion and Subtraction
     function actionIncrement (from) {
         number++
-        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 128})
+        const log = {page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 163}
+        showLog(log)
     }
 
     function actionDecrement (from) {
         if (number < 1 ) return
         number--
-        return domlog({page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 134})
+        const log = {page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 170}
+        showLog(log)
     }
 
     function calculate (from) {
         (from === 'increment') ? actionIncrement(from) : actionDecrement (from)
-        
     }
     // original protocol for all use
     function protocol (name) {
         return send => {
             recipients[name] = send
-            send(({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 144}))
-            domlog({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 145})
+            send({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 181})
+            const log = {page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 182}
+            showLog(log)
             return receive
         }
     }
@@ -177,42 +190,48 @@ function demoComponent() {
     // navgation menu
     function navgationReceive (message) {
         const { page, from, flow, type, action, body, filename, line } = message
+        showLog(message)
         if ( type === 'click') {
             [...navs].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
                     recipients[from]({page, from, type: 'active'})
+                    const log = { page, from, flow, type: 'active', body, filename, line: 197}
+                    showLog(log)
                 }
             } )
         }
-        domlog(message)
     }
     // location list
     function locationReceive (message) {
         const { page, from, flow, type, action, body, filename, line } = message
+        showLog(message)
         if ( type === 'click') {
             [...locations].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
                     recipients[from]({page, from, type: 'active'})
+                    const log = { page, from, flow, type: 'active', body, filename, line: 212}
+                    showLog(log)
                 }
             } )
         }
-        domlog(message)
     }
 
     // Plans list
     function plansReceive (message) {
         const { page, from, flow, type, action, body, filename, line } = message
+        showLog(message)
         if ( type === 'click') {
             [...plans].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
                     recipients[from]({page, from, type: 'active'})
+                    const log = { page, from, flow, type: 'active', body, filename, line: 228}
+                    showLog(log)
                 }
             } )
         }
-        domlog(message)
     }
 
     function receive (message) {
@@ -220,21 +239,24 @@ function demoComponent() {
         if ( type === 'click') {
             calculate(from)
         }
-        domlog(message)
+        showLog(message)
     }
 
-    function domlog (message) {
-        const { page, from, flow, type, body, action, filename, line } = message
-        const log = bel`
-        <div class=${css.log} role="log">
-            <div class=${css.badge}>${count}</div>
-            <div class=${css.output}>${page}/${flow}: ${from} ${type} ${body}</div>
-            <div class=${css['code-line']}>${filename}:${line}</div>
-        </div>`
-        // console.log( message )
-        terminal.append(log)
-        terminal.scrollTop = terminal.scrollHeight
-        count++
+    // keep the scroll on bottom when the log displayed on the terminal
+    function showLog (message) { 
+        sendMessage(message)
+        .then( log => {
+            terminal.append(log)
+            terminal.scrollTop = terminal.scrollHeight
+        }
+    )}
+
+    async function sendMessage (message) {
+        return await new Promise( (resolve, reject) => {
+            if (message === undefined) reject('no message import')
+            const log = domlog(message)
+            return resolve(log)
+        }).catch( err => { throw new Error(err) } )
     }
 }
 
@@ -319,7 +341,7 @@ body {
 
 document.body.append( demoComponent() )
 }).call(this)}).call(this,"/demo/demo.js")
-},{"..":29,"bel":3,"csjs-inject":6,"datdot-ui-graphic":23,"path":27}],2:[function(require,module,exports){
+},{"..":30,"bel":3,"csjs-inject":6,"datdot-ui-graphic":23,"path":27,"ui-domlog":29}],2:[function(require,module,exports){
 var trailingNewlineRegex = /\n[\s]+$/
 var leadingNewlineRegex = /^\n[\s]+/
 var trailingSpaceRegex = /[\s]+$/
@@ -1912,6 +1934,84 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],29:[function(require,module,exports){
+const bel = require('bel')
+const csjs = require('csjs-inject')
+
+module.exports = domlog
+
+let count = 1
+
+function domlog (message) {
+    const { page = 'demo', from, flow, type, body, action, filename, line } = message
+    const log = bel`
+    <div class=${css.log} role="log">
+        <div class=${css.badge}>${count}</div>
+        <div class="${css.output} ${type === 'error' ? css.error : '' }">
+            <span class=${css.page}>${page}</span> 
+            <span class=${css.flow}>${flow}</span>
+            <span class=${css.from}>${from}</span>
+            <span class=${css.type}>${type}</span>
+            <span class=${css.info}>${typeof body === 'string' ? body : JSON.stringify(body, ["swarm", "feeds", "links"], 3)}</span>
+        </div>
+        <div class=${css['code-line']}>${filename}:${line}</div>
+    </div>`
+    count++
+    return log
+    
+}
+const css = csjs`
+.log {
+    display: grid;
+    grid-template-rows: auto;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    padding: 2px 12px 0 0;
+    border-bottom: 1px solid #333;
+}
+.log:last-child, .log:last-child .page, .log:last-child .flow, .log:last-child .type {
+    color: #FFF500;
+    font-weight: bold;
+}
+.output {}
+.badge {
+    background-color: #333;
+    padding: 6px;
+    margin-right: 10px;
+    font-size: 14px;
+    display: inline-block;
+}
+.code-line {}
+.error {
+    
+}
+.error .type {
+    padding: 2px 6px;
+    color: white;
+    background-color: #AC0000;
+    border-radius: 2px;
+}
+.error .info {
+    color: #FF2626;
+}
+.page {
+    display: inline-block;
+    color: rgba(255,255,255,.75);
+    background-color: #2A2E30;
+    padding: 4px 6px;
+    border-radius: 4px;
+}
+.flow {
+    color: #1DA5FF;
+}
+.from {
+    color: #fff;
+}
+.type {
+    color: #FFB14A;
+}
+.info {}
+`
+},{"bel":3,"csjs-inject":6}],30:[function(require,module,exports){
 (function (__filename){(function (){
 const bel = require('bel')
 const csjs = require('csjs-inject')
