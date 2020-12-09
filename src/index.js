@@ -5,10 +5,10 @@ const filename = path.basename(__filename)
 
 module.exports = button
 
-function button ({page, name, content, style, color, custom, current, disabled = false}, protocol) {
+function button ({page, flow = null, name, content, style, color, custom, current, disabled = false}, protocol) {
     const widget = 'ui-button'
     const send2Parent = protocol( receive )
-    send2Parent({page, from: name, flow: widget, type: 'init', filename, line: 11})
+    send2Parent({page, from: name, flow: flow ? `${flow}/${widget}` : widget, type: 'init', filename, line: 11})
     
     let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color ? css[color] : ''} ${custom ? custom.join(' ') : ''} ${current ? css.current : '' }" name=${name} aria-label=${name} disabled=${disabled}>${content}</button>`
     button.onclick = click
@@ -37,7 +37,7 @@ function button ({page, name, content, style, color, custom, current, disabled =
         button.append(ripple)
         setTimeout( () => { ripple.remove() }, 600)
 
-        send2Parent({page, from: name, flow: widget, type: 'click', filename, line: 40})
+        send2Parent({page, from: name, flow: flow ? `${flow}/${widget}` : widget, type: 'click', filename, line: 40})
     }
 
     function receive(message) {

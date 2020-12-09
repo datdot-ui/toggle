@@ -5,9 +5,9 @@ const filename = path.basename(__filename)
 const button = require('..')
 const svg = require('datdot-ui-graphic')
 const domlog = require('ui-domlog')
+const currentLine = require('current-line')
 
 function demoComponent() {
-    let count = 1
     let number = 0
     let recipients = []
     // icons
@@ -23,44 +23,46 @@ function demoComponent() {
     const iconOption = svg( { css: `${css.icon} ${css['icon-option']}`, path: 'assets/option.svg' })
     // default buttons
     const confirm = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'black', custom: [css.customColor, css.customBackgroundColor]}, protocol('confirm'))
-    const click = button({page: 'JOBS', name: 'confirm', content: 'Click', style: 'solid', color: 'white'}, protocol('click'))
+    const click = button({page: 'JOBS', name: 'click', content: 'Click', style: 'solid', color: 'white'}, protocol('click'))
     const cancel = button({page: 'JOBS', name: 'cancel', content: 'Cancel', style: 'outlined', color: 'border-grey'}, protocol('cancel'))
     const previous = button({page: 'JOBS', name: 'previous', content: 'Previous', style: 'outlined', color: 'border-white'}, protocol('cancel'))
-    const plan1 = button({page: 'JOBS', name: 'plan1', content: 'Plan1', style: 'solid', color: 'list', current: true}, plansProtocol('plan1'))
-    const plan2 = button({page: 'JOBS', name: 'plan2', content: 'Plan2', style: 'solid', color: 'list', current: false}, plansProtocol('plan2'))
-    const plan3 = button({page: 'JOBS', name: 'plan3', content: 'Plan3', style: 'solid', color: 'list', current: false}, plansProtocol('plan3'))
+    const plan1 = button({page: 'JOBS', flow: 'plans', name: 'plan1', content: 'Plan1', style: 'solid', color: 'list', current: true}, plansProtocol('plan1'))
+    const plan2 = button({page: 'JOBS', flow: 'plans', name: 'plan2', content: 'Plan2', style: 'solid', color: 'list', current: false}, plansProtocol('plan2'))
+    const plan3 = button({page: 'JOBS', flow: 'plans', name: 'plan3', content: 'Plan3', style: 'solid', color: 'list', current: false}, plansProtocol('plan3'))
     // icon buttons
-    const cancel1 = button({page: 'JOBS', name: 'cancel', content: iconCancel, style: 'solid', color: 'grey'}, protocol('cancel'))
-    const confirm1 = button({page: 'JOBS', name: 'confirm', content: iconCheck, style: 'solid', color: 'black'}, protocol('confirm'))
-    const clear = button({page: 'PLANS', name: 'clear', content: iconClear, style: ['circle-solid', 'small'], color: 'light-grey'}, protocol('cancel'))
-    const create = button({page: 'JOBS', name: 'create', content: iconPlus, style: 'solid', color: 'black'}, protocol('create'))
-    const option = button({page: 'JOBS', name: 'option', content: iconOption, style: 'default', color: 'fill-grey'}, protocol('option'))
-     // increment and decrement buttons
-    const minus = button({page: 'JOBS', name: 'decrement', content: iconMinus, style: 'default', color: 'stroke-black'}, protocol('decrement'))
-    const minusDisabled = button({page: 'JOBS', name: 'decrement', content: iconMinus1, style: 'default', color: 'stroke-black', disabled: true}, protocol('decrement'))
-    const plus = button({page: 'JOBS', name: 'increment', content: iconPlus2, style: 'default', color: 'stroke-black'}, protocol('increment'))
+    const cancel1 = button({page: 'JOBS', name: 'icon-cancel', content: iconCancel, style: 'solid', color: 'grey'}, protocol('icon-cancel'))
+    const save = button({page: 'JOBS', name: 'icon-save', content: iconCheck, style: 'solid', color: 'black'}, protocol('icon-save'))
+    const clear = button({page: 'PLANS', name: 'icon-clear', content: iconClear, style: ['circle-solid', 'small'], color: 'light-grey'}, protocol('icon-cancel'))
+    const create = button({page: 'JOBS', name: 'icon-create', content: iconPlus, style: 'solid', color: 'black'}, protocol('cicon-reate'))
+    const option = button({page: 'JOBS', name: 'icon-option', content: iconOption, style: 'default', color: 'fill-grey'}, protocol('icon-option'))
+    // increment and decrement buttons
+    const minus = button({page: 'JOBS', flow: 'calculate', name: 'icon-decrement', content: iconMinus, style: 'default', color: 'stroke-black'}, protocol('icon-decrement'))
+    const minusDisabled = button({page: 'JOBS', flow: 'calculate', name: 'icon-decrement-disabled', content: iconMinus1, style: 'default', color: 'stroke-black', disabled: true}, protocol('icon-decrement-disabled'))
+    const plus = button({page: 'JOBS', flow: 'calculate', name: 'icon-increment', content: iconPlus2, style: 'default', color: 'stroke-black'}, protocol('icon-increment'))
+    const calNumber = bel`<span class=${css.num}>${number}</span>`
+    const calculateElement = bel`<div class=${css.calculate}>${minus}${calNumber}${plus}</div>`
     // link buttons
-    const linkCancel = button({page: 'PLANS', name: 'cancel', content: 'Cancel', style: 'link', color: 'link-cancel'}, protocol('cancel'))
+    const linkCancel = button({page: 'PLANS', name: 'link-cancel', content: 'Cancel', style: 'link', color: 'link-cancel'}, protocol('link-cancel'))
     const link1 = button({page: 'PLANS', name: 'link1', content: 'Link1', style: 'link', color: 'link-blue'}, protocol('link1'))
     // disabled buttons
-    const confirmDisabled = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'black', disabled: true}, protocol('confirm'))
-    const clearDisabled = button({page: 'PLANS', name: 'clear', content: iconClear1, style: ['circle-solid', 'small'], color: 'light-grey', disabled: true}, protocol('cancel'))
-    const createDisabled = button({page: 'JOBS', name: 'create', content: iconPlus1, style: 'solid', color: 'black', disabled: true}, protocol('create'))
+    const disabled = button({page: 'JOBS', name: 'disabled', content: 'Disabled', style: 'solid', color: 'black', disabled: true}, protocol('disabled'))
+    const clearDisabled = button({page: 'PLANS', name: 'icon-clear-disabled', content: iconClear1, style: ['circle-solid', 'small'], color: 'light-grey', disabled: true}, protocol('icon-clear-disabled'))
+    const createDisabled = button({page: 'JOBS', name: 'icon-create-disabled', content: iconPlus1, style: 'solid', color: 'black', disabled: true}, protocol('icon-create-disabled'))
     const plansList = bel`<div class=${css.plansList}>${plan1}${plan2}${plan3}</div>`
     const plans = plansList.children
     // location buttons
-    const location1 = button({page: 'JOBS', name: 'central-europe', content: 'Central Europe', style: 'option', color: 'link-grey', current: true}, locationProtocol('central-europe'))
-    const location2 = button({page: 'JOBS', name: 'eastern-europe', content: 'Eastern Europe', style: 'option', color: 'link-grey'}, locationProtocol('eastern-europe'))
-    const location3 = button({page: 'JOBS', name: 'northern-europe', content: 'Northern Europe', style: 'option', color: 'link-grey'}, locationProtocol('northern-europe'))
+    const location1 = button({page: 'JOBS', flow: 'location', name: 'central-europe', content: 'Central Europe', style: 'option', color: 'link-grey', current: true}, locationProtocol('central-europe'))
+    const location2 = button({page: 'JOBS', flow: 'location', name: 'eastern-europe', content: 'Eastern Europe', style: 'option', color: 'link-grey'}, locationProtocol('eastern-europe'))
+    const location3 = button({page: 'JOBS', flow: 'location', name: 'northern-europe', content: 'Northern Europe', style: 'option', color: 'link-grey'}, locationProtocol('northern-europe'))
     const locationList = bel`<div class=${css.locationList}>${location1}${location2}${location3}</div>`
     const locations = locationList.children
-    // navgation buttons
-    const nav1 = button({page: 'PLANS', name: 'user', content: 'USER', style: 'nav', color: 'white'}, navgationProtocol('user'))
-    const nav2 = button({page: 'PLANS', name: 'plans', content: 'PLANS', style: 'nav', color: 'white', current: true}, navgationProtocol('plans'))
-    const nav3 = button({page: 'PLANS', name: 'jobs', content: 'JOBS', style: 'nav', color: 'white'}, navgationProtocol('jobs'))
-    const nav4 = button({page: 'PLANS', name: 'apps', content: 'APPS', style: 'nav', color: 'white'}, navgationProtocol('apps'))
-    const navgation = bel`<nav class=${css.nav}>${nav1}${nav2}${nav3}${nav4}</nav>`
-    const navs = navgation.children
+    // navigation buttons
+    const nav1 = button({page: 'PLANS', flow: 'nav', name: 'user', content: 'USER', style: 'nav', color: 'white'}, navigationProtocol('user'))
+    const nav2 = button({page: 'PLANS', flow: 'nav', name: 'plans', content: 'PLANS', style: 'nav', color: 'white', current: true}, navigationProtocol('plans'))
+    const nav3 = button({page: 'PLANS', flow: 'nav', name: 'jobs', content: 'JOBS', style: 'nav', color: 'white'}, navigationProtocol('jobs'))
+    const nav4 = button({page: 'PLANS', flow: 'nav', name: 'apps', content: 'APPS', style: 'nav', color: 'white'}, navigationProtocol('apps'))
+    const navigation = bel`<nav class=${css.nav}>${nav1}${nav2}${nav3}${nav4}</nav>`
+    const navs = navigation.children
 
     // content
     const content = bel`
@@ -74,13 +76,12 @@ function demoComponent() {
             </div>
             <div>
                 <h3>Icon</h3>
-                ${confirm1}
+                ${save}
                 ${cancel1}
                 ${create}
                 ${clear}
                 ${option}
-                ${minus}
-                ${plus}
+                ${calculateElement}
             </div>
             <div>
                 <h3>Link</h3>
@@ -89,7 +90,7 @@ function demoComponent() {
             </div>
             <div>
                 <h3>Disabeld</h3>
-                ${confirmDisabled}
+                ${disabled}
                 ${clearDisabled}
                 ${createDisabled}
                 ${minusDisabled}
@@ -103,8 +104,8 @@ function demoComponent() {
                 ${locationList}
             </div>
             <div>
-                <h3>Navgation</h3>
-                ${navgation}
+                <h3>navigation</h3>
+                ${navigation}
             </div>
         
     </div>`
@@ -127,22 +128,16 @@ function demoComponent() {
         return container
     }
 
-    function navgationProtocol (name) {
+    function navigationProtocol (name) {
         return send => {
             recipients[name] = send
-            send({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 133})
-            const log = {page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 134}
-            showLog(log)
-            return navgationReceive
+            return navigationReceive
         }
     }
 
     function locationProtocol (name) {
         return send => {
             recipients[name] = send
-            send({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 143})
-            const log = {page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 144}
-            showLog(log)
             return locationReceive
         }
     }
@@ -150,67 +145,64 @@ function demoComponent() {
     function plansProtocol (name) {
         return send => {
             recipients[name] = send
-            send({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 153})
-            const log = {page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 154}
-            showLog(log)
             return plansReceive
         }
     }
 
     // addtion and Subtraction
-    function actionIncrement (from) {
+    function actionIncrement (message) {
+        let {from, flow} = message
         number++
-        const log = {page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 163}
+        calNumber.textContent = number
+        const log = {page: 'demo', from, flow: `calculate/${flow}`, type: 'number', body: number, filename, line: currentLine.get().line-2}
         showLog(log)
     }
 
-    function actionDecrement (from) {
-        if (number < 1 ) return
+    function actionDecrement (message) {
+        let {from, flow} = message
+        if (number <= 0 ) return showLog({page: 'demo', from, flow: 'calculate/ui-button', type: 'number', body: '0', filename, line: currentLine.get().line-2})
         number--
-        const log = {page: 'JOBS', from, flow: 'ui-button', type: 'number', body: number, filename, line: 170}
+        calNumber.textContent = number
+        const log = {page: 'demo', from, flow: `calculate/${flow}`, type: 'number', body: number, filename, line: currentLine.get().line-2}
         showLog(log)
     }
 
-    function calculate (from) {
-        (from === 'increment') ? actionIncrement(from) : actionDecrement (from)
-    }
     // original protocol for all use
     function protocol (name) {
         return send => {
             recipients[name] = send
-            send({page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 181})
-            const log = {page: 'JOBS', from: name, flow: 'ui-button', type: 'ready', filename, line: 182}
-            showLog(log)
             return receive
         }
     }
 
-    // navgation menu
-    function navgationReceive (message) {
-        const { page, from, flow, type, action, body, filename, line } = message
+    // navigation menu
+    function navigationReceive (message) {
+        let { page, from, flow, type, action, body } = message
         showLog(message)
-        if ( type === 'click') {
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: currentLine.get().line -2})
+        if (type === 'click') {
             [...navs].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
                     recipients[from]({page, from, type: 'active'})
-                    const log = { page, from, flow, type: 'active', body, filename, line: 197}
-                    showLog(log)
+                    const message = { page, from, flow, type: 'active', body, filename, line: currentLine.get().line-2}
+                    showLog(message)
                 }
             } )
         }
     }
     // location list
     function locationReceive (message) {
-        const { page, from, flow, type, action, body, filename, line } = message
+        let { page, from, flow, type, action, body } = message
         showLog(message)
-        if ( type === 'click') {
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: currentLine.get().line -2})
+        if (type === 'click') {
             [...locations].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
                     recipients[from]({page, from, type: 'active'})
-                    const log = { page, from, flow, type: 'active', body, filename, line: 212}
-                    showLog(log)
+                    const message = { page, from, flow, type: 'active', body, filename, line: currentLine.get().line-2}
+                    showLog(message)
                 }
             } )
         }
@@ -218,14 +210,15 @@ function demoComponent() {
 
     // Plans list
     function plansReceive (message) {
-        const { page, from, flow, type, action, body, filename, line } = message
+        let { page, from, flow, type, action, body } = message 
         showLog(message)
-        if ( type === 'click') {
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: currentLine.get().line -2})
+        if (type === 'click') {
             [...plans].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
                     recipients[from]({page, from, type: 'active'})
-                    const log = { page, from, flow, type: 'active', body, filename, line: 228}
+                    const log = { page, from, flow, type: 'active', body, filename, line: currentLine.get().line - 2}
                     showLog(log)
                 }
             } )
@@ -233,11 +226,13 @@ function demoComponent() {
     }
 
     function receive (message) {
-        const { page, from, flow, type, action, body, filename, line } = message
-        if ( type === 'click') {
-            calculate(from)
-        }
+        const { page, from, flow, type, action, body } = message
         showLog(message)
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: currentLine.get().line - 2})
+        if (type === 'click') {
+            if (from === 'icon-increment') actionIncrement(message)
+            if (from === 'icon-decrement') actionDecrement(message)
+        }   
     }
 
     // keep the scroll on bottom when the log displayed on the terminal
@@ -334,6 +329,12 @@ body {
 }
 .nav button {
     margin-right: 0 !important;
+}
+.calculate {}
+.num {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 0 12px;
 }
 `
 
