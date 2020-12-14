@@ -143,6 +143,9 @@ function demoComponent() {
         return container
     }
 
+    /*************************
+    * ------- Actions --------
+    *************************/
     function actionOptionList (event) {
         const target = event.target
         if (!target.classList.contains(css.status)) return
@@ -179,6 +182,27 @@ function demoComponent() {
         }
     }
 
+    // addtion and Subtraction
+    function actionIncrement (message) {
+        let {from, flow} = message
+        number++
+        calNumber.textContent = number
+        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 215}
+        showLog(log)
+    }
+
+    function actionDecrement (message) {
+        let {from, flow} = message
+        if (number <= 0 ) return showLog({page: 'demo', from, flow: 'calculate/ui-button', type: 'number', body: '0', filename, line: 221})
+        number--
+        calNumber.textContent = number
+        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 224}
+        showLog(log)
+    }
+
+     /*************************
+    * ------ Protocols -------
+    *************************/
     function optionProtocol (name) {
         return send => {
             recipients[name] = send
@@ -207,24 +231,6 @@ function demoComponent() {
         }
     }
 
-    // addtion and Subtraction
-    function actionIncrement (message) {
-        let {from, flow} = message
-        number++
-        calNumber.textContent = number
-        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 215}
-        showLog(log)
-    }
-
-    function actionDecrement (message) {
-        let {from, flow} = message
-        if (number <= 0 ) return showLog({page: 'demo', from, flow: 'calculate/ui-button', type: 'number', body: '0', filename, line: 221})
-        number--
-        calNumber.textContent = number
-        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 224}
-        showLog(log)
-    }
-
     // original protocol for all use
     function protocol (name) {
         return send => {
@@ -233,6 +239,9 @@ function demoComponent() {
         }
     }
 
+    /*************************
+    * ------ Receivers -------
+    *************************/
     // navigation menu
     function navigationReceive (message) {
         let { page, from, flow, type, action, body } = message
@@ -301,6 +310,9 @@ function demoComponent() {
         } 
     }
 
+    /*********************************
+    * ------ Promise() Element -------
+    *********************************/
     async function optionListRender (data) {
         return await new Promise((resolve, reject) => {
             if (data === undefined) reject('not data load')
@@ -340,6 +352,13 @@ function demoComponent() {
 }
 
 const css = csjs`
+html {
+    box-sizing: border-box;
+    height: 100%;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
 body {
     margin: 0;
     padding: 0;
@@ -388,11 +407,13 @@ body {
 }
 .nav {
     width: 50%;
+    max-width: 100%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
 }
 .nav button {
-    margin-right: 0 !important;
+    padding:0;
+    margin: 0 !important;
 }
 .calculate {}
 .num {
@@ -415,7 +436,6 @@ body {
     position: absolute;
     z-index: 2;
     right: 0;
-    top: 45px;
     width: 100%;
     animation: showup .25s linear forwards;
 }
@@ -426,7 +446,7 @@ body {
 }
 .option-list li > button{
     background-color: #000;
-    margin-right: 0;
+    margin: 0;
     padding: 0;
     width: 100%;
     text-align: left;
@@ -483,6 +503,19 @@ body {
 .option-list .icon-check svg path {
     stroke: #fff;
 }
+@media screen and (max-width: 812px) {
+    .option-list {
+        margin-top: 2px;
+    }
+}
+@media screen and (max-width: 812px) {
+    .nav {
+        width: 100%;
+    }
+    .option-list {
+        margin-top: 2px;
+    }
+}
 @keyframes showup {
     0% {
         opacity: 0;
@@ -490,13 +523,13 @@ body {
     }
     100% {
         opacity: 1;
-        top: 51px;
+        top: 53px;
     }
 }
 @keyframes disppear {
     0% {
         opacity: 1;
-        top: 51px;
+        top: 53px;
     }
     100% {
         opacity: 0;
