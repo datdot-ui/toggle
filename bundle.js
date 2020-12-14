@@ -7,11 +7,11 @@ const filename = path.basename(__filename)
 const button = require('..')
 const svg = require('datdot-ui-graphic')
 const domlog = require('ui-domlog')
-const currentLine = require('current-line')
 
 function demoComponent() {
     let number = 0
     let recipients = []
+    const data = ['Available', 'Not available', 'Hypercore', 'Hyperdrive', 'Cabal']
     // icons
     const iconCancel = svg( { css: `${css.icon} ${css['icon-cancel']}`, path: 'assets/cancel.svg' })
     const iconClear = svg( { css: `${css.icon} ${css['icon-clear']}`, path: 'assets/cancel.svg' })
@@ -23,6 +23,7 @@ function demoComponent() {
     const iconMinus= svg( { css: `${css.icon} ${css['icon-plus']}`, path: 'assets/minus.svg' })
     const iconMinus1= svg( { css: `${css.icon} ${css['icon-plus']}`, path: 'assets/minus.svg' })
     const iconOption = svg( { css: `${css.icon} ${css['icon-option']}`, path: 'assets/option.svg' })
+    const iconFilterOption = svg( { css: `${css.icon} ${css['icon-option']}`, path: 'assets/option.svg' })
     // default buttons
     const confirm = button({page: 'JOBS', name: 'confirm', content: 'Confirm', style: 'solid', color: 'black', custom: [css.customColor, css.customBackgroundColor]}, protocol('confirm'))
     const click = button({page: 'JOBS', name: 'click', content: 'Click', style: 'solid', color: 'white'}, protocol('click'))
@@ -36,7 +37,8 @@ function demoComponent() {
     const save = button({page: 'JOBS', name: 'icon-save', content: iconCheck, style: 'solid', color: 'black'}, protocol('icon-save'))
     const clear = button({page: 'PLANS', name: 'icon-clear', content: iconClear, style: ['circle-solid', 'small'], color: 'light-grey'}, protocol('icon-cancel'))
     const create = button({page: 'JOBS', name: 'icon-create', content: iconPlus, style: 'solid', color: 'black'}, protocol('cicon-reate'))
-    const option = button({page: 'JOBS', name: 'icon-option', content: iconOption, style: 'default', color: 'fill-grey'}, protocol('icon-option'))
+    const option = button({page: 'PLANS', name: 'icon-option', content: iconOption, style: 'default', color: 'fill-grey'}, protocol('icon-option'))
+    const filterOption = button({page: 'PLANS', flow: 'option', name: 'filter-option', content: iconFilterOption, style: 'default', color: 'fill-grey'}, protocol('filter-option'))
     // increment and decrement buttons
     const minus = button({page: 'JOBS', flow: 'calculate', name: 'icon-decrement', content: iconMinus, style: 'default', color: 'stroke-black'}, protocol('icon-decrement'))
     const minusDisabled = button({page: 'JOBS', flow: 'calculate', name: 'icon-decrement-disabled', content: iconMinus1, style: 'default', color: 'stroke-black', disabled: true}, protocol('icon-decrement-disabled'))
@@ -65,51 +67,64 @@ function demoComponent() {
     const nav4 = button({page: 'PLANS', flow: 'nav', name: 'apps', content: 'APPS', style: 'nav', color: 'white'}, navigationProtocol('apps'))
     const navigation = bel`<nav class=${css.nav}>${nav1}${nav2}${nav3}${nav4}</nav>`
     const navs = navigation.children
+    // filter option
+    const optionList = bel`<ul class="${css['option-list']}" onclick=${(e) => actionOptionList(e)}></ul>`
+    const optionAction = bel`<div class="${css.action} ${css.option}">${filterOption}</div>`
+    // get lits
+    optionListRender(data).then( buttons => {
+        buttons.map( item => { 
+            const li = bel`<li>${item}</li>`
+            optionList.append(li) 
+        })
+    })
 
     // content
     const content = bel`
     <div class=${css.content}>
-            <div>
-                <h3>Text</h3>
-                ${confirm}
-                ${cancel}
-                ${previous}
-                ${click}
-            </div>
-            <div>
-                <h3>Icon</h3>
-                ${save}
-                ${cancel1}
-                ${create}
-                ${clear}
-                ${option}
-                ${calculateElement}
-            </div>
-            <div>
-                <h3>Link</h3>
-                ${linkCancel}
-                ${link1}
-            </div>
-            <div>
-                <h3>Disabeld</h3>
-                ${disabled}
-                ${clearDisabled}
-                ${createDisabled}
-                ${minusDisabled}
-            </div>
-            <div>
-                <h3>Plans list</h3>
-                ${plansList}
-            </div>
-            <div>
-                <h3>Location list</h3>
-                ${locationList}
-            </div>
-            <div>
-                <h3>navigation</h3>
-                ${navigation}
-            </div>
-        
+        <div>
+            <h3>Text</h3>
+            ${confirm}
+            ${cancel}
+            ${previous}
+            ${click}
+        </div>
+        <div>
+            <h3>Icon</h3>
+            ${save}
+            ${cancel1}
+            ${create}
+            ${clear}
+            ${option}
+            ${calculateElement}
+        </div>
+        <div>
+            <h3>Link</h3>
+            ${linkCancel}
+            ${link1}
+        </div>
+        <div>
+            <h3>Disabeld</h3>
+            ${disabled}
+            ${clearDisabled}
+            ${createDisabled}
+            ${minusDisabled}
+        </div>
+        <div>
+            <h3>Plans list</h3>
+            ${plansList}
+        </div>
+        <div>
+            <h3>Location list</h3>
+            ${locationList}
+        </div>
+        <div>
+            <h3>navigation</h3>
+            ${navigation}
+        </div>
+        <div>
+        <h3>Option</h3>
+            ${optionAction}
+        </div>
     </div>`
 
     // show logs
@@ -128,6 +143,49 @@ function demoComponent() {
         </div>
         `
         return container
+    }
+
+    function actionOptionList (event) {
+        const target = event.target
+        if (!target.classList.contains(css.status)) return
+        const icon = target.firstChild
+        // for recipients[name] using
+        const name = `option-${target.innerText.toLowerCase().split(' ').join('')}`
+        // if icon is not contained css.hide then do toggling it on unchecked/checked 
+        const type = !icon.classList.contains(css.hide) ? 'unchecked' : 'checked'
+        icon.classList.toggle(css.hide)
+        recipients[name]({page: 'demo', from: target.innerText, flow: 'option-list', type, body: name})
+        const message = {page: 'demo', from: target.innerText, flow: 'option-list', type, body: name, filename, line: 156}
+        showLog(message)
+    }
+
+    function actionFilterOption (message) {
+        let log = {}
+        const {page, from, flow, type, body, action} = message
+        // check button is not active then add active style
+        if (recipients[from].state === undefined) {
+            recipients[from].state = 'self-active'
+            recipients[from]({page, flow, from, type: 'active', body})
+            log = {page: 'demo', from, flow, type: 'active', body, filename, line: 167}
+            if (optionList.children.length > 0) optionList.classList.remove(css.hide)
+            optionAction.append( optionList )
+            return showLog(log)
+        }
+        // check button is active then remove active style
+        if (recipients[from].state === 'self-active') {
+            recipients[from].state = undefined
+            recipients[from]({page, flow, from, type: 'remove-active', body})
+            log = {page: 'demo', from, flow, type: 'remove-active', body, filename, line: 176}
+            optionList.classList.add(css.hide)
+            return showLog(log)
+        }
+    }
+
+    function optionProtocol (name) {
+        return send => {
+            recipients[name] = send
+            return optionReceive
+        }
     }
 
     function navigationProtocol (name) {
@@ -156,16 +214,16 @@ function demoComponent() {
         let {from, flow} = message
         number++
         calNumber.textContent = number
-        const log = {page: 'demo', from, flow: `calculate/${flow}`, type: 'number', body: number, filename, line: currentLine.get().line-2}
+        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 215}
         showLog(log)
     }
 
     function actionDecrement (message) {
         let {from, flow} = message
-        if (number <= 0 ) return showLog({page: 'demo', from, flow: 'calculate/ui-button', type: 'number', body: '0', filename, line: currentLine.get().line-2})
+        if (number <= 0 ) return showLog({page: 'demo', from, flow: 'calculate/ui-button', type: 'number', body: '0', filename, line: 221})
         number--
         calNumber.textContent = number
-        const log = {page: 'demo', from, flow: `calculate/${flow}`, type: 'number', body: number, filename, line: currentLine.get().line-2}
+        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 224}
         showLog(log)
     }
 
@@ -181,14 +239,14 @@ function demoComponent() {
     function navigationReceive (message) {
         let { page, from, flow, type, action, body } = message
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: currentLine.get().line -2})
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 240})
         if (type === 'click') {
             [...navs].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
-                    recipients[from]({page, from, type: 'active'})
-                    const message = { page, from, flow, type: 'active', body, filename, line: currentLine.get().line-2}
-                    showLog(message)
+                    recipients[from]({page, from, flow, type: 'current-active'})
+                    const message = { page, from, flow, type: 'current-active', body, filename, line: 246}
+                    return showLog(message)
                 }
             } )
         }
@@ -197,13 +255,13 @@ function demoComponent() {
     function locationReceive (message) {
         let { page, from, flow, type, action, body } = message
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: currentLine.get().line -2})
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 256})
         if (type === 'click') {
             [...locations].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
-                    recipients[from]({page, from, type: 'active'})
-                    const message = { page, from, flow, type: 'active', body, filename, line: currentLine.get().line-2}
+                    recipients[from]({page, from, type: 'current-active'})
+                    const message = { page, from, flow, type: 'current-active', body, filename, line: 262}
                     showLog(message)
                 }
             } )
@@ -214,27 +272,55 @@ function demoComponent() {
     function plansReceive (message) {
         let { page, from, flow, type, action, body } = message 
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: currentLine.get().line -2})
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 273})
         if (type === 'click') {
             [...plans].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
-                    recipients[from]({page, from, type: 'active'})
-                    const log = { page, from, flow, type: 'active', body, filename, line: currentLine.get().line - 2}
+                    recipients[from]({page, from, type: 'current-active'})
+                    const log = { page, from, flow, type: 'current-active', body, filename, line: 279}
                     showLog(log)
                 }
             } )
         }
     }
 
+    // Option
+    function optionReceive (message) {
+        let { page, from, flow, type, action, body } = message 
+        showLog(message)
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 290})
+    } 
+
     function receive (message) {
         const { page, from, flow, type, action, body } = message
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: currentLine.get().line - 2})
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 296})
         if (type === 'click') {
             if (from === 'icon-increment') actionIncrement(message)
             if (from === 'icon-decrement') actionDecrement(message)
-        }   
+            if (from === 'filter-option') actionFilterOption(message)
+        } 
+    }
+
+    async function optionListRender (data) {
+        return await new Promise((resolve, reject) => {
+            if (data === undefined) reject('not data load')
+            const lists = data.map( item => {
+                let style
+                const check = svg( { css: `${css.icon} ${css['icon-check']}`, path: 'assets/check.svg' })
+                if (item === 'Available') style = css.online
+                if (item === 'Not available') style = css.offline
+                if (item === 'Hypercore') style = css.core
+                if (item === 'Hyperdrive') style = css.drive
+                if (item === 'Cabal') style = css.cabal
+                const content = bel`<div class=${css.status}>${check}<span class="${css.circle} ${style}"></span>${item}</div>`
+                const btn = button({page: 'PLANS', flow: 'option' , name: item, content, style: 'link', color: 'link-white'}, optionProtocol(`option-${item.toLowerCase().split(' ').join('')}`))
+                return btn
+            })
+            return resolve(lists)
+
+        }).catch( err => { throw new Error(err) })
     }
 
     // keep the scroll on bottom when the log displayed on the terminal
@@ -273,10 +359,10 @@ body {
     padding: 25px;
     overflow-y: auto;
 }
-.container > div {
+.content > div {
     margin-bottom: 20px;
 }
-.container > div button {
+.content > div button {
     margin-right: 10px;
 }
 .terminal {
@@ -284,28 +370,6 @@ body {
     color: #f2f2f2;
     font-size: 13px;
     overflow-y: auto;
-}
-.log:last-child {
-    color: #FFF500;
-    font-weight: bold;
-}
-.log {
-    display: grid;
-    grid-template-rows: auto;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    padding: 2px 12px 0 0;
-    border-bottom: 1px solid #333;
-}
-.output {
-
-}
-.badge {
-    background-color: #333;
-    padding: 6px;
-    margin-right: 10px;
-    font-size: 14px;
-    display: inline-block;
 }
 .code-line {}
 .icon {
@@ -338,11 +402,114 @@ body {
     font-weight: bold;
     padding: 0 12px;
 }
+.option {
+    position: relative;
+    display: grid;
+    justify-items: right;
+    width: 150px;
+}
+.option > button[class^="btn"] {
+    position: relative;
+    z-index: 3;
+    margin-right: 0;
+}
+.option-list {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    top: 45px;
+    width: 100%;
+    animation: showup .25s linear forwards;
+}
+.option-list, .option-list li  { 
+    margin: 0; 
+    padding: 0;
+    list-style: none;
+}
+.option-list li > button{
+    background-color: #000;
+    margin-right: 0;
+    padding: 0;
+    width: 100%;
+    text-align: left;
+}
+.option-list li:first-child button {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+.option-list li:last-child button {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+.option-list li button:hover {
+    color: #fff;
+    background-color: #333;
+}
+.hide {
+    animation: disppear .5s linear forwards;
+}
+.status {
+    display: grid;
+    grid-template-rows: 32px;
+    grid-template-columns: 18px 27px auto;
+    padding: 0 10px;
+    align-items: center;
+}
+.circle {
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #000;
+    justify-self: center;
+    pointer-events: none;
+}
+.online {
+    background-color: #109B36;
+}
+.offline {
+    background-color: #D9D9D9;
+}
+.core {
+    background-color: #BCE0FD;
+}
+.drive {
+    background-color: #FFDFA2;
+}
+.cabal {
+    background-color: #E9D3FD;
+}
+.option-list .icon-check {
+    pointer-events: none;
+}
+.option-list .icon-check svg path {
+    stroke: #fff;
+}
+@keyframes showup {
+    0% {
+        opacity: 0;
+        top: 45px;
+    }
+    100% {
+        opacity: 1;
+        top: 51px;
+    }
+}
+@keyframes disppear {
+    0% {
+        opacity: 1;
+        top: 51px;
+    }
+    100% {
+        opacity: 0;
+        top: 45px;
+    }
+}
 `
 
 document.body.append( demoComponent() )
 }).call(this)}).call(this,"/demo/demo.js")
-},{"..":31,"bel":3,"csjs-inject":6,"current-line":23,"datdot-ui-graphic":24,"path":28,"ui-domlog":30}],2:[function(require,module,exports){
+},{"..":30,"bel":3,"csjs-inject":6,"datdot-ui-graphic":23,"path":27,"ui-domlog":29}],2:[function(require,module,exports){
 var trailingNewlineRegex = /\n[\s]+$/
 var leadingNewlineRegex = /^\n[\s]+/
 var trailingSpaceRegex = /[\s]+$/
@@ -576,7 +743,7 @@ module.exports = hyperx(belCreateElement, {comments: true})
 module.exports.default = module.exports
 module.exports.createElement = belCreateElement
 
-},{"./appendChild":2,"hyperx":26}],4:[function(require,module,exports){
+},{"./appendChild":2,"hyperx":25}],4:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -595,7 +762,7 @@ function csjsInserter() {
 module.exports = csjsInserter;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"csjs":9,"insert-css":27}],5:[function(require,module,exports){
+},{"csjs":9,"insert-css":26}],5:[function(require,module,exports){
 'use strict';
 
 module.exports = require('csjs/get-css');
@@ -1073,87 +1240,6 @@ function scopify(css, ignores) {
 }
 
 },{"./regex":19,"./replace-animations":20,"./scoped-name":21}],23:[function(require,module,exports){
-/*
-# gen doc
-npm i jsdoc-to-markdown -g
-jsdoc2md index.js > docs/api.md
-*/
-
-/**
- * @typedef StackItem
- * @type {object}
- * @property {string} method - Name of function on stack
- * @property {number} line - Line number on stack
- * @property {string} file - /PathOfFile/Source/NameOfFilename.js
- * @property {string} filename - NameOfFile
- */
-
-/**
- * @module currentLine
- * @example
- * const currentLine = require('current-line')
- */
-
-/**
- * @alias module:currentLine
- * @typicalname currentLine
- */
-class CurrentLine {
-  /**
-   * Returns a single item
-   *
-   * @param {number} [level] Useful to return levels up on the stack. If not informed, the first (0, zero index) element of the stack will be returned
-   * @returns {StackItem}
-   */
-  get(level = 0) {
-    const stack = getStack();
-    const i = Math.min(level + 1, stack.length - 1);
-    const item = stack[i];
-    const result = parse(item);
-    return result;
-  }
-
-  /**
-   * Returns all stack
-   *
-   * @returns {StackItem[]}
-   */
-  all() {
-    const stack = getStack();
-    const result = [];
-    for (let i = 1; i < stack.length; i++) {
-      const item = stack[i];
-      result.push(parse(item));
-    }
-    return result;
-  }
-}
-
-function getStack() {
-  const orig = Error.prepareStackTrace;
-  Error.prepareStackTrace = function (_, stack) {
-    return stack;
-  };
-  const err = new Error();
-  Error.captureStackTrace(err, arguments.callee);
-  const stack = err.stack;
-  Error.prepareStackTrace = orig;
-  return stack;
-}
-
-function parse(item) {
-  const result = {
-    method: item.getFunctionName(),
-    line: item.getLineNumber(),
-    file: item.getFileName(),
-  };
-  result.filename = result.file.replace(/^.*\/|\\/gm, "").replace(/\.\w+$/gm, "");
-  return result;
-}
-
-module.exports = new CurrentLine();
-
-},{}],24:[function(require,module,exports){
 module.exports = svg
 
 function svg(opts) {
@@ -1181,7 +1267,7 @@ function svg(opts) {
     
     return el
 }   
-},{}],25:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 module.exports = attributeToProperty
 
 var transform = {
@@ -1202,7 +1288,7 @@ function attributeToProperty (h) {
   }
 }
 
-},{}],26:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var attrToProp = require('hyperscript-attribute-to-property')
 
 var VAR = 0, TEXT = 1, OPEN = 2, CLOSE = 3, ATTR = 4
@@ -1499,7 +1585,7 @@ var closeRE = RegExp('^(' + [
 ].join('|') + ')(?:[\.#][a-zA-Z0-9\u007F-\uFFFF_:-]+)*$')
 function selfClosing (tag) { return closeRE.test(tag) }
 
-},{"hyperscript-attribute-to-property":25}],27:[function(require,module,exports){
+},{"hyperscript-attribute-to-property":24}],26:[function(require,module,exports){
 var inserted = {};
 
 module.exports = function (css, options) {
@@ -1523,7 +1609,7 @@ module.exports = function (css, options) {
     }
 };
 
-},{}],28:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 (function (process){(function (){
 // .dirname, .basename, and .extname methods are extracted from Node.js v8.11.1,
 // backported and transplited with Babel, with backwards-compat fixes
@@ -1829,7 +1915,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":29}],29:[function(require,module,exports){
+},{"_process":28}],28:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -2015,7 +2101,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],30:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 const bel = require('bel')
 const csjs = require('csjs-inject')
 
@@ -2093,7 +2179,7 @@ const css = csjs`
 }
 .info {}
 `
-},{"bel":3,"csjs-inject":6}],31:[function(require,module,exports){
+},{"bel":3,"csjs-inject":6}],30:[function(require,module,exports){
 (function (__filename){(function (){
 const bel = require('bel')
 const csjs = require('csjs-inject')
@@ -2106,6 +2192,7 @@ function button ({page, flow = null, name, content, style, color, custom, curren
     const widget = 'ui-button'
     const send2Parent = protocol( receive )
     send2Parent({page, from: name, flow: flow ? `${flow}/${widget}` : widget, type: 'init', filename, line: 11})
+    let state
     
     let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color ? css[color] : ''} ${custom ? custom.join(' ') : ''} ${current ? css.current : '' }" name=${name} aria-label=${name} disabled=${disabled}>${content}</button>`
     button.onclick = click
@@ -2133,15 +2220,34 @@ function button ({page, flow = null, name, content, style, color, custom, curren
 
         button.append(ripple)
         setTimeout( () => { ripple.remove() }, 600)
-
         send2Parent({page, from: name, flow: flow ? `${flow}/${widget}` : widget, type: 'click', filename, line: 40})
     }
 
+    function setState(update) {
+        return state = update
+    }
+
+    function toggleActive (boolean, message) {
+        const { page, from, flow } = message
+        if (boolean) {
+            let newState = setState('self-active')
+            send2Parent({page, flow, from, type: 'state', body: newState, filename, line: 51})
+            button.classList.add(css.active)
+        } else {
+            let newState = setState('remove-active')
+            send2Parent({page, flow, from, type: 'state', body: newState, filename, line: 55})
+            button.classList.remove(css.active)
+        }
+        
+    }
+
     function receive(message) {
-        const {page, from, type, action, body} = message
+        const { type } = message
         // console.log('received from main component', message )
-        if ( type === 'active' ) button.classList.add(css.current)
+        if ( type === 'current-active' ) button.classList.add(css.current)
         if ( type === 'disabled' ) button.setAttribute('disabled', true)
+        if ( type === 'active' ) toggleActive(true, message)
+        if ( type === 'remove-active' ) toggleActive(false, message)
     }
 }
 
@@ -2335,14 +2441,6 @@ svg {
     stroke: #BBB;
 }
 .current {}
-.option.current {
-    font-size: 16px;
-    color: #000;
-    font-weight: bold;
-    border-radius: 30px;
-    border: 2px solid #000;
-    padding: 10px 15px;
-}
 .nav {
     padding: 0;
     line-height: 40px;
@@ -2351,6 +2449,21 @@ svg {
     color: #242424;
     font-weight: bold;
     background-color: #F2F2F2;
+}
+.option {
+    border: 2px solid rgba(255,255,255,0);
+    border-radius: 18px;
+    transition: border .6s, color .5s ease-in-out;
+}
+.option.current {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+    border: 2px solid rgba(0,0,0,1);
+}
+.active {
+    color: #fff;
+    background-color: #000;
 }
 @keyframes ripples {
     0% {
@@ -2366,4 +2479,4 @@ svg {
 }
 `
 }).call(this)}).call(this,"/src/index.js")
-},{"bel":3,"csjs-inject":6,"path":28}]},{},[1]);
+},{"bel":3,"csjs-inject":6,"path":27}]},{},[1]);

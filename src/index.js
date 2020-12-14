@@ -9,6 +9,7 @@ function button ({page, flow = null, name, content, style, color, custom, curren
     const widget = 'ui-button'
     const send2Parent = protocol( receive )
     send2Parent({page, from: name, flow: flow ? `${flow}/${widget}` : widget, type: 'init', filename, line: 11})
+    let state
     
     let button = bel`<button role="button" class="${css.btn} ${ checkStyle() } ${color ? css[color] : ''} ${custom ? custom.join(' ') : ''} ${current ? css.current : '' }" name=${name} aria-label=${name} disabled=${disabled}>${content}</button>`
     button.onclick = click
@@ -36,15 +37,34 @@ function button ({page, flow = null, name, content, style, color, custom, curren
 
         button.append(ripple)
         setTimeout( () => { ripple.remove() }, 600)
-
         send2Parent({page, from: name, flow: flow ? `${flow}/${widget}` : widget, type: 'click', filename, line: 40})
     }
 
+    function setState(update) {
+        return state = update
+    }
+
+    function toggleActive (boolean, message) {
+        const { page, from, flow } = message
+        if (boolean) {
+            let newState = setState('self-active')
+            send2Parent({page, flow, from, type: 'state', body: newState, filename, line: 51})
+            button.classList.add(css.active)
+        } else {
+            let newState = setState('remove-active')
+            send2Parent({page, flow, from, type: 'state', body: newState, filename, line: 55})
+            button.classList.remove(css.active)
+        }
+        
+    }
+
     function receive(message) {
-        const {page, from, type, action, body} = message
+        const { type } = message
         // console.log('received from main component', message )
-        if ( type === 'active' ) button.classList.add(css.current)
+        if ( type === 'current-active' ) button.classList.add(css.current)
         if ( type === 'disabled' ) button.setAttribute('disabled', true)
+        if ( type === 'active' ) toggleActive(true, message)
+        if ( type === 'remove-active' ) toggleActive(false, message)
     }
 }
 
@@ -238,14 +258,6 @@ svg {
     stroke: #BBB;
 }
 .current {}
-.option.current {
-    font-size: 16px;
-    color: #000;
-    font-weight: bold;
-    border-radius: 30px;
-    border: 2px solid #000;
-    padding: 10px 15px;
-}
 .nav {
     padding: 0;
     line-height: 40px;
@@ -254,6 +266,21 @@ svg {
     color: #242424;
     font-weight: bold;
     background-color: #F2F2F2;
+}
+.option {
+    border: 2px solid rgba(255,255,255,0);
+    border-radius: 18px;
+    transition: border .6s, color .5s ease-in-out;
+}
+.option.current {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+    border: 2px solid rgba(0,0,0,1);
+}
+.active {
+    color: #fff;
+    background-color: #000;
 }
 @keyframes ripples {
     0% {
