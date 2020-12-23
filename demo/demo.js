@@ -151,12 +151,12 @@ function demoComponent() {
         if (!target.classList.contains(css.status)) return
         const icon = target.firstChild
         // for recipients[name] using
-        const name = `option-${target.innerText.toLowerCase().split(' ').join('')}`
+        const name = target.innerText
         // if icon is not contained css.hide then do toggling it on unchecked/checked 
         const type = !icon.classList.contains(css.hide) ? 'unchecked' : 'checked'
         icon.classList.toggle(css.hide)
         recipients[name]({page: 'demo', from: target.innerText, flow: 'option-list', type, body: name})
-        const message = {page: 'demo', from: target.innerText, flow: 'option-list', type, body: name, filename, line: 156}
+        const message = {page: 'demo', from: target.innerText, flow: 'option-list', type, body: name, filename, line: 159}
         showLog(message)
     }
 
@@ -167,7 +167,7 @@ function demoComponent() {
         if (recipients[from].state === undefined) {
             recipients[from].state = 'self-active'
             recipients[from]({page, flow, from, type: 'active', body})
-            log = {page: 'demo', from, flow, type: 'active', body, filename, line: 167}
+            log = {page: 'demo', from, flow, type: 'active', body, filename, line: 170}
             if (optionList.children.length > 0) optionList.classList.remove(css.hide)
             optionAction.append( optionList )
             return showLog(log)
@@ -176,7 +176,7 @@ function demoComponent() {
         if (recipients[from].state === 'self-active') {
             recipients[from].state = undefined
             recipients[from]({page, flow, from, type: 'remove-active', body})
-            log = {page: 'demo', from, flow, type: 'remove-active', body, filename, line: 176}
+            log = {page: 'demo', from, flow, type: 'remove-active', body, filename, line: 179}
             optionList.classList.add(css.hide)
             return showLog(log)
         }
@@ -187,16 +187,16 @@ function demoComponent() {
         let {from, flow} = message
         number++
         calNumber.textContent = number
-        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 215}
+        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 190}
         showLog(log)
     }
 
     function actionDecrement (message) {
         let {from, flow} = message
-        if (number <= 0 ) return showLog({page: 'demo', from, flow: 'calculate/ui-button', type: 'number', body: '0', filename, line: 221})
+        if (number <= 0 ) return showLog({page: 'demo', from, flow: 'calculate/ui-button', type: 'number', body: '0', filename, line: 196})
         number--
         calNumber.textContent = number
-        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 224}
+        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 199}
         showLog(log)
     }
 
@@ -246,13 +246,13 @@ function demoComponent() {
     function navigationReceive (message) {
         let { page, from, flow, type, action, body } = message
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 240})
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 249})
         if (type === 'click') {
             [...navs].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
                     recipients[from]({page, from, flow, type: 'current-active'})
-                    const message = { page, from, flow, type: 'current-active', body, filename, line: 246}
+                    const message = { page, from, flow, type: 'current-active', body, filename, line: 255}
                     return showLog(message)
                 }
             } )
@@ -262,13 +262,13 @@ function demoComponent() {
     function locationReceive (message) {
         let { page, from, flow, type, action, body } = message
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 256})
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 265})
         if (type === 'click') {
             [...locations].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
                     recipients[from]({page, from, type: 'current-active'})
-                    const message = { page, from, flow, type: 'current-active', body, filename, line: 262}
+                    const message = { page, from, flow, type: 'current-active', body, filename, line: 271}
                     showLog(message)
                 }
             } )
@@ -279,13 +279,13 @@ function demoComponent() {
     function plansReceive (message) {
         let { page, from, flow, type, action, body } = message 
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 273})
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 282})
         if (type === 'click') {
             [...plans].forEach( btn => {
                 btn.classList.remove( [...btn.classList][3] )
                 if ( btn.getAttribute('name') === from ) {
                     recipients[from]({page, from, type: 'current-active'})
-                    const log = { page, from, flow, type: 'current-active', body, filename, line: 279}
+                    const log = { page, from, flow, type: 'current-active', body, filename, line: 288}
                     showLog(log)
                 }
             } )
@@ -296,13 +296,13 @@ function demoComponent() {
     function optionReceive (message) {
         let { page, from, flow, type, action, body } = message 
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 290})
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 299})
     } 
 
     function receive (message) {
         const { page, from, flow, type, action, body } = message
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 296})
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 305})
         if (type === 'click') {
             if (from === 'icon-increment') actionIncrement(message)
             if (from === 'icon-decrement') actionDecrement(message)
@@ -319,13 +319,15 @@ function demoComponent() {
             const lists = data.map( item => {
                 let style
                 const check = svg( { css: `${css.icon} ${css['icon-check']}`, path: 'assets/check.svg' })
-                if (item === 'Available') style = css.online
-                if (item === 'Not available') style = css.offline
+                const circle = bel`<span class="${css.circle}"></span>`
+                if (item === 'Available') style = css.on
+                if (item === 'Not available') style = css.off
                 if (item === 'Hypercore') style = css.core
                 if (item === 'Hyperdrive') style = css.drive
                 if (item === 'Cabal') style = css.cabal
-                const content = bel`<div class=${css.status}>${check}<span class="${css.circle} ${style}"></span>${item}</div>`
-                const btn = button({page: 'PLANS', flow: 'option' , name: item, content, style: 'link', color: 'link-white'}, optionProtocol(`option-${item.toLowerCase().split(' ').join('')}`))
+                circle.classList.add(style)
+                const content = bel`<div class=${css.status}>${check}${circle}${item}</div>`
+                const btn = button({page: 'PLANS', flow: 'option' , name: item, content, style: 'link', color: 'link-white'}, optionProtocol(`${item}`))
                 return btn
             })
             return resolve(lists)
@@ -482,10 +484,10 @@ body {
     justify-self: center;
     pointer-events: none;
 }
-.online {
+.on {
     background-color: #109B36;
 }
-.offline {
+.off {
     background-color: #D9D9D9;
 }
 .core {
