@@ -2445,7 +2445,7 @@ svg {
     padding-top: 2px;
 }
 .btn[disabled], .btn[disabled]:hover {
-    color: #fff;
+    color: #a9a9a9;
     background-color: rgba(217, 217, 217, 1);
     cursor: not-allowed;
 }
