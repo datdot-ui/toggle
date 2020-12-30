@@ -44,24 +44,18 @@ function button ({page, flow = null, name, content, style, color, custom, curren
         return state = update
     }
 
-    function toggleActive (boolean, message) {
+    function toggleActive (isActive, message) {
         const { page, from, flow } = message
-        if (boolean) {
-            let newState = setState('self-active')
-            send2Parent({page, flow, from, type: 'state', body: newState, filename, line: 51})
-            button.classList.add(css.active)
-        } else {
-            let newState = setState('remove-active')
-            send2Parent({page, flow, from, type: 'state', body: newState, filename, line: 55})
-            button.classList.remove(css.active)
-        }
-        
+        let newState = isActive ? setState('self-active') : setState('remove-active')
+        button.classList.toggle(css.active)
+        return send2Parent({page, flow, from, type: 'state', body: newState, filename, line: 51})
     }
 
     function receive(message) {
         const { type } = message
         // console.log('received from main component', message )
         if ( type === 'current-active' ) button.classList.add(css.current)
+        if ( type === 'remove-current' ) button.classList.remove(css.current)
         if ( type === 'disabled' ) button.setAttribute('disabled', true)
         if ( type === 'active' ) toggleActive(true, message)
         if ( type === 'remove-active' ) toggleActive(false, message)

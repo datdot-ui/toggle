@@ -148,6 +148,20 @@ function demoComponent() {
     /*************************
     * ------- Actions --------
     *************************/
+    function actionSwitch(args, message) {
+        const { page, from, flow, type, action, body } = message
+        const classList = []
+        args.forEach( (btn, i) => {
+            const target = btn.getAttribute('name')
+            classList.push( target )
+            const type = target === from ? 'current-active' : 'remove-current'
+            const name = target === from ? from : classList[i]
+            const log = { page, from: name, flow, type}
+            recipients[name](log)
+            return showLog({...log, body, filename, line: 159})
+        })
+    }
+
     function actionOptionList (event) {
         const target = event.target
         if (!target.classList.contains(css.status)) return
@@ -158,7 +172,7 @@ function demoComponent() {
         const type = !icon.classList.contains(css.hide) ? 'unchecked' : 'checked'
         icon.classList.toggle(css.hide)
         recipients[name]({page: 'demo', from: target.innerText, flow: 'option-list', type, body: name})
-        const message = {page: 'demo', from: target.innerText, flow: 'option-list', type, body: name, filename, line: 159}
+        const message = {page: 'demo', from: target.innerText, flow: 'option-list', type, body: name, filename, line: 173}
         showLog(message)
     }
 
@@ -169,7 +183,7 @@ function demoComponent() {
         if (recipients[from].state === undefined) {
             recipients[from].state = 'self-active'
             recipients[from]({page, flow, from, type: 'active', body})
-            log = {page: 'demo', from, flow, type: 'active', body, filename, line: 170}
+            log = {page: 'demo', from, flow, type: 'active', body, filename, line: 184}
             if (optionList.children.length > 0) optionList.classList.remove(css.hide)
             optionAction.append( optionList )
             return showLog(log)
@@ -178,7 +192,7 @@ function demoComponent() {
         if (recipients[from].state === 'self-active') {
             recipients[from].state = undefined
             recipients[from]({page, flow, from, type: 'remove-active', body})
-            log = {page: 'demo', from, flow, type: 'remove-active', body, filename, line: 179}
+            log = {page: 'demo', from, flow, type: 'remove-active', body, filename, line: 193}
             optionList.classList.add(css.hide)
             return showLog(log)
         }
@@ -189,16 +203,16 @@ function demoComponent() {
         let {from, flow} = message
         number++
         calNumber.textContent = number
-        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 190}
+        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 204}
         showLog(log)
     }
 
     function actionDecrement (message) {
         let {from, flow} = message
-        if (number <= 0 ) return showLog({page: 'demo', from, flow: 'calculate/ui-button', type: 'number', body: '0', filename, line: 196})
+        if (number <= 0 ) return showLog({page: 'demo', from, flow: 'calculate/ui-button', type: 'number', body: '0', filename, line: 210})
         number--
         calNumber.textContent = number
-        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 199}
+        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 213}
         showLog(log)
     }
 
@@ -248,50 +262,25 @@ function demoComponent() {
     function navigationReceive (message) {
         let { page, from, flow, type, action, body } = message
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 249})
-        if (type === 'click') {
-            [...navs].forEach( btn => {
-                btn.classList.remove( [...btn.classList][3] )
-                if ( btn.getAttribute('name') === from ) {
-                    recipients[from]({page, from, flow, type: 'current-active'})
-                    const message = { page, from, flow, type: 'current-active', body, filename, line: 255}
-                    return showLog(message)
-                }
-            } )
-        }
+        
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 264})
+        if (type === 'click') actionSwitch([...navs], message)
     }
+
     // location list
     function locationReceive (message) {
         let { page, from, flow, type, action, body } = message
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 265})
-        if (type === 'click') {
-            [...locations].forEach( btn => {
-                btn.classList.remove( [...btn.classList][3] )
-                if ( btn.getAttribute('name') === from ) {
-                    recipients[from]({page, from, type: 'current-active'})
-                    const message = { page, from, flow, type: 'current-active', body, filename, line: 271}
-                    showLog(message)
-                }
-            } )
-        }
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 272})
+        if (type === 'click') actionSwitch([...locations], message)
     }
 
     // Plans list
     function plansReceive (message) {
         let { page, from, flow, type, action, body } = message 
         showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 282})
-        if (type === 'click') {
-            [...plans].forEach( btn => {
-                btn.classList.remove( [...btn.classList][3] )
-                if ( btn.getAttribute('name') === from ) {
-                    recipients[from]({page, from, type: 'current-active'})
-                    const log = { page, from, flow, type: 'current-active', body, filename, line: 288}
-                    showLog(log)
-                }
-            } )
-        }
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 280})
+        if (type === 'click') actionSwitch([...plans], message)
     }
 
     // Option
@@ -2262,24 +2251,18 @@ function button ({page, flow = null, name, content, style, color, custom, curren
         return state = update
     }
 
-    function toggleActive (boolean, message) {
+    function toggleActive (isActive, message) {
         const { page, from, flow } = message
-        if (boolean) {
-            let newState = setState('self-active')
-            send2Parent({page, flow, from, type: 'state', body: newState, filename, line: 51})
-            button.classList.add(css.active)
-        } else {
-            let newState = setState('remove-active')
-            send2Parent({page, flow, from, type: 'state', body: newState, filename, line: 55})
-            button.classList.remove(css.active)
-        }
-        
+        let newState = isActive ? setState('self-active') : setState('remove-active')
+        button.classList.toggle(css.active)
+        return send2Parent({page, flow, from, type: 'state', body: newState, filename, line: 51})
     }
 
     function receive(message) {
         const { type } = message
         // console.log('received from main component', message )
         if ( type === 'current-active' ) button.classList.add(css.current)
+        if ( type === 'remove-current' ) button.classList.remove(css.current)
         if ( type === 'disabled' ) button.setAttribute('disabled', true)
         if ( type === 'active' ) toggleActive(true, message)
         if ( type === 'remove-active' ) toggleActive(false, message)
