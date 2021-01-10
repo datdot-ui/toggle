@@ -70,7 +70,11 @@ function demoComponent() {
     // filter option
     const optionList = bel`<ul class="${css['option-list']}" onclick=${(e) => actionOptionList(e)}></ul>`
     const optionAction = bel`<div class="${css.action} ${css.option}">${filterOption}</div>`
-    // get lits
+    const tabList = bel`<div class=${css['tab-list']}></div>`
+    tabs()
+    
+    
+    // get list
     optionListRender(data).then( buttons => {
         buttons.map( item => { 
             const li = bel`<li>${item}</li>`
@@ -122,8 +126,12 @@ function demoComponent() {
             ${navigation}
         </div>
         <div>
-        <h3>Option</h3>
+            <h3>Option</h3>
             ${optionAction}
+        </div>
+        <div>
+            <h3>Tab</h3>
+            ${tabList}
         </div>
     </div>`
 
@@ -143,6 +151,22 @@ function demoComponent() {
         </div>
         `
         return container
+    }
+
+    /*************************
+    * ------- Elements --------
+    *************************/
+    // tab list
+    function tabs () {
+        const obj = {data: [], schedule: '', location: '', peformance: '', swam: { key: '', feeds: [1,2,3,4,5]}}
+        Object.keys(obj).map( (item, index) => {
+            const name = item.split('').map( (text, i) => {
+                if (i === 0) return text.toUpperCase()
+                return text
+            }).join('')
+            const btn = button({page: 'PLANS', flow: 'tab-list', name: item, content: item, style: 'tab', color: 'grey', current: index === 0? true : false}, tabProtocol(item))
+            tabList.append(btn)
+        })
     }
 
     /*************************
@@ -172,7 +196,7 @@ function demoComponent() {
         const type = !icon.classList.contains(css.hide) ? 'unchecked' : 'checked'
         icon.classList.toggle(css.hide)
         recipients[name]({page: 'demo', from: target.innerText, flow: 'option-list', type, body: name})
-        const message = {page: 'demo', from: target.innerText, flow: 'option-list', type, body: name, filename, line: 173}
+        const message = {page: 'demo', from: target.innerText, flow: 'option-list', type, body: name, filename, line: 197}
         showLog(message)
     }
 
@@ -183,7 +207,7 @@ function demoComponent() {
         if (recipients[from].state === undefined) {
             recipients[from].state = 'self-active'
             recipients[from]({page, flow, from, type: 'active', body})
-            log = {page: 'demo', from, flow, type: 'active', body, filename, line: 184}
+            log = {page: 'demo', from, flow, type: 'active', body, filename, line: 208}
             if (optionList.children.length > 0) optionList.classList.remove(css.hide)
             optionAction.append( optionList )
             return showLog(log)
@@ -192,7 +216,7 @@ function demoComponent() {
         if (recipients[from].state === 'self-active') {
             recipients[from].state = undefined
             recipients[from]({page, flow, from, type: 'remove-active', body})
-            log = {page: 'demo', from, flow, type: 'remove-active', body, filename, line: 193}
+            log = {page: 'demo', from, flow, type: 'remove-active', body, filename, line: 217}
             optionList.classList.add(css.hide)
             return showLog(log)
         }
@@ -203,22 +227,81 @@ function demoComponent() {
         let {from, flow} = message
         number++
         calNumber.textContent = number
-        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 204}
+        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 228}
         showLog(log)
     }
 
     function actionDecrement (message) {
         let {from, flow} = message
-        if (number <= 0 ) return showLog({page: 'demo', from, flow: 'calculate/ui-button', type: 'number', body: '0', filename, line: 210})
+        if (number <= 0 ) return showLog({page: 'demo', from, flow: 'calculate/ui-button', type: 'number', body: '0', filename, line: 234})
         number--
         calNumber.textContent = number
-        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 213}
+        const log = {page: 'demo', from, flow, type: 'number', body: number, filename, line: 237}
         showLog(log)
     }
 
-     /*************************
+    /*************************
+    * ------ Receivers -------
+    *************************/
+    // tab
+    function tabReceive (message) {
+        let { page, from, flow, type, action, body } = message
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 247})
+        if (type === 'click') actionSwitch([...tabList.children], message)
+    }
+    // navigation menu
+    function navigationReceive (message) {
+        let { page, from, flow, type, action, body } = message
+        showLog(message)
+        
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 255})
+        if (type === 'click') actionSwitch([...navs], message)
+    }
+
+    // location list
+    function locationReceive (message) {
+        let { page, from, flow, type, action, body } = message
+        showLog(message)
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 263})
+        if (type === 'click') actionSwitch([...locations], message)
+    }
+
+    // Plans list
+    function plansReceive (message) {
+        let { page, from, flow, type, action, body } = message 
+        showLog(message)
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 271})
+        if (type === 'click') actionSwitch([...plans], message)
+    }
+
+    // Option
+    function optionReceive (message) {
+        let { page, from, flow, type, action, body } = message 
+        showLog(message)
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 279})
+    } 
+
+    function receive (message) {
+        const { page, from, flow, type, action, body } = message
+        showLog(message)
+        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 285})
+        if (type === 'click') {
+            if (from === 'icon-increment') actionIncrement(message)
+            if (from === 'icon-decrement') actionDecrement(message)
+            if (from === 'filter-option') actionFilterOption(message)
+        } 
+    }
+
+    /*************************
     * ------ Protocols -------
     *************************/
+    function tabProtocol (name) {
+        return send => {
+            recipients[name] = send
+            return tabReceive
+        }
+    }
+
     function optionProtocol (name) {
         return send => {
             recipients[name] = send
@@ -253,52 +336,6 @@ function demoComponent() {
             recipients[name] = send
             return receive
         }
-    }
-
-    /*************************
-    * ------ Receivers -------
-    *************************/
-    // navigation menu
-    function navigationReceive (message) {
-        let { page, from, flow, type, action, body } = message
-        showLog(message)
-        
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 264})
-        if (type === 'click') actionSwitch([...navs], message)
-    }
-
-    // location list
-    function locationReceive (message) {
-        let { page, from, flow, type, action, body } = message
-        showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 272})
-        if (type === 'click') actionSwitch([...locations], message)
-    }
-
-    // Plans list
-    function plansReceive (message) {
-        let { page, from, flow, type, action, body } = message 
-        showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 280})
-        if (type === 'click') actionSwitch([...plans], message)
-    }
-
-    // Option
-    function optionReceive (message) {
-        let { page, from, flow, type, action, body } = message 
-        showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 299})
-    } 
-
-    function receive (message) {
-        const { page, from, flow, type, action, body } = message
-        showLog(message)
-        if (type === 'init') showLog({page: 'demo', from, flow, type: 'ready', body, filename, line: 305})
-        if (type === 'click') {
-            if (from === 'icon-increment') actionIncrement(message)
-            if (from === 'icon-decrement') actionDecrement(message)
-            if (from === 'filter-option') actionFilterOption(message)
-        } 
     }
 
     /*********************************
@@ -495,6 +532,9 @@ body {
 }
 .option-list .icon-check svg path {
     stroke: #fff;
+}
+:root .tab-list button {
+    margin-right: 2px;
 }
 @media screen and (max-width: 812px) {
     .option-list {
@@ -2280,7 +2320,7 @@ const css = csjs`
     cursor: pointer;
     outline: none;
     overflow: hidden;
-    transition: background-color .3s, border .3s, color .3s ease-in-out;
+    transition: color .3s, background-color .3s, border .3s ease-in-out;
 }
 .btn svg g {
     transition: fill .3s linear;
@@ -2482,6 +2522,19 @@ svg {
 .active {
     color: #fff;
     background-color: #000;
+}
+.tab {
+    padding: 15px;
+    background-color: #D9D9D9;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    margin-right: 2px;
+    color: #000;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+.tab.current {
+    background-color: #fff;
 }
 @keyframes ripples {
     0% {

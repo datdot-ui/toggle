@@ -73,7 +73,7 @@ const css = csjs`
     cursor: pointer;
     outline: none;
     overflow: hidden;
-    transition: background-color .3s, border .3s, color .3s ease-in-out;
+    transition: color .3s, background-color .3s, border .3s ease-in-out;
 }
 .btn svg g {
     transition: fill .3s linear;
@@ -275,6 +275,19 @@ svg {
 .active {
     color: #fff;
     background-color: #000;
+}
+.tab {
+    padding: 15px;
+    background-color: #D9D9D9;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    margin-right: 2px;
+    color: #000;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+.tab.current {
+    background-color: #fff;
 }
 @keyframes ripples {
     0% {
