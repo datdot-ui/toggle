@@ -178,9 +178,18 @@ const css = csjs`
     color: #fff;
     background-color: #333;
 }
+.dark svg g {
+    fill: #fff;
+}
+.dark.active {
+    background-color: #000;
+}
 .grey {
     color: #fff;
     background-color: #9A9A9A;
+}
+.grey svg g {
+    fill: #fff;
 }
 .white {
     color: #707070;
@@ -189,6 +198,9 @@ const css = csjs`
 .white:hover {
     color: #fff;
     background-color: #d3d3d3;
+}
+.white.active svg g {
+    fill: #fff;
 }
 .list {
     color: #707070;

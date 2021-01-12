@@ -38,7 +38,7 @@ function demoComponent() {
     const clear = button({page: 'PLANS', name: 'icon-clear', content: iconClear, style: ['circle-solid', 'small'], color: 'light-grey'}, protocol('icon-cancel'))
     const create = button({page: 'JOBS', name: 'icon-create', content: iconPlus, style: 'solid', color: 'black'}, protocol('cicon-reate'))
     const option = button({page: 'PLANS', name: 'icon-option', content: iconOption, style: 'default', color: 'fill-grey'}, protocol('icon-option'))
-    const filterOption = button({page: 'PLANS', flow: 'option', name: 'filter-option', content: iconFilterOption, style: 'default', color: 'fill-grey'}, protocol('filter-option'))
+    const filterOption = button({page: 'PLANS', flow: 'option', name: 'filter-option', content: iconFilterOption, style: 'default', color: 'grey'}, protocol('filter-option'))
     // increment and decrement buttons
     const minus = button({page: 'JOBS', flow: 'calculate', name: 'icon-decrement', content: iconMinus, style: 'default', color: 'stroke-black'}, protocol('icon-decrement'))
     const minusDisabled = button({page: 'JOBS', flow: 'calculate', name: 'icon-decrement-disabled', content: iconMinus1, style: 'default', color: 'stroke-black', disabled: true}, protocol('icon-decrement-disabled'))
@@ -2425,9 +2425,18 @@ const css = csjs`
     color: #fff;
     background-color: #333;
 }
+.dark svg g {
+    fill: #fff;
+}
+.dark.active {
+    background-color: #000;
+}
 .grey {
     color: #fff;
     background-color: #9A9A9A;
+}
+.grey svg g {
+    fill: #fff;
 }
 .white {
     color: #707070;
@@ -2436,6 +2445,9 @@ const css = csjs`
 .white:hover {
     color: #fff;
     background-color: #d3d3d3;
+}
+.white.active svg g {
+    fill: #fff;
 }
 .list {
     color: #707070;
