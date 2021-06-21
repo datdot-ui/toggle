@@ -1,7 +1,7 @@
 {
   "name": "datdot-ui-button",
-  "version": "0.2.1",
-  "description": "example ui components",
+  "version": "1.0.0",
+  "description": "datdot ui widget",
   "main": "src/index.js",
   "scripts": {
     "start": "budo demo/demo.js:bundle.js --open --live",
@@ -18,7 +18,7 @@
     "widget",
     "button"
   ],
-  "author": "",
+  "author": "fionataeyang",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/playproject-io/datdot-ui-button/issues"
