@@ -31,7 +31,7 @@
   "dependencies": {
     "bel": "^6.0.0",
     "csjs-inject": "^1.0.1",
-    "datdot-ui-graphic": "github:datdot-ui/icon#0.0.0-alpha",
+    "datdot-ui-icon": "github:datdot-ui/icon#0.0.0-alpha",
     "debug": "^4.1.1"
   }
 }
