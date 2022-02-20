@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/playproject-io/datdot-ui-button.git"
+    "url": "git+https://github.com/datdotorg-io/datdot-ui-button.git"
   },
   "keywords": [
     "datdot",
@@ -20,10 +20,7 @@
   ],
   "author": "fionataeyang",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/playproject-io/datdot-ui-button/issues"
-  },
-  "homepage": "https://github.com/playproject-io/datdot-ui-button#readme",
+  "homepage": "https://github.com/datdotorg-io/datdot-ui-button#readme",
   "devDependencies": {
     "budo": "^11.6.4",
     "datdot-terminal": "github:datdot-ui/terminal#v0.0.1-alpha"
