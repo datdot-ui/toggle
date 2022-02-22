@@ -1,7 +1,7 @@
 const head = require('head')()
 const bel = require('bel')
 const csjs = require('csjs-inject')
-const { i_button, i_link } = require('..')
+const button = require('..')
 // custom element
 const img_btn = require('img-btn')
 // datdot-ui dependences
@@ -9,18 +9,46 @@ const terminal = require('datdot-terminal')
 const icon = require('datdot-ui-icon')
 const message_maker = require('../src/node_modules/message-maker')
 const make_grid = require('../src/node_modules/make-grid')
-const button = i_button
-const link = i_link
+
+var id = 0
 
 function demo () {
-    // save protocol callbacks
-    let recipients = []
+//------------------------------------------
+    const myaddress = `${__filename}-${id++}`
+    const inbox = {}
+    const outbox = {}
+    const recipients = {}
+    const names = {}
+    const message_id = to => (outbox[to] = 1 + (outbox[to]||0))
+
+    function make_protocol (name) {
+        return function protocol (address, notify) {
+            names[address] = recipients[name] = { name, address, notify, make: message_maker(myaddress) }
+            return { notify: listen, address: myaddress }
+        }
+    }
+    function listen (msg) {
+        console.log('New message', { msg })
+        const { head, refs, type, data, meta } = msg // receive msg
+        inbox[head.join('/')] = msg                  // store msg
+        const [from] = head
+        // send back ack
+        const { notify, make, address } = names[from]
+        notify(make({ to: address, type: 'ack', refs: { 'cause': head } }))
+        // handle
+        if (type.match(/ready/)) return recipients['logs'](msg)
+        if (type === 'click') return handle_click_event(msg)
+        if (type === 'changed') return handle_changed_event(type, data)
+        if (type.match(/current/)) return 
+        recipients['logs'](msg)
+    }
+//------------------------------------------
     // logs must be initialized first before components
     const logs = terminal(
     {
         mode: 'compact', 
         expanded: false
-    }, protocol('logs'))
+    }, make_protocol('logs'))
     // buttons
     const primary = button(
     {
@@ -38,19 +66,19 @@ function demo () {
                 // bg_color_hover: 'var(--color-black)',
             }
         }
-    }, protocol('primary'))
+    }, make_protocol('primary'))
 
     const current1 = button({
         name: 'button1',
         body: 'Button1',
         expanded: false,
         // current: true,
-    }, protocol('button1'))
+    }, make_protocol('button1'))
 
     const current2 = button({
         name: 'button2',
         body: 'Button2',
-    }, protocol('button2'))
+    }, make_protocol('button2'))
 
     // image buttons
     const thumb1_btn = button(
@@ -75,7 +103,7 @@ function demo () {
                 }
             }
         }
-    }, protocol('thumb-cover'))
+    }, make_protocol('thumb-cover'))
     
     const thumb2_btn = button(
     {
@@ -90,7 +118,7 @@ function demo () {
                 size_hover: 'var(--size26)',
             }
         }
-    }, protocol('thumb-blossom'))
+    }, make_protocol('thumb-blossom'))
 
     const rabbit_btn = img_btn(
     {
@@ -103,7 +131,7 @@ function demo () {
             // icon_fill: 'var(--color-amaranth-pink)',
             // icon_fill_hover: 'var(--color-amaranth-pink)',
         }
-    }, i_button, protocol('rabbit'))
+    }, i_button, make_protocol('rabbit'))
     const dog_btn = img_btn(
     {
         name: 'dog', 
@@ -115,7 +143,7 @@ function demo () {
             // icon_fill: 'var(--color-purple)',
             // icon_fill_hover: 'var(--color-purple)'
         }
-    }, i_button, protocol('dog'))
+    }, i_button, make_protocol('dog'))
     const fox_btn = img_btn(
     {
         name: 'fox', 
@@ -128,7 +156,7 @@ function demo () {
             // icon_fill: 'var(--color-orange)',
             // icon_fill_hover: 'var(--color-orange)'
         }
-    },i_button, protocol('fox'))
+    },i_button, make_protocol('fox'))
 
     const disabled = button(
     {
@@ -146,7 +174,7 @@ function demo () {
                 // bg_color: 'var(--color-slimy-green)'
             }
         }
-    }, protocol('disable'))
+    }, make_protocol('disable'))
 
     const toggle = button(
     {
@@ -164,7 +192,7 @@ function demo () {
                 current_bg_color: 'var(--color-green)'
             }
         }
-    }, protocol('toggle'))
+    }, make_protocol('toggle'))
 
     // Tab element
     const tab_theme = {
@@ -184,7 +212,7 @@ function demo () {
         body: 'Tab1',
         current: true, 
         theme: tab_theme 
-    }, protocol('tab1'))
+    }, make_protocol('tab1'))
     const tab2 = button(
     {
         page: 'PLAN', 
@@ -193,7 +221,7 @@ function demo () {
         controls: 'panel2',
         body: 'Tab2', 
         theme: tab_theme
-    }, protocol('tab2'))
+    }, make_protocol('tab2'))
     const tab3 = button(
     {
         page: 'PLAN', 
@@ -202,7 +230,7 @@ function demo () {
         controls: 'panel3',
         body: 'Tab3',
         theme: tab_theme
-    }, protocol('tab3'))
+    }, make_protocol('tab3'))
     const demo_tab = bel`
     <nav class=${css.tabs} role="tablist" aria-label="tabs">
         ${tab1}${tab2}${tab3}
@@ -243,7 +271,7 @@ function demo () {
                 }
             }
         }
-    }, tab_protocol('notice'))
+    }, make_protocol('notice'))
     const tab5 = button(
     {
         page: 'JOBS', 
@@ -282,7 +310,7 @@ function demo () {
                 }
             }
         }
-    }, tab_protocol('warning'))
+    }, make_protocol('warning'))
     const tab6 = button(
     {
         page: 'JOBS', 
@@ -303,7 +331,7 @@ function demo () {
                 icon_size: '24px', 
             }
         }
-    }, tab_protocol('search'))
+    }, make_protocol('search'))
     const demo_icon_tab = bel`
     <nav class=${css.tabs} role="tablist" aria-label="tabs">
         ${tab4}${tab5}${tab6}
@@ -329,7 +357,7 @@ function demo () {
                 bg_color_hover: 'var(--color-flame)'
             }
         }
-    }, protocol('cancel'))
+    }, make_protocol('cancel'))
     const confirm = button(
     {
         name: 'confirm', 
@@ -342,7 +370,7 @@ function demo () {
                 icon_fill: 'var(--color-green)',
                 icon_fill_hover: 'var(--color-light-green)'
         }
-    }}, protocol('confirm'))
+    }}, make_protocol('confirm'))
     const previous = button(
     {
         name: 'previous', 
@@ -357,7 +385,7 @@ function demo () {
                 color_hover: 'var(--color-purple)',
                 icon_fill_hover: 'var(--color-purple)'
         }
-    }}, protocol('previous'))
+    }}, make_protocol('previous'))
     const next = button(
     {
         name: 'next',
@@ -376,7 +404,7 @@ function demo () {
             grid: {
                 icon: {column: '2'}
             }
-    }}, protocol('next'))
+    }}, make_protocol('next'))
 
     const listbox = button(
     {
@@ -399,7 +427,7 @@ function demo () {
                 listbox_expanded_icon_fill_hover: 'var(--color-amaranth-pink)',
             }
         }
-    }, protocol('filter'))
+    }, make_protocol('filter'))
 
     const listbox1 = button(
         {
@@ -423,7 +451,7 @@ function demo () {
                     border_width: '1px'
                 },
             }
-        }, protocol('single-selector'))
+        }, make_protocol('single-selector'))
 
     const option = button(
     {
@@ -444,7 +472,7 @@ function demo () {
                 current_bg_color: 'var(--color-blue)'
             }
         }
-    }, protocol('option-star'))
+    }, make_protocol('option-star'))
     const option1 = button(
     {
         name: 'datdot app', 
@@ -562,180 +590,8 @@ function demo () {
             //     }
             // }
         }
-    }, protocol('datdot app'))
+    }, make_protocol('datdot app'))
 
-    // links
-    const link1 = link(
-    {
-        name: 'link-datdot',
-        role: 'link',
-        body: 'datdot.org',
-        // cover: 'https://cdn.pixabay.com/photo/2018/01/17/20/22/analytics-3088958_960_720.jpg',
-        // icons: {
-        //     icon: {
-        //         name: 'plan-list'
-        //     }
-        // },
-        // classlist: 'icon-col-2',
-        link: {
-            url: 'http://datdot.org',
-            target: '#frame'
-        },
-        theme: {
-            props: {
-                color: 'var(--color-black)',
-                icon_fill: 'var(--color-black)',
-                color_hover: 'var(--color-grey88)',
-                icon_fill_hover: 'var(--color-grey88)',
-                // avatar_radius: '50%'
-            }
-        }
-    }, protocol('link-datdot'))
-    const link2 = link(
-    {
-        name: 'link-playproject',
-        role: 'link',
-        body: 'Playproject.io',
-        // icon: {name: 'datdot-black', classlist: 'col2-right'},
-        cover: 'https://avatars.githubusercontent.com/u/51347431?s=200&v=4',
-        disabled: false,
-        link: {
-            url: 'https://playproject.io/',
-            target: '#frame'
-        },
-        theme: {
-            props: {
-                // avatar_width: '44px'
-            }
-        }
-    }, protocol('link-playproject'))
-    const link3 = link(
-    {
-        name: 'link3',
-        role: 'link',
-        body: 'Google',
-        // disabled: true
-        theme: {
-            props: {
-                color: 'var(--color-deep-green)',
-                color_hover: 'var(--color-electric-violet)'
-            }
-        }
-    }, protocol('link3'))
-    
-    const link4 = link(
-    {
-        name: 'datdot-ui-issues',
-        role: 'link',
-        body: 'DatDot UI issues',
-        link: {
-            url: 'https://github.com/playproject-io/datdot-ui/issues',
-            target: '_new'
-        }
-    }, protocol('datdot-ui-issues'))
-    const link5 = link(
-    {
-        name: 'go-top',
-        role: 'link',
-        body: '↑Top',
-        link: {
-            url: '#top'
-        },
-    }, protocol('go-top'))
-    // menu items
-    const item1 = link(
-    {
-        name: 'item1',
-        role: 'menuitem',
-        body: `Datdot-UI issues`,
-        icons: {
-            icon: {
-                name: 'datdot-white'
-            }
-        },
-        // cover: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Octicons-mark-github.svg/600px-Octicons-mark-github.svg.png',
-        cover : 'https://cdn.pixabay.com/photo/2017/01/14/12/59/iceland-1979445__340.jpg',
-        link: {
-            url: 'https://github.com/playproject-io/datdot-ui/issues',
-            target: '_new'
-        },
-        theme: {
-            props: {
-                avatar_radius: '50%',
-                avatar_width: '80px',
-                avatar_height: '80px',
-                avatar_width_hover: '100px',
-                avatar_height_hover: '100px'
-                // icon_size: '30px'
-            },
-            grid: {
-                avatar: {
-                    column: '3'
-                },
-                // icon: {
-                //     column: '1'
-                // }
-            }
-            // grid: {
-            //     link: {
-            //         areas: "icon text",
-            //         align: 'items-center',
-            //         gap: '5px'
-            //     },
-            //     text: {
-            //         area: 'text'
-            //     },
-            //     icon: {
-            //         area: 'icon'
-            //     }
-            // }
-        }
-    }, protocol('item1'))
-    const item2 = link(
-    {
-        name: 'item2',
-        role: 'menuitem',
-        body: 'Playproject.io',
-        cover: 'https://avatars.githubusercontent.com/u/51347431?s=200&v=4',
-        link: {
-            url: 'https://github.com/playproject-io',
-        },
-        theme: {
-            props: {
-                // avatar_width: '40px',
-            }
-        }
-    }, protocol('item2'))
-    const item3 = link(
-    {
-        name: 'item3',
-        role: 'menuitem',
-        body: 'twitter',
-        icons: {
-            icon: {name: 'icon-svg.168b89d5', path: 'https://abs.twimg.com/responsive-web/client-web'}
-        },
-        link: {
-            url: 'https://twitter.com/home',
-            target: '_blank'
-        },
-        theme: {
-            props: {
-                size: 'var(--size16)',
-                size_hover: 'var(--size28)',
-                color: 'var(--color-heavy-blue)',
-                color_hover: 'var(--color-dodger-blue)',
-                // icon_size: 'var(--size20)',
-                // icon_size_hover: 'var(--size28)',
-                icon_fill: 'var(--color-blue)',
-                icon_fill_hover: 'var(--color-dodger-blue)'
-            }
-        }
-    }, protocol('item3'))
-    /*
-        if image's width is not equal to height, must be calculated resize to be small or big, 
-        to avoid the image is cutting by border-radius, it won't look like a round button,
-        it would look like a cut half image.
-    */
     const item4 = button(
     {
         name: 'item4',
@@ -758,7 +614,7 @@ function demo () {
                 avatar_radius: '50%',
             }
         }
-    }, protocol('item4'))
+    }, make_protocol('item4'))
     // content
     const content = bel`
     <div class=${css.content}>
@@ -826,21 +682,7 @@ function demo () {
                     <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>
                 </div>
             </div>
-        </section>
-        <section>
-            <h2>Menu item</h2>
-            <nav class=${css.links} role="menu">
-                ${item1}${item2}${item3}${item4}
-            </nav>
-        </section>
-        <section>
-            <h2>Link</h2>
-            <nav class=${css.links}>
-                ${link1}${link2}${link3}${link4}${link5}
-            </nav>
-            <iframe id="frame" title="frame" src="https://datdot.org"></iframe>
-        </section>
-        
+        </section>     
     </div>`
     const container = bel`<div class="${css.container}">${content}</div>`
     const app = bel`<div class="${css.wrap}">${container}${logs}</div>`
@@ -849,20 +691,20 @@ function demo () {
 
     // handle events
     function handle_click_event ({head, type, refs, data}) {
-        const to = head[1]
-        const id = head[2]
-        const role = head[0].split(' / ')[1]
-        const from = head[0].split(' / ')[0]
-        const make = message_maker(`${from} / ${role} / demo`)
-        if (role.match(/button|menuitem/)) return handle_triggered({make, type, from, data})
-        if (role === 'tab') return handle_tab_event({make, from, to, data})
-        if (role === 'switch') return handle_toggle_event(make, from, data)
-        if (role === 'listbox') return handle_dropdown_menu_event(make, from, data)
-        if (role === 'option') return handle_select_event({from, to, data})
+        const [from, to, msg_id] = head
+        const name = recipients[from].name
+        // check if name ===...
+        if (from === 'notice' || from === 'warn' || from === 'search') return handle_tab_icon_event({from, to, data})
+        if (from.match(/button|menuitem/)) return handle_triggered({type, from, data})
+        if (from === 'tab') return handle_tab_event({from, to, data})
+        if (from === 'switch') return handle_toggle_event(from, data)
+        if (from === 'listbox') return handle_dropdown_menu_event(from, data)
+        if (from === 'option') return handle_select_event({from, to, data})
     }
 
-    function handle_triggered ({make}) {
-        recipients['logs']( make({type: 'triggered'}) )
+    function handle_triggered () {
+        const { notify, address, make } = recipients['logs']
+        notify(make({ to: address, type: 'triggered' }))
     }
 
     function handle_panel_change(id) {
@@ -876,34 +718,39 @@ function demo () {
         })
     }
 
-    function handle_tab_event ({make, from, to, data}) {
+    function handle_tab_event ({from, to, data}) {
         const {name, selected} = data
         handle_text_panel_change(to, '.panel1')
         Object.entries(recipients).forEach(([key, value]) => {
             if (key === name) {
-                recipients[name](make({type: 'tab-selected', data: {selected}}))
-                recipients['logs']( make({to, type: 'tab-selected', data: {name}}) )
-                return recipients[name](make({type: 'current', data: selected}))
+                const { address: name_address, notify: name_notify, make: name_make } = recipients[name]
+                name_notify(name_make({ to: name_address, type: 'tab-selected', data: { selected } }))
+                const { address: logs_address, notify: logs_notify, make: logs_make } = recipients['logs']
+                logs_notify(logs_make({ to: logs_address, type: 'tab-selected', data: { name } }) )
+                return name_notify(name_make({ to: name_address, type: 'current', data: selected }))
             }
-            recipients[key](make({type: 'tab-selected', data: {selected: !selected}}))
-            return recipients[key](make({type: 'current', data: !selected}))
+            const { address: key_address, notify: key_notify, make: key_make } = recipients[key]
+            key_notify(key_make({ to: key_address, type: 'tab-selected', data: { selected: !selected } }))
+            return key_notify(key_make({ to: key_address, type: 'current', data: !selected }))
         }) 
     }
 
     function handle_tab_icon_event ({from, to, data}) {
-        const make = message_maker(`${from} / ui-tab / demo`)
         const {name, selected} = data
         // change contante in panel
         handle_text_panel_change(to, '.panel2')
         // if not target is from, then make tab current and selected changed to false
         Object.entries(recipients).forEach(([key, value]) => {
             if (key === name) {
-                recipients[name](make({type: 'tab-selected', data: {selected}}))
-                recipients['logs']( make({to, type: 'tab-selected', data: {name}}) )
-                return recipients[name](make({type: 'current', data: selected}))
+                const { address: name_address, notify: name_notify, make: name_make } = recipients[name]
+                name_notify(name_make({ to: name_address, type: 'tab-selected', data: { selected } }))
+                const { address: logs_address, notify: logs_notify, make: logs_make } = recipients['logs']
+                logs_notify(logs_make({ to: logs_address, type: 'tab-selected', data: { name } }) )
+                return name_notify(name_make({ to: name_address, type: 'current', data: selected }))
             }
-            recipients[key](make({type: 'tab-selected', data: {selected: !selected}}))
-            return recipients[key](make({type: 'current', data: !selected}))
+            const { address: key_address, notify: key_notify, make: key_make } = recipients[key]
+            key_notify(key_make({ to: key_address, type: 'tab-selected', data: { selected: !selected } }))
+            return key_notify(key_make({ to: key_address, type: 'current', data: !selected }))
         }) 
     }
 
@@ -918,67 +765,40 @@ function demo () {
         })
     }
 
-    function handle_toggle_event (make, from, data) {
+    function handle_toggle_event (from, data) {
         const state = !data.checked
-        const message = make({type: 'switched', data: {checked: state}})
         let body = state ? 'Toggle on' : 'Toggle off'
         if (from === 'thumb-blossom') body = state ? 'Blossom open' : 'Blossom close'
         const cover = state ? 'https://cdn.pixabay.com/photo/2019/05/11/02/33/cherry-blossom-4194997_960_720.jpg' : 'https://cdn.pixabay.com/photo/2016/02/19/11/07/japanese-cherry-blossoms-1209577_960_720.jpg'
         const icon = state ? {name: 'star'} : {name: 'edit'}
         const content =  {text: body, cover: from === 'thumb-blossom' ? cover : undefined, icon, title: undefined}
-        recipients[from](message)
-        recipients[from](make({type: 'changed', data: content}))
-        recipients['logs']( make({to: 'self', type: 'triggered', data: {checked: state}}) )
-        recipients['logs']( make({to: 'self', type: 'changed', data: content}) )
+        const { address, notify, make } = recipients[from]
+        notify(make({ to: address, type: 'switched', data: { checked: state } }))
+        notify(make({ to: address, type: 'changed', data: content }))
+        const { address: logs_address, notify: logs_notify, make: logs_make } = recipients['logs']
+        logs_notify(logs_make({to: logs_address, type: 'triggered', data: { checked: state } }) )
+        logs_notify(logs_make({to: logs_address, type: 'changed', data: content }) )
     }
 
-    function handle_dropdown_menu_event (make, from, data) {
+    function handle_dropdown_menu_event (from, data) {
         const state = data.expanded
         const type = state ? 'expanded' : 'collapsed'
-        recipients[from]( make({type, data: state}) )
-        recipients['logs']( make({type}) )
+        const { address, notify, make } = recipients[from]
+        notify(make({ to: address, type, data: state }))
+        const { address: logs_address, notify: logs_notify, make: logs_make } = recipients['logs']
+        logs_notify(logs_make({ to: logs_address, type }) )
     }
 
     function handle_select_event ({to, data}) {
         const {name, selected, content} = data
-        const make = message_maker(name)
         const type = selected ? 'selected' : 'unselected'
         recipients[name]({type, data: selected})
-        recipients['logs']( make({to: `options`, type, data: {content} }) )
+        const { address: logs_address, notify: logs_notify, make: logs_make } = recipients['logs']
+        logs_notify(logs_make({to: logs_address, type, data: { content } }))
     }
     function handle_changed_event (type, data) {
-        recipients['single-selector']({type, data})
-    }
-    // protocols
-    function tab_protocol (name) {
-        return send => {
-            recipients[name] = send
-            return (msg) => {
-                const {head, refs, type, data} = msg
-                const to = head[1]
-                const id = head[2]
-                const role = head[0].split(' / ')[1]
-                const from = head[0].split(' / ')[0]
-                if (type === 'click') return handle_tab_icon_event({from, to, data})
-                recipients['logs'](msg)
-            }
-        }
-    }
-
-    function protocol (name) {
-        return send => {
-            recipients[name] = send
-            return get
-        }
-    }
-    function get (msg) {
-        const { head, type, data } = msg
-        const from = head[0].split(' / ')[0]
-        const to = head[1]
-        if (type.match(/ready/)) return recipients['logs'](msg)
-        if (type === 'click') return handle_click_event(msg)
-        if (type === 'changed') return handle_changed_event(type, data)
-        if (type.match(/current/)) return 
+        const { notify, make, address } = recipients['single-selector']
+        notify(make({ to: address, type, data }))
     }
 }
 
@@ -1165,26 +985,6 @@ const css = csjs`
     --list-selected-icon-size-hover: var(--list-selected-icon-size);
     --list-selected-icon-fill: var(--primary-icon-fill);
     --list-selected-icon-fill-hover: var(--primary-icon-fill-hover);
-    /* role link settings ---------------------------------------------*/
-    --link-size: var(--size14);
-    --link-size-hover: var(--primary-link-size);
-    --link-color: var(--color-heavy-blue);
-    --link-color-hover: var(--color-dodger-blue);
-    --link-color-focus: var(--color-flame);
-    --link-bg-color: transparent;
-    --link-icon-size: var(--size30);
-    --link-icon-fill: var(--primary-link-color);
-    --link-icon-fill-hover: var(--primary-link-color-hover);
-    --link-avatar-width: 60px;
-    --link-avatar-width-hover: var(--link-avatar-width);
-    --link-avatar-height: auto;
-    --link-avatar-height-hover: auto;
-    --link-avatar-radius: 0;
-    --link-disabled-size: var(--primary-link-size);
-    --link-disabled-color: var(--color-greyA2);
-    --link-disabled-bg-color: transparent;
-    --link-disabled-icon-fill: var(--color-greyA2);
-    /* role menuitem settings ---------------------------------------------*/
     --menu-size: var(--size15);
     --menu-size-hover: var(--menu-size);
     --menu-weight: var(--primary-weight);
@@ -1256,27 +1056,6 @@ img {
 #frame {
     width: 100%;
     height: 480px;
-}
-/*
-.links {
-    max-width: 100%;
-    display: grid;
-    grid-template-rows: auto;
-    grid-template-columns: repeat(auto-fill, minmax(auto, 20%));
-    grid-auto-flow: column;
-    justify-items: center;
-    align-items: center;
-    gap: 12px;
-}
-section .links:nth-child(2) {
-    grid-template-columns: fit-content(250px) auto;
-}
-*/
-.links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 20px;
 }
 .thumb i-button:first-child {
    margin-bottom: 20px;

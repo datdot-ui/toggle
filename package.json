@@ -22,6 +22,7 @@
   "license": "MIT",
   "homepage": "https://github.com/datdotorg-io/datdot-ui-button#readme",
   "devDependencies": {
+    "browserify": "^17.0.0",
     "budo": "^11.6.4",
     "datdot-terminal": "github:datdot-ui/terminal#v0.0.1-alpha"
   },
