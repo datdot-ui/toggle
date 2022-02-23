@@ -1066,7 +1066,7 @@ img {
 
 document.body.append(demo())
 }).call(this)}).call(this,"/demo/demo.js")
-},{"..":54,"../src/node_modules/make-grid":56,"../src/node_modules/message-maker":59,"bel":5,"csjs-inject":8,"datdot-terminal":25,"datdot-ui-icon":43,"head":2,"img-btn":3}],2:[function(require,module,exports){
+},{"..":54,"../src/node_modules/make-grid":56,"../src/node_modules/message-maker":58,"bel":5,"csjs-inject":8,"datdot-terminal":25,"datdot-ui-icon":43,"head":2,"img-btn":3}],2:[function(require,module,exports){
 module.exports = head
 
 function head (lang = 'UTF-8', title = 'Button - DatDot UI') {
@@ -4645,8 +4645,8 @@ const style_sheet = require('support-style-sheet')
 const message_maker = require('message-maker')
 const make_img = require('make-image')
 const make_element = require('make-element')
-const {main_icon, select_icon, list_icon} = require('make-icon')
 const make_grid = require('make-grid')
+const i_icon = require('datdot-ui-icon')
 
 var id = 0
 
@@ -4684,10 +4684,8 @@ function i_button (opts, parent_protocol) {
     }
 //-------------------------------------------------
     const {name, role = 'button', controls, body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
-    const {icon, select = {}, list = {}} = icons
-    const make_icon = icon ? main_icon(icon) : undefined
-    if (role === 'listbox') var make_select_icon = select_icon(select)
-    if (role === 'option') var make_list_icon = list_icon(list)
+    const {icon} = icons
+    const main_icon = i_icon({ name: icon?.name, path: icon?.path}, make_protocol(`${icon?.name}-${icon_count++}`))
     let is_current = current
     let is_checked = checked
     let is_disabled = disabled
@@ -4752,12 +4750,12 @@ function i_button (opts, parent_protocol) {
 
         // make element to append into shadowDOM
         function append_items() {           
-            const items = [make_icon, add_cover, add_text]
+            const items = [main_icon, add_cover, add_text]
             const target = role === 'listbox' ? listbox : role === 'option' ?  option : shadow
             // list of listbox or dropdown menu
-            if (role.match(/option/)) shadow.append(make_list_icon, option)
+            if (role.match(/option/)) shadow.append(i_icon({ name: 'check'},  make_protocol(`check-${icon_count++}`)), option)
             // listbox or dropdown button
-            if (role.match(/listbox/)) shadow.append(make_select_icon, listbox)
+            if (role.match(/listbox/)) shadow.append(i_icon({ name: 'arrow-down' }, make_protocol(`arrow-down-${icon_count++}`)), listbox)
             items.forEach( item => {
                 if (item === undefined) return
                 target.append(item)
@@ -4825,7 +4823,7 @@ function i_button (opts, parent_protocol) {
                     if (old_avatar) old_avatar.remove()
                 }
                 if (icon) {
-                    const new_icon = main_icon(icon)
+                    const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
                     if (old_icon) old_icon.parentNode.replaceChild(new_icon, old_icon)
                     else shadow.insertBefore(new_icon, shadow.firstChild)
                 } else {
@@ -4836,7 +4834,7 @@ function i_button (opts, parent_protocol) {
             if (role.match(/listbox/)) {
                 listbox.innerHTML = ''
                 if (icon) {
-                    const new_icon = main_icon(icon)
+                    const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
                     if (role.match(/listbox/)) listbox.append(new_icon)
                 }
                 if (cover) {
@@ -5333,16 +5331,14 @@ function i_button (opts, parent_protocol) {
     return widget()
 }
 }).call(this)}).call(this,"/src/index.js")
-},{"make-element":55,"make-grid":56,"make-icon":57,"make-image":58,"message-maker":59,"support-style-sheet":60}],55:[function(require,module,exports){
+},{"datdot-ui-icon":43,"make-element":55,"make-grid":56,"make-image":57,"message-maker":58,"support-style-sheet":59}],55:[function(require,module,exports){
 arguments[4][32][0].apply(exports,arguments)
 },{"dup":32}],56:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
 },{"dup":28}],57:[function(require,module,exports){
-arguments[4][34][0].apply(exports,arguments)
-},{"datdot-ui-icon":43,"dup":34}],58:[function(require,module,exports){
 arguments[4][35][0].apply(exports,arguments)
-},{"dup":35}],59:[function(require,module,exports){
+},{"dup":35}],58:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"dup":29}],60:[function(require,module,exports){
+},{"dup":29}],59:[function(require,module,exports){
 arguments[4][30][0].apply(exports,arguments)
 },{"dup":30}]},{},[1]);

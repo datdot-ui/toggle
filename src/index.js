@@ -2,8 +2,8 @@ const style_sheet = require('support-style-sheet')
 const message_maker = require('message-maker')
 const make_img = require('make-image')
 const make_element = require('make-element')
-const {main_icon, select_icon, list_icon} = require('make-icon')
 const make_grid = require('make-grid')
+const i_icon = require('datdot-ui-icon')
 
 var id = 0
 
@@ -41,10 +41,8 @@ function i_button (opts, parent_protocol) {
     }
 //-------------------------------------------------
     const {name, role = 'button', controls, body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
-    const {icon, select = {}, list = {}} = icons
-    const make_icon = icon ? main_icon(icon) : undefined
-    if (role === 'listbox') var make_select_icon = select_icon(select)
-    if (role === 'option') var make_list_icon = list_icon(list)
+    const {icon} = icons
+    const main_icon = i_icon({ name: icon?.name, path: icon?.path}, make_protocol(`${icon?.name}-${icon_count++}`))
     let is_current = current
     let is_checked = checked
     let is_disabled = disabled
@@ -109,12 +107,12 @@ function i_button (opts, parent_protocol) {
 
         // make element to append into shadowDOM
         function append_items() {           
-            const items = [make_icon, add_cover, add_text]
+            const items = [main_icon, add_cover, add_text]
             const target = role === 'listbox' ? listbox : role === 'option' ?  option : shadow
             // list of listbox or dropdown menu
-            if (role.match(/option/)) shadow.append(make_list_icon, option)
+            if (role.match(/option/)) shadow.append(i_icon({ name: 'check'},  make_protocol(`check-${icon_count++}`)), option)
             // listbox or dropdown button
-            if (role.match(/listbox/)) shadow.append(make_select_icon, listbox)
+            if (role.match(/listbox/)) shadow.append(i_icon({ name: 'arrow-down' }, make_protocol(`arrow-down-${icon_count++}`)), listbox)
             items.forEach( item => {
                 if (item === undefined) return
                 target.append(item)
@@ -182,7 +180,7 @@ function i_button (opts, parent_protocol) {
                     if (old_avatar) old_avatar.remove()
                 }
                 if (icon) {
-                    const new_icon = main_icon(icon)
+                    const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
                     if (old_icon) old_icon.parentNode.replaceChild(new_icon, old_icon)
                     else shadow.insertBefore(new_icon, shadow.firstChild)
                 } else {
@@ -193,7 +191,7 @@ function i_button (opts, parent_protocol) {
             if (role.match(/listbox/)) {
                 listbox.innerHTML = ''
                 if (icon) {
-                    const new_icon = main_icon(icon)
+                    const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
                     if (role.match(/listbox/)) listbox.append(new_icon)
                 }
                 if (cover) {
