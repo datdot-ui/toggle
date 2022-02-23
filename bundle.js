@@ -4676,8 +4676,8 @@ function i_button (opts, parent_protocol) {
     function listen (msg) {
         const { head, refs, type, data, meta } = msg // receive msg
         inbox[head.join('/')] = msg                  // store msg
-        const [from, to] = head
-        console.log('New message', { from, name: recipients[from].name, msg })
+        const [from, to, msg_id] = head
+        console.log('New message', { from, msg })
         // toggle
         if (type.match(/switched/)) return switched_event(data)
         // dropdown
