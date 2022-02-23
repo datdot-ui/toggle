@@ -4648,6 +4648,8 @@ const make_element = require('make-element')
 const {main_icon, select_icon, list_icon} = require('make-icon')
 const make_grid = require('make-grid')
 
+var id = 0
+
 module.exports = i_button
 
 function i_button (opts, parent_protocol) {
