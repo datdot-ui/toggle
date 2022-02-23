@@ -4665,9 +4665,23 @@ function i_button (opts, parent_protocol) {
 
     function listen (msg) {
         console.log('New message', { msg })
+        // toggle
+        if (type.match(/switched/)) return switched_event(data)
+        // dropdown
+        if (type.match(/expanded/)) return expanded_event(data)
+        if (type.match(/collapsed/)) return collapsed_event(data)
+        // tab, checkbox
+        if (type.match(/tab-selected/)) return tab_selected_event(data)
+        // option
+        if (type.match(/selected|unselected/)) return list_selected_event(data)
+        if (type.match(/changed/)) return changed_event(data)
+        if (type.match(/current/)) {
+            is_current = data
+            return set_attr({aria: 'current', prop: is_current})
+        }
     }
 //-------------------------------------------------
-    const {page = "*", flow = 'ui-button', name, role = 'button', controls, body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
+    const {name, role = 'button', controls, body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
     const {icon, select = {}, list = {}} = icons
     const make_icon = icon ? main_icon(icon) : undefined
     if (role === 'listbox') var make_select_icon = select_icon(select)
@@ -4861,24 +4875,6 @@ function i_button (opts, parent_protocol) {
             if (role === 'option') {
                 is_selected = !is_selected
                 return notify(make({ to: address, type, data: {name, selected: is_selected, content: is_selected ? {text: body, cover, icon} : '' } }) )
-            }
-        }
-        // protocol get msg
-        function get (msg) {
-            const { head, refs, type, data } = msg
-            // toggle
-            if (type.match(/switched/)) return switched_event(data)
-            // dropdown
-            if (type.match(/expanded/)) return expanded_event(data)
-            if (type.match(/collapsed/)) return collapsed_event(data)
-            // tab, checkbox
-            if (type.match(/tab-selected/)) return tab_selected_event(data)
-            // option
-            if (type.match(/selected|unselected/)) return list_selected_event(data)
-            if (type.match(/changed/)) return changed_event(data)
-            if (type.match(/current/)) {
-                is_current = data
-                return set_attr({aria: 'current', prop: is_current})
             }
         }
     }
