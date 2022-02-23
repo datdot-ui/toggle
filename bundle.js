@@ -4649,6 +4649,7 @@ const make_grid = require('make-grid')
 const i_icon = require('datdot-ui-icon')
 
 var id = 0
+var icon_count = 0
 
 module.exports = i_button
 
@@ -4664,6 +4665,13 @@ function i_button (opts, parent_protocol) {
     const {notify, address} = parent_protocol(myaddress, listen)
     names[address] = recipients['parent'] = { name: 'parent', notify, address, make: message_maker(myaddress) }
     notify(recipients['parent'].make({ to: address, type: 'ready', refs: {} }))
+
+    function make_protocol (name) {
+        return function protocol (address, notify) {
+            names[address] = recipients[name] = { name, address, notify, make: message_maker(myaddress) }
+            return { notify: listen, address: myaddress }
+        }
+    }
 
     function listen (msg) {
         console.log('New message', { msg })
