@@ -129,6 +129,38 @@ function i_button (opts, parent_protocol) {
                 target.append(item)
             })
         }
+        // button click
+        function handle_click () {
+            const type = 'click'
+            if ('current' in opts) {
+                notify(make({ to: address, type: 'current', data: {name, current: is_current } }) )
+            }
+            if (expanded !== undefined) {
+                const type = !is_expanded ? 'expanded' : 'collapsed'
+                notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
+            }
+            if (role === 'button') {
+                return notify( make({type, to: controls} ))
+            }
+            if (role === 'tab') {
+                if (is_current) return
+                is_selected = !is_selected
+                return notify(make({ to: address, type, data: {name, selected: is_selected } }) )
+            }
+            if (role === 'switch') {
+                return notify(make({ to: address, type, data: {name, checked: is_checked } }) )
+            }
+            if (role === 'listbox') {
+                is_expanded = !is_expanded
+                return notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
+            }
+            if (role === 'option') {
+                is_selected = !is_selected
+                return notify(make({ to: address, type, data: {name, selected: is_selected, content: is_selected ? {text: body, cover, icon} : '' } }) )
+            }
+        }
+    }
+
 
         // toggle
         function switched_event (data) {
@@ -215,37 +247,6 @@ function i_button (opts, parent_protocol) {
                 }
             } 
         }
-        // button click
-        function handle_click () {
-            const type = 'click'
-            if ('current' in opts) {
-                notify(make({ to: address, type: 'current', data: {name, current: is_current } }) )
-            }
-            if (expanded !== undefined) {
-                const type = !is_expanded ? 'expanded' : 'collapsed'
-                notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
-            }
-            if (role === 'button') {
-                return notify( make({type, to: controls} ))
-            }
-            if (role === 'tab') {
-                if (is_current) return
-                is_selected = !is_selected
-                return notify(make({ to: address, type, data: {name, selected: is_selected } }) )
-            }
-            if (role === 'switch') {
-                return notify(make({ to: address, type, data: {name, checked: is_checked } }) )
-            }
-            if (role === 'listbox') {
-                is_expanded = !is_expanded
-                return notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
-            }
-            if (role === 'option') {
-                is_selected = !is_selected
-                return notify(make({ to: address, type, data: {name, selected: is_selected, content: is_selected ? {text: body, cover, icon} : '' } }) )
-            }
-        }
-    }
    
     // insert CSS style
     const custom_style = theme ? theme.style : ''
