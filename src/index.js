@@ -80,173 +80,174 @@ function i_button (opts, parent_protocol) {
         el.setAttribute('aria-label', name)
         text.append(body)
         style_sheet(shadow, style)
-        append_items()
-        init_attr()
+        const items = [main_icon, add_cover, add_text]
+        append_items(items, shadow, option, listbox)
+        init_attr(el)
         return el
+    }
 
-        function init_attr () {
-            // define conditions
-            if (state) set_attr({aria: 'aria-live', prop: 'assertive'})
-            if (role === 'tab') {
-                set_attr({aria: 'selected', prop: is_selected})
-                set_attr({aria: 'controls', prop: controls})
-                el.setAttribute('tabindex', is_current ? 0 : -1)
-            }
-            if (role === 'switch') {
-                set_attr({aria: 'checked', prop: is_checked})
-            }
-            if (role === 'listbox') set_attr({aria: 'haspopup', prop: role})
-            if (disabled) {
-                set_attr({aria: 'disabled', prop: is_disabled})
-                el.setAttribute('disabled', is_disabled)
-            } 
-            if (is_checked) set_attr({aria: 'checked', prop: is_checked})
-            if (role.match(/option/)) {
-                is_selected = is_current ? is_current : is_selected
-                set_attr({aria: 'selected', prop: is_selected})
-            }
-            if (expanded !== undefined) {
-                set_attr({aria: 'expanded', prop: is_expanded})
-            }
-            // make current status
-            if (current !== undefined) set_attr({aria: 'current', prop: is_current})
+    function init_attr (el) {
+        // define conditions
+        if (state) set_attr({aria: 'aria-live', prop: 'assertive'})
+        if (role === 'tab') {
+            set_attr({aria: 'selected', prop: is_selected})
+            set_attr({aria: 'controls', prop: controls})
+            el.setAttribute('tabindex', is_current ? 0 : -1)
         }
+        if (role === 'switch') {
+            set_attr({aria: 'checked', prop: is_checked})
+        }
+        if (role === 'listbox') set_attr({aria: 'haspopup', prop: role})
+        if (disabled) {
+            set_attr({aria: 'disabled', prop: is_disabled})
+            el.setAttribute('disabled', is_disabled)
+        } 
+        if (is_checked) set_attr({aria: 'checked', prop: is_checked})
+        if (role.match(/option/)) {
+            is_selected = is_current ? is_current : is_selected
+            set_attr({aria: 'selected', prop: is_selected})
+        }
+        if (expanded !== undefined) {
+            set_attr({aria: 'expanded', prop: is_expanded})
+        }
+        // make current status
+        if (current !== undefined) set_attr({aria: 'current', prop: is_current})
 
         function set_attr ({aria, prop}) {
             el.setAttribute(`aria-${aria}`, prop)
         }
-
-        // make element to append into shadowDOM
-        function append_items() {           
-            const items = [main_icon, add_cover, add_text]
-            const target = role === 'listbox' ? listbox : role === 'option' ?  option : shadow
-            // list of listbox or dropdown menu
-            if (role.match(/option/)) shadow.append(i_icon({ name: 'check'},  make_protocol(`check-${icon_count++}`)), option)
-            // listbox or dropdown button
-            if (role.match(/listbox/)) shadow.append(i_icon({ name: 'arrow-down' }, make_protocol(`arrow-down-${icon_count++}`)), listbox)
-            items.forEach( item => {
-                if (item === undefined) return
-                target.append(item)
-            })
-        }
-        // button click
-        function handle_click () {
-            const type = 'click'
-            if ('current' in opts) {
-                notify(make({ to: address, type: 'current', data: {name, current: is_current } }) )
-            }
-            if (expanded !== undefined) {
-                const type = !is_expanded ? 'expanded' : 'collapsed'
-                notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
-            }
-            if (role === 'button') {
-                return notify( make({type, to: controls} ))
-            }
-            if (role === 'tab') {
-                if (is_current) return
-                is_selected = !is_selected
-                return notify(make({ to: address, type, data: {name, selected: is_selected } }) )
-            }
-            if (role === 'switch') {
-                return notify(make({ to: address, type, data: {name, checked: is_checked } }) )
-            }
-            if (role === 'listbox') {
-                is_expanded = !is_expanded
-                return notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
-            }
-            if (role === 'option') {
-                is_selected = !is_selected
-                return notify(make({ to: address, type, data: {name, selected: is_selected, content: is_selected ? {text: body, cover, icon} : '' } }) )
-            }
-        }
     }
 
+    // make element to append into shadowDOM
+    function append_items(items, shadow, option, listbox) {           
+        const [main_icon, add_cover, add_text] = items
+        const target = role === 'listbox' ? listbox : role === 'option' ?  option : shadow
+        // list of listbox or dropdown menu
+        if (role.match(/option/)) shadow.append(i_icon({ name: 'check'},  make_protocol(`check-${icon_count++}`)), option)
+        // listbox or dropdown button
+        if (role.match(/listbox/)) shadow.append(i_icon({ name: 'arrow-down' }, make_protocol(`arrow-down-${icon_count++}`)), listbox)
+        items.forEach( item => {
+            if (item === undefined) return
+            target.append(item)
+        })
+    }
 
-        // toggle
-        function switched_event (data) {
-            const {checked} = data
-            is_checked = checked
-            if (is_checked) return set_attr({aria: 'checked', prop: is_checked})
-            else el.removeAttribute('aria-checked')
+    // toggle
+    function switched_event (data) {
+        const {checked} = data
+        is_checked = checked
+        if (is_checked) return set_attr({aria: 'checked', prop: is_checked})
+        else el.removeAttribute('aria-checked')
+    }
+    function expanded_event (data) {
+        is_expanded = data
+        set_attr({aria: 'expanded', prop: is_expanded})
+    }
+    function collapsed_event (data) {
+        is_expanded = data
+        set_attr({aria: 'expanded', prop: is_expanded})
+    }
+    // tab selected
+    function tab_selected_event ({selected}) {
+        is_selected = selected
+        set_attr({aria: 'selected', prop: is_selected})
+        el.setAttribute('tabindex', is_current ? 0 : -1)
+    }
+    function list_selected_event (state) {
+        is_selected = state
+        set_attr({aria: 'selected', prop: is_selected})
+        if (mode === 'single-select') {
+            is_current = is_selected
+            set_attr({aria: 'current', prop: is_current})
         }
-        function expanded_event (data) {
-            is_expanded = data
-            set_attr({aria: 'expanded', prop: is_expanded})
-        }
-        function collapsed_event (data) {
-            is_expanded = data
-            set_attr({aria: 'expanded', prop: is_expanded})
-        }
-        // tab selected
-        function tab_selected_event ({selected}) {
-            is_selected = selected
-            set_attr({aria: 'selected', prop: is_selected})
-            el.setAttribute('tabindex', is_current ? 0 : -1)
-        }
-        function list_selected_event (state) {
-            is_selected = state
-            set_attr({aria: 'selected', prop: is_selected})
-            if (mode === 'single-select') {
-                is_current = is_selected
-                set_attr({aria: 'current', prop: is_current})
+        // option is selected then send selected items to listbox button
+        if (is_selected) notify(make({ to: address, type: 'changed', data: {text: body, cover, icon } }))
+    }
+    function changed_event (data) {
+        const {text, cover, icon, title} = data
+        // new element
+        const new_text = make_element({name: 'span', classlist: 'text'})
+        const new_avatar = make_element({name: 'span', classlist: 'avatar'})
+        // old element
+        const old_icon = shadow.querySelector('.icon')
+        const old_avatar = shadow.querySelector('.avatar')
+        const old_text = shadow.querySelector('.text')
+        // change content for button or switch or tab
+        if (role.match(/button|switch|tab/)) {
+            el.setAttribute('aria-label', text || title)
+            if (text) {
+                if (old_text) old_text.textContent = text
+            } else {
+                if (old_text) old_text.remove()
             }
-            // option is selected then send selected items to listbox button
-            if (is_selected) notify(make({ to: address, type: 'changed', data: {text: body, cover, icon } }))
-        }
-        function changed_event (data) {
-            const {text, cover, icon, title} = data
-            // new element
-            const new_text = make_element({name: 'span', classlist: 'text'})
-            const new_avatar = make_element({name: 'span', classlist: 'avatar'})
-            // old element
-            const old_icon = shadow.querySelector('.icon')
-            const old_avatar = shadow.querySelector('.avatar')
-            const old_text = shadow.querySelector('.text')
-            // change content for button or switch or tab
-            if (role.match(/button|switch|tab/)) {
-                el.setAttribute('aria-label', text || title)
-                if (text) {
-                    if (old_text) old_text.textContent = text
+            if (cover) {
+                if (old_avatar) {
+                    const img = old_avatar.querySelector('img')
+                    img.alt = text || title
+                    img.src = cover
                 } else {
-                    if (old_text) old_text.remove()
+                    new_avatar.append(make_img({src: cover, alt: text || title}))
+                    shadow.insertBefore(new_avatar, shadow.firstChild)
                 }
-                if (cover) {
-                    if (old_avatar) {
-                        const img = old_avatar.querySelector('img')
-                        img.alt = text || title
-                        img.src = cover
-                    } else {
-                        new_avatar.append(make_img({src: cover, alt: text || title}))
-                        shadow.insertBefore(new_avatar, shadow.firstChild)
-                    }
-                } else {
-                    if (old_avatar) old_avatar.remove()
-                }
-                if (icon) {
-                    const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
-                    if (old_icon) old_icon.parentNode.replaceChild(new_icon, old_icon)
-                    else shadow.insertBefore(new_icon, shadow.firstChild)
-                } else {
-                    if (old_icon) old_icon.remove()
-                }
+            } else {
+                if (old_avatar) old_avatar.remove()
             }
-            // change content for listbox
-            if (role.match(/listbox/)) {
-                listbox.innerHTML = ''
-                if (icon) {
-                    const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
-                    if (role.match(/listbox/)) listbox.append(new_icon)
-                }
-                if (cover) {
-                    new_avatar.append(make_img({src: cover, alt: text}))
-                    if (role.match(/listbox/)) listbox.append(new_avatar)
-                }
-                if (text) {
-                    new_text.append(text)
-                    if (role.match(/listbox/)) listbox.append(new_text)
-                }
-            } 
+            if (icon) {
+                const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
+                if (old_icon) old_icon.parentNode.replaceChild(new_icon, old_icon)
+                else shadow.insertBefore(new_icon, shadow.firstChild)
+            } else {
+                if (old_icon) old_icon.remove()
+            }
         }
+        // change content for listbox
+        if (role.match(/listbox/)) {
+            listbox.innerHTML = ''
+            if (icon) {
+                const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
+                if (role.match(/listbox/)) listbox.append(new_icon)
+            }
+            if (cover) {
+                new_avatar.append(make_img({src: cover, alt: text}))
+                if (role.match(/listbox/)) listbox.append(new_avatar)
+            }
+            if (text) {
+                new_text.append(text)
+                if (role.match(/listbox/)) listbox.append(new_text)
+            }
+        } 
+    }
+    // button click
+    function handle_click () {
+        const { make } = recipients['parent']
+        const type = 'click'
+        if ('current' in opts) {
+            notify(make({ to: address, type: 'current', data: {name, current: is_current } }) )
+        }
+        if (expanded !== undefined) {
+            const type = !is_expanded ? 'expanded' : 'collapsed'
+            notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
+        }
+        if (role === 'button') {
+            return notify( make({type, to: controls} ))
+        }
+        if (role === 'tab') {
+            if (is_current) return
+            is_selected = !is_selected
+            return notify(make({ to: address, type, data: {name, selected: is_selected } }) )
+        }
+        if (role === 'switch') {
+            return notify(make({ to: address, type, data: {name, checked: is_checked } }) )
+        }
+        if (role === 'listbox') {
+            is_expanded = !is_expanded
+            return notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
+        }
+        if (role === 'option') {
+            is_selected = !is_selected
+            return notify(make({ to: address, type, data: {name, selected: is_selected, content: is_selected ? {text: body, cover, icon} : '' } }) )
+        }
+    }
    
     // insert CSS style
     const custom_style = theme ? theme.style : ''
