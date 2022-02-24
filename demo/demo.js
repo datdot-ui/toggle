@@ -1,7 +1,7 @@
 const head = require('head')()
 const bel = require('bel')
 const csjs = require('csjs-inject')
-const button = require('..')
+const i_button = require('..')
 // custom element
 const img_btn = require('img-btn')
 // datdot-ui dependences
@@ -36,11 +36,11 @@ function demo () {
         const { notify, make, address } = names[from]
         notify(make({ to: address, type: 'ack', refs: { 'cause': head } }))
         // handle
-        if (type.match(/ready/)) return recipients['logs'](msg)
         if (type === 'click') return handle_click_event(msg)
         if (type === 'changed') return handle_changed_event(type, data)
         if (type.match(/current/)) return 
-        recipients['logs'](msg)
+        const { notify: logs_notify, make: logs_make, address: logs_address } = recipients['logs']
+        logs_notify(logs_make({ to: logs_address, type, data }))
     }
 //------------------------------------------
     // logs must be initialized first before components
@@ -50,7 +50,7 @@ function demo () {
         expanded: false
     }, make_protocol('logs'))
     // buttons
-    const primary = button(
+    const primary = i_button(
     {
         name: 'primary', 
         body: bel`<div>Hello</div>`,
@@ -68,20 +68,20 @@ function demo () {
         }
     }, make_protocol('primary'))
 
-    const current1 = button({
+    const current1 = i_button({
         name: 'button1',
         body: 'Button1',
         expanded: false,
         // current: true,
     }, make_protocol('button1'))
 
-    const current2 = button({
+    const current2 = i_button({
         name: 'button2',
         body: 'Button2',
     }, make_protocol('button2'))
 
     // image buttons
-    const thumb1_btn = button(
+    const thumb1_btn = i_button(
     {
         name: 'thumb-cover', 
         body: 'Cover',
@@ -105,7 +105,7 @@ function demo () {
         }
     }, make_protocol('thumb-cover'))
     
-    const thumb2_btn = button(
+    const thumb2_btn = i_button(
     {
         name: 'thumb-blossom', 
         role: 'switch', 
@@ -158,7 +158,7 @@ function demo () {
         }
     },i_button, make_protocol('fox'))
 
-    const disabled = button(
+    const disabled = i_button(
     {
         name: 'disable', 
         body: 'Disable', 
@@ -176,7 +176,7 @@ function demo () {
         }
     }, make_protocol('disable'))
 
-    const toggle = button(
+    const toggle = i_button(
     {
         name: 'toggle', 
         role: 'switch', 
@@ -203,7 +203,7 @@ function demo () {
             current_color: 'var(--primary-color)'
         }
     }
-    const tab1 = button(
+    const tab1 = i_button(
     {
         page: 'PLAN', 
         name: 'tab1', 
@@ -213,7 +213,7 @@ function demo () {
         current: true, 
         theme: tab_theme 
     }, make_protocol('tab1'))
-    const tab2 = button(
+    const tab2 = i_button(
     {
         page: 'PLAN', 
         name: 'tab2', 
@@ -222,7 +222,7 @@ function demo () {
         body: 'Tab2', 
         theme: tab_theme
     }, make_protocol('tab2'))
-    const tab3 = button(
+    const tab3 = i_button(
     {
         page: 'PLAN', 
         name: 'tab3', 
@@ -237,7 +237,7 @@ function demo () {
     </nav>`
 
     // Tab & icon
-    const tab4 = button(
+    const tab4 = i_button(
     {
         page: 'JOBS', 
         name: 'notice', 
@@ -272,7 +272,7 @@ function demo () {
             }
         }
     }, make_protocol('notice'))
-    const tab5 = button(
+    const tab5 = i_button(
     {
         page: 'JOBS', 
         name: 'warning', 
@@ -311,7 +311,7 @@ function demo () {
             }
         }
     }, make_protocol('warning'))
-    const tab6 = button(
+    const tab6 = i_button(
     {
         page: 'JOBS', 
         name: 'search',
@@ -343,7 +343,7 @@ function demo () {
     let icon_previous = {name: 'arrow-left'}
     let icon_next = {name: 'arrow-right'}
     // buttons
-    const cancel = button(
+    const cancel = i_button(
     {
         name: 'cancel', 
         icons: {
@@ -358,7 +358,7 @@ function demo () {
             }
         }
     }, make_protocol('cancel'))
-    const confirm = button(
+    const confirm = i_button(
     {
         name: 'confirm', 
         icons: {
@@ -371,7 +371,7 @@ function demo () {
                 icon_fill_hover: 'var(--color-light-green)'
         }
     }}, make_protocol('confirm'))
-    const previous = button(
+    const previous = i_button(
     {
         name: 'previous', 
         body: 'Previous', 
@@ -386,7 +386,7 @@ function demo () {
                 icon_fill_hover: 'var(--color-purple)'
         }
     }}, make_protocol('previous'))
-    const next = button(
+    const next = i_button(
     {
         name: 'next',
         // cover: 'https://images.unsplash.com/photo-1529448005898-b19fc13465b7?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fG5leHR8ZW58MHx8MHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
@@ -406,7 +406,7 @@ function demo () {
             }
     }}, make_protocol('next'))
 
-    const listbox = button(
+    const listbox = i_button(
     {
         name: 'filter', 
         role: 'listbox',
@@ -429,7 +429,7 @@ function demo () {
         }
     }, make_protocol('filter'))
 
-    const listbox1 = button(
+    const listbox1 = i_button(
         {
             name: 'single-selector', 
             role: 'listbox',
@@ -453,7 +453,7 @@ function demo () {
             }
         }, make_protocol('single-selector'))
 
-    const option = button(
+    const option = i_button(
     {
         name: 'option-star', 
         role: 'option',
@@ -473,7 +473,7 @@ function demo () {
             }
         }
     }, make_protocol('option-star'))
-    const option1 = button(
+    const option1 = i_button(
     {
         name: 'datdot app', 
         body: 'DatDot app', 
@@ -592,7 +592,7 @@ function demo () {
         }
     }, make_protocol('datdot app'))
 
-    const item4 = button(
+    const item4 = i_button(
     {
         name: 'item4',
         role: 'menuitem',
