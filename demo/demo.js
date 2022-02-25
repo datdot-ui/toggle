@@ -7,7 +7,7 @@ const img_btn = require('img-btn')
 // datdot-ui dependences
 const terminal = require('datdot-terminal')
 const icon = require('datdot-ui-icon')
-const message_maker = require('../src/node_modules/message-maker')
+const message_maker = require('message-maker')
 const make_grid = require('../src/node_modules/make-grid')
 
 var id = 0

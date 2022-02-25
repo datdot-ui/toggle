@@ -9,7 +9,7 @@ const img_btn = require('img-btn')
 // datdot-ui dependences
 const terminal = require('datdot-terminal')
 const icon = require('datdot-ui-icon')
-const message_maker = require('../src/node_modules/message-maker')
+const message_maker = require('message-maker')
 const make_grid = require('../src/node_modules/make-grid')
 
 var id = 0
@@ -1066,7 +1066,7 @@ img {
 
 document.body.append(demo())
 }).call(this)}).call(this,"/demo/demo.js")
-},{"..":49,"../src/node_modules/make-grid":51,"../src/node_modules/message-maker":53,"bel":5,"csjs-inject":8,"datdot-terminal":25,"datdot-ui-icon":39,"head":2,"img-btn":3}],2:[function(require,module,exports){
+},{"..":48,"../src/node_modules/make-grid":50,"bel":5,"csjs-inject":8,"datdot-terminal":25,"datdot-ui-icon":38,"head":2,"img-btn":3,"message-maker":44}],2:[function(require,module,exports){
 module.exports = head
 
 function head (lang = 'UTF-8', title = 'Button - DatDot UI') {
@@ -1390,7 +1390,7 @@ module.exports = hyperx(belCreateElement, {comments: true})
 module.exports.default = module.exports
 module.exports.createElement = belCreateElement
 
-},{"./appendChild":4,"hyperx":47}],6:[function(require,module,exports){
+},{"./appendChild":4,"hyperx":46}],6:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -1409,7 +1409,7 @@ function csjsInserter() {
 module.exports = csjsInserter;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"csjs":11,"insert-css":48}],7:[function(require,module,exports){
+},{"csjs":11,"insert-css":47}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = require('csjs/get-css');
@@ -2381,7 +2381,7 @@ mark.current {
 }
 `
 }).call(this)}).call(this,"/node_modules/datdot-terminal/src/index.js")
-},{"bel":5,"datdot-ui-button":30,"footer":26,"generator-color":27,"make-grid":28,"message-maker":45,"support-style-sheet":29}],26:[function(require,module,exports){
+},{"bel":5,"datdot-ui-button":30,"footer":26,"generator-color":27,"make-grid":28,"message-maker":44,"support-style-sheet":29}],26:[function(require,module,exports){
 (function (__filename){(function (){
 const bel = require('bel')
 const style_sheet = require('support-style-sheet')
@@ -2651,7 +2651,7 @@ function footer (opts = {}, parent_protocol) {
     return widget()
 }
 }).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-terminal@1d03cc5ee47906a79726a4884cd75cf8ff8c6c4c/node_modules/datdot-terminal/src/node_modules/footer.js")
-},{"./make-grid":28,"bel":5,"datdot-ui-button":30,"datdot-ui-dropdown":36,"message-maker":45,"support-style-sheet":29}],27:[function(require,module,exports){
+},{"./make-grid":28,"bel":5,"datdot-ui-button":30,"datdot-ui-dropdown":35,"message-maker":44,"support-style-sheet":29}],27:[function(require,module,exports){
  module.exports = {int2hsla, str2hashint}
  function int2hsla (i) { return `hsla(${i % 360}, 100%, 70%, 1)` }
  function str2hashint (str) {
@@ -2770,6 +2770,16 @@ var icon_count = 0
 module.exports = i_button
 
 function i_button (opts, parent_protocol) {
+    const {name, role = 'button', controls, body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
+    const {icon} = icons
+    const main_icon = i_icon({ name: icon?.name, path: icon?.path}, make_protocol(`${icon?.name}-${icon_count++}`))
+    let is_current = current
+    let is_checked = checked
+    let is_disabled = disabled
+    let is_selected = selected
+    let is_expanded = 'expanded' in opts ? expanded : void 0
+
+    const el = make_element({name: 'i-button', classlist, role })
 //-------------------------------------------------
     const myaddress = `${__filename}-${id++}`
     const inbox = {}
@@ -2810,20 +2820,11 @@ function i_button (opts, parent_protocol) {
         }
     }
 //-------------------------------------------------
-    const {name, role = 'button', controls, body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
-    const {icon} = icons
-    const main_icon = i_icon({ name: icon?.name, path: icon?.path}, make_protocol(`${icon?.name}-${icon_count++}`))
-    let is_current = current
-    let is_checked = checked
-    let is_disabled = disabled
-    let is_selected = selected
-    let is_expanded = 'expanded' in opts ? expanded : void 0
 
     function widget () {
         const { notify, address, make } = recipients['parent']
         const data = role === 'tab' ?  {selected: is_current ? 'true' : is_selected, current: is_current} : role === 'switch' ? {checked: is_checked} : role === 'listbox' ? {expanded: is_expanded} : disabled ? {disabled} : role === 'option' ? {selected: is_selected, current: is_current} : null
         notify(make({ to: address, type: 'ready', data }))
-        const el = make_element({name: 'i-button', classlist, role })
         const shadow = el.attachShadow({mode: 'closed'})
         const text = make_element({name: 'span', classlist: 'text'})
         const avatar = make_element({name: 'span', classlist: 'avatar'})
@@ -2839,170 +2840,172 @@ function i_button (opts, parent_protocol) {
         el.setAttribute('aria-label', name)
         text.append(body)
         style_sheet(shadow, style)
-        append_items()
-        init_attr()
+        const items = [main_icon, add_cover, add_text]
+        append_items(items, shadow, option, listbox)
+        init_attr(el)
         return el
+    }
 
-        function init_attr () {
-            // define conditions
-            if (state) set_attr({aria: 'aria-live', prop: 'assertive'})
-            if (role === 'tab') {
-                set_attr({aria: 'selected', prop: is_selected})
-                set_attr({aria: 'controls', prop: controls})
-                el.setAttribute('tabindex', is_current ? 0 : -1)
-            }
-            if (role === 'switch') {
-                set_attr({aria: 'checked', prop: is_checked})
-            }
-            if (role === 'listbox') set_attr({aria: 'haspopup', prop: role})
-            if (disabled) {
-                set_attr({aria: 'disabled', prop: is_disabled})
-                el.setAttribute('disabled', is_disabled)
-            } 
-            if (is_checked) set_attr({aria: 'checked', prop: is_checked})
-            if (role.match(/option/)) {
-                is_selected = is_current ? is_current : is_selected
-                set_attr({aria: 'selected', prop: is_selected})
-            }
-            if (expanded !== undefined) {
-                set_attr({aria: 'expanded', prop: is_expanded})
-            }
-            // make current status
-            if (current !== undefined) set_attr({aria: 'current', prop: is_current})
-        }
-
-        function set_attr ({aria, prop}) {
-            el.setAttribute(`aria-${aria}`, prop)
-        }
-
-        // make element to append into shadowDOM
-        function append_items() {           
-            const items = [main_icon, add_cover, add_text]
-            const target = role === 'listbox' ? listbox : role === 'option' ?  option : shadow
-            // list of listbox or dropdown menu
-            if (role.match(/option/)) shadow.append(i_icon({ name: 'check'},  make_protocol(`check-${icon_count++}`)), option)
-            // listbox or dropdown button
-            if (role.match(/listbox/)) shadow.append(i_icon({ name: 'arrow-down' }, make_protocol(`arrow-down-${icon_count++}`)), listbox)
-            items.forEach( item => {
-                if (item === undefined) return
-                target.append(item)
-            })
-        }
-
-        // toggle
-        function switched_event (data) {
-            const {checked} = data
-            is_checked = checked
-            if (is_checked) return set_attr({aria: 'checked', prop: is_checked})
-            else el.removeAttribute('aria-checked')
-        }
-        function expanded_event (data) {
-            is_expanded = data
-            set_attr({aria: 'expanded', prop: is_expanded})
-        }
-        function collapsed_event (data) {
-            is_expanded = data
-            set_attr({aria: 'expanded', prop: is_expanded})
-        }
-        // tab selected
-        function tab_selected_event ({selected}) {
-            is_selected = selected
+    function init_attr (el) {
+        // define conditions
+        if (state) set_attr({aria: 'aria-live', prop: 'assertive'})
+        if (role === 'tab') {
             set_attr({aria: 'selected', prop: is_selected})
+            set_attr({aria: 'controls', prop: controls})
             el.setAttribute('tabindex', is_current ? 0 : -1)
         }
-        function list_selected_event (state) {
-            is_selected = state
+        if (role === 'switch') {
+            set_attr({aria: 'checked', prop: is_checked})
+        }
+        if (role === 'listbox') set_attr({aria: 'haspopup', prop: role})
+        if (disabled) {
+            set_attr({aria: 'disabled', prop: is_disabled})
+            el.setAttribute('disabled', is_disabled)
+        } 
+        if (is_checked) set_attr({aria: 'checked', prop: is_checked})
+        if (role.match(/option/)) {
+            is_selected = is_current ? is_current : is_selected
             set_attr({aria: 'selected', prop: is_selected})
-            if (mode === 'single-select') {
-                is_current = is_selected
-                set_attr({aria: 'current', prop: is_current})
-            }
-            // option is selected then send selected items to listbox button
-            if (is_selected) notify(make({ to: address, type: 'changed', data: {text: body, cover, icon } }))
         }
-        function changed_event (data) {
-            const {text, cover, icon, title} = data
-            // new element
-            const new_text = make_element({name: 'span', classlist: 'text'})
-            const new_avatar = make_element({name: 'span', classlist: 'avatar'})
-            // old element
-            const old_icon = shadow.querySelector('.icon')
-            const old_avatar = shadow.querySelector('.avatar')
-            const old_text = shadow.querySelector('.text')
-            // change content for button or switch or tab
-            if (role.match(/button|switch|tab/)) {
-                el.setAttribute('aria-label', text || title)
-                if (text) {
-                    if (old_text) old_text.textContent = text
-                } else {
-                    if (old_text) old_text.remove()
-                }
-                if (cover) {
-                    if (old_avatar) {
-                        const img = old_avatar.querySelector('img')
-                        img.alt = text || title
-                        img.src = cover
-                    } else {
-                        new_avatar.append(make_img({src: cover, alt: text || title}))
-                        shadow.insertBefore(new_avatar, shadow.firstChild)
-                    }
-                } else {
-                    if (old_avatar) old_avatar.remove()
-                }
-                if (icon) {
-                    const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
-                    if (old_icon) old_icon.parentNode.replaceChild(new_icon, old_icon)
-                    else shadow.insertBefore(new_icon, shadow.firstChild)
-                } else {
-                    if (old_icon) old_icon.remove()
-                }
-            }
-            // change content for listbox
-            if (role.match(/listbox/)) {
-                listbox.innerHTML = ''
-                if (icon) {
-                    const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
-                    if (role.match(/listbox/)) listbox.append(new_icon)
-                }
-                if (cover) {
-                    new_avatar.append(make_img({src: cover, alt: text}))
-                    if (role.match(/listbox/)) listbox.append(new_avatar)
-                }
-                if (text) {
-                    new_text.append(text)
-                    if (role.match(/listbox/)) listbox.append(new_text)
-                }
-            } 
+        if (expanded !== undefined) {
+            set_attr({aria: 'expanded', prop: is_expanded})
         }
-        // button click
-        function handle_click () {
-            const type = 'click'
-            if ('current' in opts) {
-                notify(make({ to: address, type: 'current', data: {name, current: is_current } }) )
+        // make current status
+        if (current !== undefined) set_attr({aria: 'current', prop: is_current})
+    }
+
+    // make element to append into shadowDOM
+    function append_items(items, shadow, option, listbox) {           
+        const [main_icon, add_cover, add_text] = items
+        const target = role === 'listbox' ? listbox : role === 'option' ?  option : shadow
+        // list of listbox or dropdown menu
+        if (role.match(/option/)) shadow.append(i_icon({ name: 'check'},  make_protocol(`check-${icon_count++}`)), option)
+        // listbox or dropdown button
+        if (role.match(/listbox/)) shadow.append(i_icon({ name: 'arrow-down' }, make_protocol(`arrow-down-${icon_count++}`)), listbox)
+        items.forEach( item => {
+            if (item === undefined) return
+            target.append(item)
+        })
+    }
+
+    function set_attr ({aria, prop}) {
+        el.setAttribute(`aria-${aria}`, prop)
+    }
+
+    // toggle
+    function switched_event (data) {
+        const {checked} = data
+        is_checked = checked
+        if (is_checked) return set_attr({aria: 'checked', prop: is_checked})
+        else el.removeAttribute('aria-checked')
+    }
+    function expanded_event (data) {
+        is_expanded = data
+        set_attr({aria: 'expanded', prop: is_expanded})
+    }
+    function collapsed_event (data) {
+        is_expanded = data
+        set_attr({aria: 'expanded', prop: is_expanded})
+    }
+    // tab selected
+    function tab_selected_event ({selected}) {
+        is_selected = selected
+        set_attr({aria: 'selected', prop: is_selected})
+        el.setAttribute('tabindex', is_current ? 0 : -1)
+    }
+    function list_selected_event (state) {
+        is_selected = state
+        set_attr({aria: 'selected', prop: is_selected})
+        if (mode === 'single-select') {
+            is_current = is_selected
+            set_attr({aria: 'current', prop: is_current})
+        }
+        // option is selected then send selected items to listbox button
+        if (is_selected) notify(make({ to: address, type: 'changed', data: {text: body, cover, icon } }))
+    }
+    function changed_event (data) {
+        const {text, cover, icon, title} = data
+        // new element
+        const new_text = make_element({name: 'span', classlist: 'text'})
+        const new_avatar = make_element({name: 'span', classlist: 'avatar'})
+        // old element
+        const old_icon = shadow.querySelector('.icon')
+        const old_avatar = shadow.querySelector('.avatar')
+        const old_text = shadow.querySelector('.text')
+        // change content for button or switch or tab
+        if (role.match(/button|switch|tab/)) {
+            el.setAttribute('aria-label', text || title)
+            if (text) {
+                if (old_text) old_text.textContent = text
+            } else {
+                if (old_text) old_text.remove()
             }
-            if (expanded !== undefined) {
-                const type = !is_expanded ? 'expanded' : 'collapsed'
-                notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
+            if (cover) {
+                if (old_avatar) {
+                    const img = old_avatar.querySelector('img')
+                    img.alt = text || title
+                    img.src = cover
+                } else {
+                    new_avatar.append(make_img({src: cover, alt: text || title}))
+                    shadow.insertBefore(new_avatar, shadow.firstChild)
+                }
+            } else {
+                if (old_avatar) old_avatar.remove()
             }
-            if (role === 'button') {
-                return notify( make({type, to: controls} ))
+            if (icon) {
+                const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
+                if (old_icon) old_icon.parentNode.replaceChild(new_icon, old_icon)
+                else shadow.insertBefore(new_icon, shadow.firstChild)
+            } else {
+                if (old_icon) old_icon.remove()
             }
-            if (role === 'tab') {
-                if (is_current) return
-                is_selected = !is_selected
-                return notify(make({ to: address, type, data: {name, selected: is_selected } }) )
+        }
+        // change content for listbox
+        if (role.match(/listbox/)) {
+            listbox.innerHTML = ''
+            if (icon) {
+                const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
+                if (role.match(/listbox/)) listbox.append(new_icon)
             }
-            if (role === 'switch') {
-                return notify(make({ to: address, type, data: {name, checked: is_checked } }) )
+            if (cover) {
+                new_avatar.append(make_img({src: cover, alt: text}))
+                if (role.match(/listbox/)) listbox.append(new_avatar)
             }
-            if (role === 'listbox') {
-                is_expanded = !is_expanded
-                return notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
+            if (text) {
+                new_text.append(text)
+                if (role.match(/listbox/)) listbox.append(new_text)
             }
-            if (role === 'option') {
-                is_selected = !is_selected
-                return notify(make({ to: address, type, data: {name, selected: is_selected, content: is_selected ? {text: body, cover, icon} : '' } }) )
-            }
+        } 
+    }
+    // button click
+    function handle_click () {
+        const { make } = recipients['parent']
+        const type = 'click'
+        if ('current' in opts) {
+            notify(make({ to: address, type: 'current', data: {name, current: is_current } }) )
+        }
+        if (expanded !== undefined) {
+            const type = !is_expanded ? 'expanded' : 'collapsed'
+            notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
+        }
+        if (role === 'button') {
+            return notify( make({type, to: controls} ))
+        }
+        if (role === 'tab') {
+            if (is_current) return
+            is_selected = !is_selected
+            return notify(make({ to: address, type, data: {name, selected: is_selected } }) )
+        }
+        if (role === 'switch') {
+            return notify(make({ to: address, type, data: {name, checked: is_checked } }) )
+        }
+        if (role === 'listbox') {
+            is_expanded = !is_expanded
+            return notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
+        }
+        if (role === 'option') {
+            is_selected = !is_selected
+            return notify(make({ to: address, type, data: {name, selected: is_selected, content: is_selected ? {text: body, cover, icon} : '' } }) )
         }
     }
    
@@ -3458,7 +3461,7 @@ function i_button (opts, parent_protocol) {
     return widget()
 }
 }).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-terminal@1d03cc5ee47906a79726a4884cd75cf8ff8c6c4c/node_modules/datdot-ui-button/src/index.js")
-},{"datdot-ui-icon":39,"make-element":31,"make-grid":32,"make-image":33,"message-maker":34,"support-style-sheet":35}],31:[function(require,module,exports){
+},{"datdot-ui-icon":38,"make-element":31,"make-grid":32,"make-image":33,"message-maker":44,"support-style-sheet":34}],31:[function(require,module,exports){
 module.exports = make_element
 
 function make_element({name = '', classlist = null, role }) {
@@ -3491,17 +3494,8 @@ function img ({src, alt}) {
     return img
 }
 },{}],34:[function(require,module,exports){
-module.exports = function message_maker (from) {
-    let msg_id = 0
-    return function make ({to, type, data = null, refs = []}) {
-        const stack = (new Error().stack.split('\n').slice(2).filter(x => x.trim()))
-        const message = { head: [from, to, ++msg_id], refs, type, data, meta: { stack }}
-        return message
-    }
-}
-},{}],35:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"dup":29}],36:[function(require,module,exports){
+},{"dup":29}],35:[function(require,module,exports){
 (function (__filename){(function (){
 const style_sheet = require('support-style-sheet')
 const message_maker = require('message-maker')
@@ -3750,7 +3744,7 @@ function i_dropdown (opts, parent_protocol) {
 
 
 }).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-terminal@1d03cc5ee47906a79726a4884cd75cf8ff8c6c4c/node_modules/datdot-ui-dropdown/src/index.js")
-},{"datdot-ui-button":30,"make-list":37,"message-maker":45,"support-style-sheet":38}],37:[function(require,module,exports){
+},{"datdot-ui-button":30,"make-list":36,"message-maker":44,"support-style-sheet":37}],36:[function(require,module,exports){
 (function (__filename){(function (){
 const i_list = require('datdot-ui-list')
 const message_maker = require('message-maker')
@@ -3840,10 +3834,10 @@ function make_list ({page, name, option = {}, mode, hidden}, parent_protocol) {
         })
     }
 }
-}).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-ui-dropdown@c96baa008e0577a75a4a2044471c181970976b20/node_modules/datdot-ui-dropdown/src/node_modules/make-list.js")
-},{"datdot-ui-list":42,"message-maker":45}],38:[function(require,module,exports){
+}).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-ui-dropdown@33f8bcb041c9061a14232822825fa7bcf170aebb/node_modules/datdot-ui-dropdown/src/node_modules/make-list.js")
+},{"datdot-ui-list":41,"message-maker":44}],37:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"dup":29}],39:[function(require,module,exports){
+},{"dup":29}],38:[function(require,module,exports){
 (function (__filename){(function (){
 const style_sheet = require('support-style-sheet')
 const svg = require('svg')
@@ -3931,9 +3925,9 @@ module.exports = ({name, path, is_shadow = false, theme}, parent_protocol) => {
 }
 
 }).call(this)}).call(this,"/node_modules/datdot-ui-icon/src/index.js")
-},{"message-maker":45,"support-style-sheet":40,"svg":41}],40:[function(require,module,exports){
+},{"message-maker":44,"support-style-sheet":39,"svg":40}],39:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"dup":29}],41:[function(require,module,exports){
+},{"dup":29}],40:[function(require,module,exports){
 module.exports = svg
 function svg (path) {
     const span = document.createElement('span')
@@ -3947,7 +3941,7 @@ function svg (path) {
     }
     return span
 }   
-},{}],42:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 (function (__filename){(function (){
 const style_sheet = require('support-style-sheet')
 const button = require('datdot-ui-button')
@@ -4328,12 +4322,12 @@ function i_list (opts = {}, parent_protocol) {
 
     return widget()
 }
-}).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-ui-dropdown@c96baa008e0577a75a4a2044471c181970976b20/node_modules/datdot-ui-list/src/index.js")
-},{"datdot-ui-button":30,"make-grid":43,"message-maker":45,"support-style-sheet":44}],43:[function(require,module,exports){
+}).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-ui-dropdown@33f8bcb041c9061a14232822825fa7bcf170aebb/node_modules/datdot-ui-list/src/index.js")
+},{"datdot-ui-button":30,"make-grid":42,"message-maker":44,"support-style-sheet":43}],42:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}],44:[function(require,module,exports){
+},{"dup":28}],43:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"dup":29}],45:[function(require,module,exports){
+},{"dup":29}],44:[function(require,module,exports){
 module.exports = function message_maker (from) {
   let msg_id = 0
   return function make ({to, type, data = null, refs = {} }) {
@@ -4341,7 +4335,7 @@ module.exports = function message_maker (from) {
       return { head: [from, to, msg_id++], refs, type, data, meta: { stack }}
   }
 }
-},{}],46:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 module.exports = attributeToProperty
 
 var transform = {
@@ -4362,7 +4356,7 @@ function attributeToProperty (h) {
   }
 }
 
-},{}],47:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 var attrToProp = require('hyperscript-attribute-to-property')
 
 var VAR = 0, TEXT = 1, OPEN = 2, CLOSE = 3, ATTR = 4
@@ -4659,7 +4653,7 @@ var closeRE = RegExp('^(' + [
 ].join('|') + ')(?:[\.#][a-zA-Z0-9\u007F-\uFFFF_:-]+)*$')
 function selfClosing (tag) { return closeRE.test(tag) }
 
-},{"hyperscript-attribute-to-property":46}],48:[function(require,module,exports){
+},{"hyperscript-attribute-to-property":45}],47:[function(require,module,exports){
 var inserted = {};
 
 module.exports = function (css, options) {
@@ -4683,7 +4677,7 @@ module.exports = function (css, options) {
     }
 };
 
-},{}],49:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 (function (__filename){(function (){
 const style_sheet = require('support-style-sheet')
 const message_maker = require('message-maker')
@@ -4698,6 +4692,8 @@ var icon_count = 0
 module.exports = i_button
 
 function i_button (opts, parent_protocol) {
+    const {name, role = 'button', controls, body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
+    const el = make_element({name: 'i-button', classlist, role })
 //-------------------------------------------------
     const myaddress = `${__filename}-${id++}`
     const inbox = {}
@@ -4734,11 +4730,11 @@ function i_button (opts, parent_protocol) {
         if (type.match(/changed/)) return changed_event(data)
         if (type.match(/current/)) {
             is_current = data
-            return set_attr({ el, aria: 'current', prop: is_current})
+            return set_attr({aria: 'current', prop: is_current})
         }
     }
 //-------------------------------------------------
-    const {name, role = 'button', controls, body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
+
     const {icon} = icons
     const main_icon = i_icon({ name: icon?.name, path: icon?.path}, make_protocol(`${icon?.name}-${icon_count++}`))
     let is_current = current
@@ -4751,7 +4747,6 @@ function i_button (opts, parent_protocol) {
         const { notify, address, make } = recipients['parent']
         const data = role === 'tab' ?  {selected: is_current ? 'true' : is_selected, current: is_current} : role === 'switch' ? {checked: is_checked} : role === 'listbox' ? {expanded: is_expanded} : disabled ? {disabled} : role === 'option' ? {selected: is_selected, current: is_current} : null
         notify(make({ to: address, type: 'ready', data }))
-        const el = make_element({name: 'i-button', classlist, role })
         const shadow = el.attachShadow({mode: 'closed'})
         const text = make_element({name: 'span', classlist: 'text'})
         const avatar = make_element({name: 'span', classlist: 'avatar'})
@@ -4775,30 +4770,30 @@ function i_button (opts, parent_protocol) {
 
     function init_attr (el) {
         // define conditions
-        if (state) set_attr({ el, aria: 'aria-live', prop: 'assertive'})
+        if (state) set_attr({aria: 'aria-live', prop: 'assertive'})
         if (role === 'tab') {
-            set_attr({ el, aria: 'selected', prop: is_selected})
-            set_attr({ el, aria: 'controls', prop: controls})
+            set_attr({aria: 'selected', prop: is_selected})
+            set_attr({aria: 'controls', prop: controls})
             el.setAttribute('tabindex', is_current ? 0 : -1)
         }
         if (role === 'switch') {
-            set_attr({ el, aria: 'checked', prop: is_checked})
+            set_attr({aria: 'checked', prop: is_checked})
         }
-        if (role === 'listbox') set_attr({ el, aria: 'haspopup', prop: role})
+        if (role === 'listbox') set_attr({aria: 'haspopup', prop: role})
         if (disabled) {
-            set_attr({ el, aria: 'disabled', prop: is_disabled})
+            set_attr({aria: 'disabled', prop: is_disabled})
             el.setAttribute('disabled', is_disabled)
         } 
-        if (is_checked) set_attr({ el, aria: 'checked', prop: is_checked})
+        if (is_checked) set_attr({aria: 'checked', prop: is_checked})
         if (role.match(/option/)) {
             is_selected = is_current ? is_current : is_selected
-            set_attr({ el, aria: 'selected', prop: is_selected})
+            set_attr({aria: 'selected', prop: is_selected})
         }
         if (expanded !== undefined) {
-            set_attr({ el, aria: 'expanded', prop: is_expanded})
+            set_attr({aria: 'expanded', prop: is_expanded})
         }
         // make current status
-        if (current !== undefined) set_attr({ el, aria: 'current', prop: is_current})
+        if (current !== undefined) set_attr({aria: 'current', prop: is_current})
     }
 
     // make element to append into shadowDOM
@@ -4815,7 +4810,7 @@ function i_button (opts, parent_protocol) {
         })
     }
 
-    function set_attr ( { el, aria, prop}) {
+    function set_attr ({aria, prop}) {
         el.setAttribute(`aria-${aria}`, prop)
     }
 
@@ -4823,29 +4818,29 @@ function i_button (opts, parent_protocol) {
     function switched_event (data) {
         const {checked} = data
         is_checked = checked
-        if (is_checked) return set_attr({ el, aria: 'checked', prop: is_checked})
+        if (is_checked) return set_attr({aria: 'checked', prop: is_checked})
         else el.removeAttribute('aria-checked')
     }
     function expanded_event (data) {
         is_expanded = data
-        set_attr({ el, aria: 'expanded', prop: is_expanded})
+        set_attr({aria: 'expanded', prop: is_expanded})
     }
     function collapsed_event (data) {
         is_expanded = data
-        set_attr({ el, aria: 'expanded', prop: is_expanded})
+        set_attr({aria: 'expanded', prop: is_expanded})
     }
     // tab selected
     function tab_selected_event ({selected}) {
         is_selected = selected
-        set_attr({ el, aria: 'selected', prop: is_selected})
+        set_attr({aria: 'selected', prop: is_selected})
         el.setAttribute('tabindex', is_current ? 0 : -1)
     }
     function list_selected_event (state) {
         is_selected = state
-        set_attr({ el, aria: 'selected', prop: is_selected})
+        set_attr({aria: 'selected', prop: is_selected})
         if (mode === 'single-select') {
             is_current = is_selected
-            set_attr({ el, aria: 'current', prop: is_current})
+            set_attr({aria: 'current', prop: is_current})
         }
         // option is selected then send selected items to listbox button
         if (is_selected) notify(make({ to: address, type: 'changed', data: {text: body, cover, icon } }))
@@ -5388,14 +5383,12 @@ function i_button (opts, parent_protocol) {
     return widget()
 }
 }).call(this)}).call(this,"/src/index.js")
-},{"datdot-ui-icon":39,"make-element":50,"make-grid":51,"make-image":52,"message-maker":53,"support-style-sheet":54}],50:[function(require,module,exports){
+},{"datdot-ui-icon":38,"make-element":49,"make-grid":50,"make-image":51,"message-maker":44,"support-style-sheet":52}],49:[function(require,module,exports){
 arguments[4][31][0].apply(exports,arguments)
-},{"dup":31}],51:[function(require,module,exports){
+},{"dup":31}],50:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}],52:[function(require,module,exports){
+},{"dup":28}],51:[function(require,module,exports){
 arguments[4][33][0].apply(exports,arguments)
-},{"dup":33}],53:[function(require,module,exports){
-arguments[4][34][0].apply(exports,arguments)
-},{"dup":34}],54:[function(require,module,exports){
+},{"dup":33}],52:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
 },{"dup":29}]},{},[1]);
