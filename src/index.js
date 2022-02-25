@@ -47,7 +47,7 @@ function i_button (opts, parent_protocol) {
         if (type.match(/changed/)) return changed_event(data)
         if (type.match(/current/)) {
             is_current = data
-            return set_attr({aria: 'current', prop: is_current})
+            return set_attr({ el, aria: 'current', prop: is_current})
         }
     }
 //-------------------------------------------------
@@ -88,34 +88,30 @@ function i_button (opts, parent_protocol) {
 
     function init_attr (el) {
         // define conditions
-        if (state) set_attr({aria: 'aria-live', prop: 'assertive'})
+        if (state) set_attr({ el, aria: 'aria-live', prop: 'assertive'})
         if (role === 'tab') {
-            set_attr({aria: 'selected', prop: is_selected})
-            set_attr({aria: 'controls', prop: controls})
+            set_attr({ el, aria: 'selected', prop: is_selected})
+            set_attr({ el, aria: 'controls', prop: controls})
             el.setAttribute('tabindex', is_current ? 0 : -1)
         }
         if (role === 'switch') {
-            set_attr({aria: 'checked', prop: is_checked})
+            set_attr({ el, aria: 'checked', prop: is_checked})
         }
-        if (role === 'listbox') set_attr({aria: 'haspopup', prop: role})
+        if (role === 'listbox') set_attr({ el, aria: 'haspopup', prop: role})
         if (disabled) {
-            set_attr({aria: 'disabled', prop: is_disabled})
+            set_attr({ el, aria: 'disabled', prop: is_disabled})
             el.setAttribute('disabled', is_disabled)
         } 
-        if (is_checked) set_attr({aria: 'checked', prop: is_checked})
+        if (is_checked) set_attr({ el, aria: 'checked', prop: is_checked})
         if (role.match(/option/)) {
             is_selected = is_current ? is_current : is_selected
-            set_attr({aria: 'selected', prop: is_selected})
+            set_attr({ el, aria: 'selected', prop: is_selected})
         }
         if (expanded !== undefined) {
-            set_attr({aria: 'expanded', prop: is_expanded})
+            set_attr({ el, aria: 'expanded', prop: is_expanded})
         }
         // make current status
-        if (current !== undefined) set_attr({aria: 'current', prop: is_current})
-
-        function set_attr ({aria, prop}) {
-            el.setAttribute(`aria-${aria}`, prop)
-        }
+        if (current !== undefined) set_attr({ el, aria: 'current', prop: is_current})
     }
 
     // make element to append into shadowDOM
@@ -132,33 +128,37 @@ function i_button (opts, parent_protocol) {
         })
     }
 
+    function set_attr ( { el, aria, prop}) {
+        el.setAttribute(`aria-${aria}`, prop)
+    }
+
     // toggle
     function switched_event (data) {
         const {checked} = data
         is_checked = checked
-        if (is_checked) return set_attr({aria: 'checked', prop: is_checked})
+        if (is_checked) return set_attr({ el, aria: 'checked', prop: is_checked})
         else el.removeAttribute('aria-checked')
     }
     function expanded_event (data) {
         is_expanded = data
-        set_attr({aria: 'expanded', prop: is_expanded})
+        set_attr({ el, aria: 'expanded', prop: is_expanded})
     }
     function collapsed_event (data) {
         is_expanded = data
-        set_attr({aria: 'expanded', prop: is_expanded})
+        set_attr({ el, aria: 'expanded', prop: is_expanded})
     }
     // tab selected
     function tab_selected_event ({selected}) {
         is_selected = selected
-        set_attr({aria: 'selected', prop: is_selected})
+        set_attr({ el, aria: 'selected', prop: is_selected})
         el.setAttribute('tabindex', is_current ? 0 : -1)
     }
     function list_selected_event (state) {
         is_selected = state
-        set_attr({aria: 'selected', prop: is_selected})
+        set_attr({ el, aria: 'selected', prop: is_selected})
         if (mode === 'single-select') {
             is_current = is_selected
-            set_attr({aria: 'current', prop: is_current})
+            set_attr({ el, aria: 'current', prop: is_current})
         }
         // option is selected then send selected items to listbox button
         if (is_selected) notify(make({ to: address, type: 'changed', data: {text: body, cover, icon } }))
