@@ -2771,14 +2771,6 @@ module.exports = i_button
 
 function i_button (opts, parent_protocol) {
     const {name, role = 'button', controls, body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
-    const {icon} = icons
-    const main_icon = i_icon({ name: icon?.name, path: icon?.path}, make_protocol(`${icon?.name}-${icon_count++}`))
-    let is_current = current
-    let is_checked = checked
-    let is_disabled = disabled
-    let is_selected = selected
-    let is_expanded = 'expanded' in opts ? expanded : void 0
-
     const el = make_element({name: 'i-button', classlist, role })
 //-------------------------------------------------
     const myaddress = `${__filename}-${id++}`
@@ -2820,6 +2812,14 @@ function i_button (opts, parent_protocol) {
         }
     }
 //-------------------------------------------------
+
+    const {icon} = icons
+    const main_icon = i_icon({ name: icon?.name, path: icon?.path}, make_protocol(`${icon?.name}-${icon_count++}`))
+    let is_current = current
+    let is_checked = checked
+    let is_disabled = disabled
+    let is_selected = selected
+    let is_expanded = 'expanded' in opts ? expanded : void 0
 
     function widget () {
         const { notify, address, make } = recipients['parent']
@@ -3975,7 +3975,7 @@ function i_list (opts = {}, parent_protocol) {
         const { head, refs, type, data, meta } = msg // receive msg
         inbox[head.join('/')] = msg                  // store msg
         const [from, to] = head
-        console.log('New message', { from, name: recipients[from].name, msg })
+        console.log('New message', { from, name: names[from].name, msg })
         // handle
         if (from === 'menuitem') return handle_click_event(msg)
         if (type === 'click' && role === 'option') return handle_select_event({from, to, data})
@@ -4174,7 +4174,7 @@ function i_list (opts = {}, parent_protocol) {
         }
         function handle_mutiple_selected ({from, lists, selected}) {
             const type = selected ? 'selected' : 'unselected'
-            const { notify, address, make } = recipients[from]
+            const { notify, address, make } = names[from]
             notify(make({ to: address, type, data: { selected } }))
             lists.forEach( list => {
                 const label = list.firstChild.getAttribute('aria-label') 
@@ -5384,8 +5384,27 @@ function i_button (opts, parent_protocol) {
 }
 }).call(this)}).call(this,"/src/index.js")
 },{"datdot-ui-icon":38,"make-element":49,"make-grid":50,"make-image":51,"message-maker":44,"support-style-sheet":52}],49:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"dup":31}],50:[function(require,module,exports){
+module.exports = make_element
+
+function make_element({name = '', classlist = null, role }) {
+    const el = document.createElement(name)
+    if (classlist) set_class()
+    if (role) set_role()
+    return el
+
+    function set_class () {
+        el.className = classlist
+    }
+    
+    function set_role () {
+        const tabindex = role.match(/button|switch/) ? 0 : -1
+        el.setAttribute('role', role)
+        el.setAttribute('tabindex',  tabindex)
+    }
+}
+
+
+},{}],50:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
 },{"dup":28}],51:[function(require,module,exports){
 arguments[4][33][0].apply(exports,arguments)
