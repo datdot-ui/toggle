@@ -2801,7 +2801,7 @@ function i_button (opts, parent_protocol) {
     }
 //-------------------------------------------------
 
-    const {icon = {}, select = {}, list = {} } = icons
+    const {icon = {}, select = { name: 'check' }, list = { name: 'arrow-down'} } = icons
     if (icon.name) var main_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
     let is_current = current
     let is_checked = checked
@@ -4831,6 +4831,7 @@ function i_button (opts, parent_protocol) {
             set_attr({aria: 'current', prop: is_current})
         }
         // option is selected then send selected items to listbox button
+        const { make } = recipients['parent']
         if (is_selected) notify(make({ to: address, type: 'changed', data: {text: body, cover, icon } }))
     }
     function changed_event (data) {

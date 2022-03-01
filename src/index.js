@@ -162,6 +162,7 @@ function i_button (opts, parent_protocol) {
             set_attr({aria: 'current', prop: is_current})
         }
         // option is selected then send selected items to listbox button
+        const { make } = recipients['parent']
         if (is_selected) notify(make({ to: address, type: 'changed', data: {text: body, cover, icon } }))
     }
     function changed_event (data) {
