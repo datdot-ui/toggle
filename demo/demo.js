@@ -53,7 +53,7 @@ function demo () {
     const primary = i_button(
     {
         name: 'primary', 
-        body: bel`<div>Hello</div>`,
+        body: 'Hello',
         theme:
         { 
             style: ` `, 
@@ -181,9 +181,9 @@ function demo () {
         name: 'toggle', 
         role: 'switch', 
         body: 'Toggle',
-        // icons: {
-        //     icon: {name: 'edit'},
-        // },
+        icons: {
+            icon: {name: 'edit'},
+        },
         // cover: 'https://cdn.pixabay.com/photo/2016/02/27/06/43/cherry-blossom-tree-1225186_960_720.jpg',
         // checked: false, 
         theme : {
@@ -231,10 +231,7 @@ function demo () {
         body: 'Tab3',
         theme: tab_theme
     }, make_protocol('tab3'))
-    const demo_tab = bel`
-    <nav class=${css.tabs} role="tablist" aria-label="tabs">
-        ${tab1}${tab2}${tab3}
-    </nav>`
+    const demo_tab = bel` <nav class=${css.tabs} role="tablist" aria-label="tabs"> ${tab1}${tab2}${tab3} </nav>`
 
     // Tab & icon
     const tab4 = i_button(
@@ -332,10 +329,7 @@ function demo () {
             }
         }
     }, make_protocol('search'))
-    const demo_icon_tab = bel`
-    <nav class=${css.tabs} role="tablist" aria-label="tabs">
-        ${tab4}${tab5}${tab6}
-    </nav>`
+    const demo_icon_tab = bel` <nav class=${css.tabs} role="tablist" aria-label="tabs"> ${tab4}${tab5}${tab6} </nav>`
 
     // icons
     let icon_cancel = {name: 'cross'}
@@ -412,9 +406,7 @@ function demo () {
         role: 'listbox',
         body: 'Filter',
         icons: {
-            select: {
-                name: 'filter',
-            }
+            select: { name: 'filter' }
         },
         // classlist: 'icon-col-2',
         expanded: false,
@@ -459,9 +451,7 @@ function demo () {
         role: 'option',
         // body: 'Star', 
         icons: {
-            icon: {
-                name: 'star',
-            }
+            icon: { name: 'star' }, list: { name: 'check' }
         },
         // cover: 'https://cdn.pixabay.com/photo/2021/08/31/11/58/woman-6588614_960_720.jpg',
         // classlist: 'icon-col-2',
@@ -479,9 +469,7 @@ function demo () {
         body: 'DatDot app', 
         role: 'option',
         icons: {
-            icon: {
-                name: 'datdot-white', 
-            }
+            icon: { name: 'datdot-white' }, list: { name: 'check' }
         },
         cover: 'https://cdn.pixabay.com/photo/2021/08/31/11/58/woman-6588614_960_720.jpg',
         // cover: 'https://cdn.pixabay.com/photo/2012/03/01/00/55/garden-19830_960_720.jpg',

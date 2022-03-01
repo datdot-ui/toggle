@@ -54,8 +54,8 @@ function i_button (opts, parent_protocol) {
     }
 //-------------------------------------------------
 
-    const {icon} = icons
-    const main_icon = i_icon({ name: icon?.name, path: icon?.path}, make_protocol(`${icon?.name}-${icon_count++}`))
+    const {icon = {}, select = {}, list = {} } = icons
+    if (icon.name) var main_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
     let is_current = current
     let is_checked = checked
     let is_disabled = disabled
@@ -116,13 +116,13 @@ function i_button (opts, parent_protocol) {
     }
 
     // make element to append into shadowDOM
-    function append_items(items, shadow, option, listbox) {           
+    function append_items(items, shadow, option, listbox) {         
         const [main_icon, add_cover, add_text] = items
         const target = role === 'listbox' ? listbox : role === 'option' ?  option : shadow
         // list of listbox or dropdown menu
-        if (role.match(/option/)) shadow.append(i_icon({ name: 'check'},  make_protocol(`check-${icon_count++}`)), option)
+        if (role.match(/option/)) shadow.append(i_icon(list,  make_protocol(`${list.name}-${icon_count++}`)), option)
         // listbox or dropdown button
-        if (role.match(/listbox/)) shadow.append(i_icon({ name: 'arrow-down' }, make_protocol(`arrow-down-${icon_count++}`)), listbox)
+        if (role.match(/listbox/)) shadow.append(i_icon(select, make_protocol(`${select.name}-${icon_count++}`)), listbox)
         items.forEach( item => {
             if (item === undefined) return
             target.append(item)
