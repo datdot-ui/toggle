@@ -54,7 +54,7 @@ function i_button (opts, parent_protocol) {
     }
 //-------------------------------------------------
 
-    const {icon = {}, select = {}, list = {} } = icons
+    const {icon = {}, select = { name: 'check' }, list = { name: 'arrow-down'} } = icons
     if (icon.name) var main_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
     let is_current = current
     let is_checked = checked

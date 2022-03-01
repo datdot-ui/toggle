@@ -2638,7 +2638,7 @@ function footer (opts = {}, parent_protocol) {
     `
     return widget()
 }
-}).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-terminal@1d03cc5ee47906a79726a4884cd75cf8ff8c6c4c/node_modules/datdot-terminal/src/node_modules/footer.js")
+}).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-terminal@f56dd2c9186f014f235631e7ebe7c89c2606416c/node_modules/datdot-terminal/src/node_modules/footer.js")
 },{"./make-grid":28,"bel":5,"datdot-ui-button":30,"datdot-ui-dropdown":35,"message-maker":44,"support-style-sheet":29}],27:[function(require,module,exports){
  module.exports = {int2hsla, str2hashint}
  function int2hsla (i) { return `hsla(${i % 360}, 100%, 70%, 1)` }
@@ -2801,8 +2801,8 @@ function i_button (opts, parent_protocol) {
     }
 //-------------------------------------------------
 
-    const {icon} = icons
-    const main_icon = i_icon({ name: icon?.name, path: icon?.path}, make_protocol(`${icon?.name}-${icon_count++}`))
+    const {icon = {}, select = {}, list = {} } = icons
+    if (icon.name) var main_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
     let is_current = current
     let is_checked = checked
     let is_disabled = disabled
@@ -2863,13 +2863,13 @@ function i_button (opts, parent_protocol) {
     }
 
     // make element to append into shadowDOM
-    function append_items(items, shadow, option, listbox) {           
+    function append_items(items, shadow, option, listbox) {         
         const [main_icon, add_cover, add_text] = items
         const target = role === 'listbox' ? listbox : role === 'option' ?  option : shadow
         // list of listbox or dropdown menu
-        if (role.match(/option/)) shadow.append(i_icon({ name: 'check'},  make_protocol(`check-${icon_count++}`)), option)
+        if (role.match(/option/)) shadow.append(i_icon(list,  make_protocol(`${list.name}-${icon_count++}`)), option)
         // listbox or dropdown button
-        if (role.match(/listbox/)) shadow.append(i_icon({ name: 'arrow-down' }, make_protocol(`arrow-down-${icon_count++}`)), listbox)
+        if (role.match(/listbox/)) shadow.append(i_icon(select, make_protocol(`${select.name}-${icon_count++}`)), listbox)
         items.forEach( item => {
             if (item === undefined) return
             target.append(item)
@@ -3448,17 +3448,17 @@ function i_button (opts, parent_protocol) {
 
     return widget()
 }
-}).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-terminal@1d03cc5ee47906a79726a4884cd75cf8ff8c6c4c/node_modules/datdot-ui-button/src/index.js")
+}).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-terminal@f56dd2c9186f014f235631e7ebe7c89c2606416c/node_modules/datdot-ui-button/src/index.js")
 },{"datdot-ui-icon":38,"make-element":31,"make-grid":32,"make-image":33,"message-maker":44,"support-style-sheet":34}],31:[function(require,module,exports){
 module.exports = make_element
 
 function make_element({name = '', classlist = null, role }) {
     const el = document.createElement(name)
-    if (classlist) ste_class()
+    if (classlist) set_class()
     if (role) set_role()
     return el
 
-    function ste_class () {
+    function set_class () {
         el.className = classlist
     }
     
@@ -3731,7 +3731,7 @@ function i_dropdown (opts, parent_protocol) {
 }
 
 
-}).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-terminal@1d03cc5ee47906a79726a4884cd75cf8ff8c6c4c/node_modules/datdot-ui-dropdown/src/index.js")
+}).call(this)}).call(this,"/node_modules/.pnpm/github.com+datdotorg+datdot-terminal@f56dd2c9186f014f235631e7ebe7c89c2606416c/node_modules/datdot-ui-dropdown/src/index.js")
 },{"datdot-ui-button":30,"make-list":36,"message-maker":44,"support-style-sheet":37}],36:[function(require,module,exports){
 (function (__filename){(function (){
 const i_list = require('datdot-ui-list')
@@ -4723,7 +4723,7 @@ function i_button (opts, parent_protocol) {
     }
 //-------------------------------------------------
 
-    const {icon = {}, select = {}, list = {} } = icons
+    const {icon = {}, select = { name: 'check' }, list = { name: 'arrow-down'} } = icons
     if (icon.name) var main_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
     let is_current = current
     let is_checked = checked
@@ -5372,27 +5372,8 @@ function i_button (opts, parent_protocol) {
 }
 }).call(this)}).call(this,"/src/index.js")
 },{"datdot-ui-icon":38,"make-element":49,"make-grid":50,"make-image":51,"message-maker":44,"support-style-sheet":52}],49:[function(require,module,exports){
-module.exports = make_element
-
-function make_element({name = '', classlist = null, role }) {
-    const el = document.createElement(name)
-    if (classlist) set_class()
-    if (role) set_role()
-    return el
-
-    function set_class () {
-        el.className = classlist
-    }
-    
-    function set_role () {
-        const tabindex = role.match(/button|switch/) ? 0 : -1
-        el.setAttribute('role', role)
-        el.setAttribute('tabindex',  tabindex)
-    }
-}
-
-
-},{}],50:[function(require,module,exports){
+arguments[4][31][0].apply(exports,arguments)
+},{"dup":31}],50:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
 },{"dup":28}],51:[function(require,module,exports){
 arguments[4][33][0].apply(exports,arguments)
