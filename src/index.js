@@ -55,7 +55,7 @@ function i_button (opts, parent_protocol) {
 //-------------------------------------------------
 
     const {icon = {}, select = { name: 'check' }, list = { name: 'arrow-down'} } = icons
-    if (icon.name) var main_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
+    if (icon?.name) var main_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
     let is_current = current
     let is_checked = checked
     let is_disabled = disabled
@@ -63,7 +63,7 @@ function i_button (opts, parent_protocol) {
     let is_expanded = 'expanded' in opts ? expanded : void 0
 
     function widget () {
-        const { notify, address, make } = recipients['parent']
+        const { make } = recipients['parent']
         const data = role === 'tab' ?  {selected: is_current ? 'true' : is_selected, current: is_current} : role === 'switch' ? {checked: is_checked} : role === 'listbox' ? {expanded: is_expanded} : disabled ? {disabled} : role === 'option' ? {selected: is_selected, current: is_current} : null
         notify(make({ to: address, type: 'ready', data }))
         const shadow = el.attachShadow({mode: 'closed'})
