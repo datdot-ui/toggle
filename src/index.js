@@ -157,7 +157,7 @@ function i_button (opts, parent_protocol) {
     function list_selected_event (state) {
         is_selected = state
         set_attr({aria: 'selected', prop: is_selected})
-        if (mode === 'single-select') {
+        if (mode === 'listbox-single') {
             is_current = is_selected
             set_attr({aria: 'current', prop: is_current})
         }
