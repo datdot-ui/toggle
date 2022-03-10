@@ -223,11 +223,16 @@ function i_button (opts, parent_protocol) {
     function handle_click () {
         const { make } = recipients['parent']
         const type = 'click'
+        const prev_state = {
+            expanded: is_expanded,
+            selected: is_selected
+        }
         if ('current' in opts) {
             notify(make({ to: address, type: 'current', data: {name, current: is_current } }) )
         }
         if (expanded !== undefined) {
-            const type = !is_expanded ? 'expanded' : 'collapsed'
+            is_expanded = !prev_state.expanded
+            const type = is_expanded ? 'expanded' : 'collapsed'
             notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
         }
         if (role === 'button') {
@@ -235,18 +240,18 @@ function i_button (opts, parent_protocol) {
         }
         if (role === 'tab') {
             if (is_current) return
-            is_selected = !is_selected
+            is_selected = prev_state.selected
             return notify(make({ to: address, type, data: {name, selected: is_selected } }) )
         }
         if (role === 'switch') {
             return notify(make({ to: address, type, data: {name, checked: is_checked } }) )
         }
         if (role === 'listbox') {
-            is_expanded = !is_expanded
+            is_expanded = !prev_state.expanded
             return notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
         }
         if (role === 'option') {
-            is_selected = !is_selected
+            is_selected = prev_state.selected
             return notify(make({ to: address, type, data: {name, selected: is_selected, content: is_selected ? {text: body, cover, icon} : '' } }) )
         }
     }
