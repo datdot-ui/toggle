@@ -5173,7 +5173,7 @@ function i_button (opts, parent_protocol) {
             is_expanded = !prev_state.expanded
             return notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
         }
-        if (role === 'option') {
+        if (role === 'option' || role === 'menuitem') {
             is_selected = prev_state.selected
             return notify(make({ to: address, type, data: {name, selected: is_selected, content: is_selected ? {text: body, cover, icon} : '' } }) )
         }
