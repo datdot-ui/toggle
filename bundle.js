@@ -4959,7 +4959,7 @@ function i_button (opts, parent_protocol) {
         const { head, refs, type, data, meta } = msg // receive msg
         inbox[head.join('/')] = msg                  // store msg
         const [from, to, msg_id] = head
-        console.log('New message', { from, msg })
+        console.log('BUTTON', { type, name: names[from].name, msg })
         // toggle
         if (type.match(/switched/)) return switched_event(data)
         // dropdown
@@ -5077,8 +5077,8 @@ function i_button (opts, parent_protocol) {
         set_attr({aria: 'selected', prop: is_selected})
         el.setAttribute('tabindex', is_current ? 0 : -1)
     }
-    function list_selected_event (state) {
-        is_selected = state
+    function list_selected_event (data) {
+        is_selected = data.selected
         set_attr({aria: 'selected', prop: is_selected})
         if (mode === 'listbox-single') {
             is_current = is_selected
