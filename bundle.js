@@ -5078,7 +5078,7 @@ function i_button (opts, parent_protocol) {
         el.setAttribute('tabindex', is_current ? 0 : -1)
     }
     function list_selected_event (data) {
-        is_selected = data.selected
+        is_selected = data
         set_attr({aria: 'selected', prop: is_selected})
         if (mode === 'listbox-single') {
             is_current = is_selected
@@ -5150,7 +5150,8 @@ function i_button (opts, parent_protocol) {
             expanded: is_expanded,
             selected: is_selected
         }
-        if ('current' in opts) {
+        // debugger
+        if (is_current) {
             notify(make({ to: address, type: 'current', data: {name, current: is_current } }) )
         }
         if (expanded !== undefined) {
@@ -5159,11 +5160,11 @@ function i_button (opts, parent_protocol) {
             notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
         }
         if (role === 'button') {
-            return notify( make({type, to: controls} ))
+            return notify( make({ to: address, type } ))
         }
         if (role === 'tab') {
             if (is_current) return
-            is_selected = prev_state.selected
+            is_selected = !prev_state.selected
             return notify(make({ to: address, type, data: {name, selected: is_selected } }) )
         }
         if (role === 'switch') {
@@ -5174,7 +5175,7 @@ function i_button (opts, parent_protocol) {
             return notify(make({ to: address, type, data: {name, expanded: is_expanded } }))
         }
         if (role === 'option' || role === 'menuitem') {
-            is_selected = prev_state.selected
+            is_selected = !prev_state.selected
             return notify(make({ to: address, type, data: {name, selected: is_selected, content: is_selected ? {text: body, cover, icon} : '' } }) )
         }
     }
