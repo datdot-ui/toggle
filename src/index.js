@@ -48,6 +48,7 @@ function i_button (opts, parent_protocol) {
         if (type.match(/selected|unselected/)) return list_selected_event(data)
         if (type.match(/changed/)) return changed_event(data)
         if (type.match(/current/)) {
+            // debugger
             is_current = data
             return set_attr({aria: 'current', prop: is_current})
         }
@@ -621,7 +622,11 @@ function i_button (opts, parent_protocol) {
         --weight: ${weight_hover ? weight_hover : 'var(--menu-weight-hover)'};
         --color: ${color_hover ? color_hover : 'var(--menu-color-hover)'};
     }
-    :host(i-button[role="menuitem"]:focus) {
+    // :host(i-button[role="menuitem"][aria-selected="true"]:focus) {
+    //     --color: var(--color-focus);
+    //     --bg-color: var(--bg-color-focus);
+    // }
+    :host(i-button[role="menuitem"][aria-selected="true"]) {
         --color: var(--color-focus);
         --bg-color: var(--bg-color-focus);
     }
