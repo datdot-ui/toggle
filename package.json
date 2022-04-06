@@ -27,12 +27,12 @@
   "homepage": "https://github.com/playproject-io/datdot-ui-button#readme",
   "devDependencies": {
     "budo": "^11.6.4",
-    "ui-domlog": "github:fionataeyang/ui-domlog"
+    "ui-domlog": "github:datdot-ui/domlog#0.0.0-alpha"
   },
   "dependencies": {
     "bel": "^6.0.0",
     "csjs-inject": "^1.0.1",
-    "datdot-ui-graphic": "github:fionataeyang/datdot-ui-graphic",
+    "datdot-ui-graphic": "github:datdot-ui/icon#0.0.0-alpha",
     "debug": "^4.1.1"
   }
 }
