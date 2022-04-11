@@ -15,6 +15,7 @@ function i_button (opts, parent_protocol) {
     const el = make_element({name: 'i-button', classlist, role })
     const {icon = {}, select = { name: 'check' }, list = { name: 'arrow-down'} } = icons
     var status = 'default_status'
+    var STATE = {}
 
 /* ------------------------------------------------
                     <protocol>
@@ -78,7 +79,7 @@ function make_button () {
     const add_cover = typeof cover === 'string' ? avatar : undefined
     const add_text = body ? typeof body === 'object' ? 'undefined' : text : undefined
     avatar.append(make_img({src: cover, alt: name}))
-    if (!status === 'disabled') el.onclick = handle_click
+    if (status !== 'disabled') el.onclick = handle_click
     el.setAttribute('aria-label', name)
     text.append(body)
     style_sheet(shadow, style)
