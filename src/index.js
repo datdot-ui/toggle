@@ -1,5 +1,5 @@
 const style_sheet = require('support-style-sheet')
-const message_maker = require('message-maker')
+const protocol_maker = require('protocol-maker')
 const make_img = require('make-image')
 const make_element = require('make-element')
 const make_grid = require('make-grid')
@@ -10,7 +10,7 @@ var icon_count = 0
 
 module.exports = i_button
 
-function i_button (opts, parent_protocol) {
+function i_button (opts, parent_wire) {
     const {name, role = 'button', controls, body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
     const el = make_element({name: 'i-button', classlist, role })
     const {icon = {}, select = { name: 'check' }, list = { name: 'arrow-down'} } = icons
@@ -20,29 +20,14 @@ function i_button (opts, parent_protocol) {
 /* ------------------------------------------------
                     <protocol>
 ------------------------------------------------ */
-    const myaddress = `${__filename}-${id++}`
-    const inbox = {}
-    const outbox = {}
-    const recipients = {}
-    const names = {}
-    const message_id = to => (outbox[to] = 1 + (outbox[to]||0))
 
-    const {notify, address} = parent_protocol(myaddress, listen)
-    names[address] = recipients['parent'] = { name: 'parent', notify, address, make: message_maker(myaddress) }
-    notify(recipients['parent'].make({ to: address, type: 'ready', refs: {} }))
-
-    function make_protocol (name) {
-        return function protocol (address, notify) {
-            names[address] = recipients[name] = { name, address, notify, make: message_maker(myaddress) }
-            return { notify: listen, address: myaddress }
-        }
-    }
+    const initial_contacts = { 'parent': parent_wire }
+    const contacts = protocol_maker('input-number', listen, initial_contacts)
 
     function listen (msg) {
         const { head, refs, type, data, meta } = msg // receive msg
-        inbox[head.join('/')] = msg                  // store msg
         const [from, to, msg_id] = head
-        console.log('BUTTON', { type, name: names[from].name, msg })
+        console.log('BUTTON', { type, name: contacts.by_address[from].name, msg })
         const cases = {
             'switch': () => handle_switched_event(data), //toggle
             'expanded': () => handle_expanded_event(data), // dropdown
@@ -64,11 +49,11 @@ function i_button (opts, parent_protocol) {
 
 
 function make_button () {
-    const { make } = recipients['parent']
+    const $parent = contacts.by_name['parent']
     // init_status(role)
-    notify(make({ to: address, type: 'ready', data: { status } }))
+    $parent.notify($parent.make({ to: $parent.address, type: 'ready', data: { status } }))
     
-    if (icon?.name) var main_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
+    if (icon?.name) var main_icon = i_icon({ name: icon.name, path: icon.path}, contacts.add(`${icon.name}-${icon_count++}`))
     console.log({status, role})
     const shadow = el.attachShadow({mode: 'closed'})
     const text = make_element({name: 'span', classlist: 'text'})
@@ -140,9 +125,9 @@ function make_button () {
         const [main_icon, add_cover, add_text] = items
         const target = role === 'listbox' ? listbox : role === 'option' ?  option : shadow
         // list of listbox or dropdown menu
-        if (role.match(/option/)) shadow.append(i_icon(list,  make_protocol(`${list.name}-${icon_count++}`)), option)
+        if (role.match(/option/)) shadow.append(i_icon(list,  contacts.add(`${list.name}-${icon_count++}`)), option)
         // listbox or dropdown button
-        if (role.match(/listbox/)) shadow.append(i_icon(select, make_protocol(`${select.name}-${icon_count++}`)), listbox)
+        if (role.match(/listbox/)) shadow.append(i_icon(select, contacts.add(`${select.name}-${icon_count++}`)), listbox)
         items.forEach( item => {
             if (item === undefined) return
             target.append(item)
@@ -180,8 +165,8 @@ function make_button () {
             set_attr({aria: 'current', prop: STATE.current})
         }
         // option is selected then send selected items to listbox button
-        const { make } = recipients['parent']
-        if (STATE.selected) notify(make({ to: address, type: 'changed', data: {text: body, cover, icon } }))
+        const $parent = contacts.by_name['parent']
+        if (STATE.selected) $parent.notify($parent.make({ to: $parent.address, type: 'changed', data: {text: body, cover, icon } }))
     }
     function handle_changed_event (data) {
         const {text, cover, icon, title} = data
@@ -213,7 +198,7 @@ function make_button () {
                 if (old_avatar) old_avatar.remove()
             }
             if (icon) {
-                const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
+                const new_icon = i_icon({ name: icon.name, path: icon.path}, contacts.add(`${icon.name}-${icon_count++}`))
                 if (old_icon) old_icon.parentNode.replaceChild(new_icon, old_icon)
                 else shadow.insertBefore(new_icon, shadow.firstChild)
             } else {
@@ -224,7 +209,7 @@ function make_button () {
         if (role.match(/listbox/)) {
             listbox.innerHTML = ''
             if (icon) {
-                const new_icon = i_icon({ name: icon.name, path: icon.path}, make_protocol(`${icon.name}-${icon_count++}`))
+                const new_icon = i_icon({ name: icon.name, path: icon.path}, contacts.add(`${icon.name}-${icon_count++}`))
                 if (role.match(/listbox/)) listbox.append(new_icon)
             }
             if (cover) {
@@ -239,7 +224,7 @@ function make_button () {
     }
     // button click
     function handle_click () {
-        const { make } = recipients['parent']
+        const $parent = contacts.by_name['parent']
         const type = 'click'
         const prev_state = {
             expanded: STATE.expanded,
@@ -247,31 +232,31 @@ function make_button () {
         }
         // debugger
         if (STATE.current) {
-            notify(make({ to: address, type: 'current', data: {name, current: STATE.current } }) )
+            $parent.notify($parent.make({ to: $parent.address, type: 'current', data: {name, current: STATE.current } }))
         }
         if (expanded !== undefined) {
             STATE.expanded = !prev_state.expanded
             const type = STATE.expanded ? 'expanded' : 'collapsed'
-            notify(make({ to: address, type, data: {name, expanded: STATE.expanded } }))
+            $parent.notify($parent.make({ to: $parent.address, type, data: {name, expanded: STATE.expanded } }))
         }
         if (role === 'button') {
-            return notify( make({ to: address, type } ))
+            return $parent.notify($parent.make({ to: $parent.address, type }))
         }
         if (role === 'tab') {
             if (STATE.current) return
             STATE.selected = !prev_state.selected
-            return notify(make({ to: address, type, data: {name, selected: STATE.selected } }) )
+            return $parent.notify($parent.make({ to: $parent.address, type, data: {name, selected: STATE.selected } }))
         }
         if (role === 'switch') {
-            return notify(make({ to: address, type, data: {name, checked: STATE.checked } }) )
+            return $parent.notify($parent.make({ to: $parent.address, type, data: {name, checked: STATE.checked } }))
         }
         if (role === 'listbox') {
             STATE.expanded = !prev_state.expanded
-            return notify(make({ to: address, type, data: {name, expanded: STATE.expanded } }))
+            return $parent.notify($parent.make({ to: $parent.address, type, data: {name, expanded: STATE.expanded } }))
         }
         if (role === 'option' || role === 'menuitem') {
             STATE.selected = !prev_state.selected
-            return notify(make({ to: address, type, data: {name, selected: STATE.selected, content: STATE.selected ? {text: body, cover, icon} : '' } }) )
+            return $parent.notify($parent.make({ to: $parent.address, type, data: {name, selected: STATE.selected, content: STATE.selected ? {text: body, cover, icon} : '' } }))
         }
     }
    

@@ -5,50 +5,29 @@ const i_button = require('..')
 // custom element
 const img_btn = require('img-btn')
 // datdot-ui dependences
-const terminal = require('datdot-terminal')
 const icon = require('datdot-ui-icon')
-const message_maker = require('message-maker')
+const protocol_maker = require('protocol-maker')
 const make_grid = require('../src/node_modules/make-grid')
 
 var id = 0
 
 function demo () {
 //------------------------------------------
-    const myaddress = `${__filename}-${id++}`
-    const inbox = {}
-    const outbox = {}
-    const recipients = {}
-    const names = {}
-    const message_id = to => (outbox[to] = 1 + (outbox[to]||0))
+    const contacts = protocol_maker('demo', listen)
 
-    function make_protocol (name) {
-        return function protocol (address, notify) {
-            names[address] = recipients[name] = { name, address, notify, make: message_maker(myaddress) }
-            return { notify: listen, address: myaddress }
-        }
-    }
     function listen (msg) {
         console.log('New message', { msg })
         const { head, refs, type, data, meta } = msg // receive msg
-        inbox[head.join('/')] = msg                  // store msg
         const [from] = head
         // send back ack
-        const { notify, make, address } = names[from]
-        notify(make({ to: address, type: 'ack', refs: { 'cause': head } }))
+        const $from = contacts.by_address[from]
+        $from.notify($from.make({ to: $from.address, type: 'ack', refs: { 'cause': head } }))
         // handle
         if (type === 'click') return handle_click_event(msg)
         if (type === 'changed') return handle_changed_event(type, data)
         if (type.match(/current/)) return 
-        const { notify: logs_notify, make: logs_make, address: logs_address } = recipients['logs']
-        logs_notify(logs_make({ to: logs_address, type, data }))
     }
 //------------------------------------------
-    // logs must be initialized first before components
-    const logs = terminal(
-    {
-        mode: 'compact', 
-        expanded: false
-    }, make_protocol('logs'))
     // buttons
     const primary = i_button(
     {
@@ -66,19 +45,19 @@ function demo () {
                 // bg_color_hover: 'var(--color-black)',
             }
         }
-    }, make_protocol('primary'))
+    }, contacts.add('primary'))
 
     const current1 = i_button({
         name: 'button1',
         body: 'Button1',
         expanded: false,
         // current: true,
-    }, make_protocol('button1'))
+    }, contacts.add('button1'))
 
     const current2 = i_button({
         name: 'button2',
         body: 'Button2',
-    }, make_protocol('button2'))
+    }, contacts.add('button2'))
 
     // image buttons
     const thumb1_btn = i_button(
@@ -103,7 +82,7 @@ function demo () {
                 }
             }
         }
-    }, make_protocol('thumb-cover'))
+    }, contacts.add('thumb-cover'))
     
     const thumb2_btn = i_button(
     {
@@ -118,7 +97,7 @@ function demo () {
                 size_hover: 'var(--size26)',
             }
         }
-    }, make_protocol('thumb-blossom'))
+    }, contacts.add('thumb-blossom'))
 
     const rabbit_btn = img_btn(
     {
@@ -131,7 +110,7 @@ function demo () {
             // icon_fill: 'var(--color-amaranth-pink)',
             // icon_fill_hover: 'var(--color-amaranth-pink)',
         }
-    }, i_button, make_protocol('rabbit'))
+    }, i_button, contacts.add('rabbit'))
     const dog_btn = img_btn(
     {
         name: 'dog', 
@@ -143,7 +122,7 @@ function demo () {
             // icon_fill: 'var(--color-purple)',
             // icon_fill_hover: 'var(--color-purple)'
         }
-    }, i_button, make_protocol('dog'))
+    }, i_button, contacts.add('dog'))
     const fox_btn = img_btn(
     {
         name: 'fox', 
@@ -156,7 +135,7 @@ function demo () {
             // icon_fill: 'var(--color-orange)',
             // icon_fill_hover: 'var(--color-orange)'
         }
-    },i_button, make_protocol('fox'))
+    },i_button, contacts.add('fox'))
 
     const disabled = i_button(
     {
@@ -174,7 +153,7 @@ function demo () {
                 // bg_color: 'var(--color-slimy-green)'
             }
         }
-    }, make_protocol('disable'))
+    }, contacts.add('disable'))
 
     const toggle = i_button(
     {
@@ -192,7 +171,7 @@ function demo () {
                 current_bg_color: 'var(--color-green)'
             }
         }
-    }, make_protocol('toggle'))
+    }, contacts.add('toggle'))
 
     // Tab element
     const tab_theme = {
@@ -212,7 +191,7 @@ function demo () {
         body: 'Tab1',
         current: true, 
         theme: tab_theme 
-    }, make_protocol('tab1'))
+    }, contacts.add('tab1'))
     const tab2 = i_button(
     {
         page: 'PLAN', 
@@ -221,7 +200,7 @@ function demo () {
         controls: 'panel2',
         body: 'Tab2', 
         theme: tab_theme
-    }, make_protocol('tab2'))
+    }, contacts.add('tab2'))
     const tab3 = i_button(
     {
         page: 'PLAN', 
@@ -230,7 +209,7 @@ function demo () {
         controls: 'panel3',
         body: 'Tab3',
         theme: tab_theme
-    }, make_protocol('tab3'))
+    }, contacts.add('tab3'))
     const demo_tab = bel` <nav class=${css.tabs} role="tablist" aria-label="tabs"> ${tab1}${tab2}${tab3} </nav>`
 
     // Tab & icon
@@ -268,7 +247,7 @@ function demo () {
                 }
             }
         }
-    }, make_protocol('notice'))
+    }, contacts.add('notice'))
     const tab5 = i_button(
     {
         page: 'JOBS', 
@@ -307,7 +286,7 @@ function demo () {
                 }
             }
         }
-    }, make_protocol('warning'))
+    }, contacts.add('warning'))
     const tab6 = i_button(
     {
         page: 'JOBS', 
@@ -328,7 +307,7 @@ function demo () {
                 icon_size: '24px', 
             }
         }
-    }, make_protocol('search'))
+    }, contacts.add('search'))
     const demo_icon_tab = bel` <nav class=${css.tabs} role="tablist" aria-label="tabs"> ${tab4}${tab5}${tab6} </nav>`
 
     // icons
@@ -351,7 +330,7 @@ function demo () {
                 bg_color_hover: 'var(--color-flame)'
             }
         }
-    }, make_protocol('cancel'))
+    }, contacts.add('cancel'))
     const confirm = i_button(
     {
         name: 'confirm', 
@@ -364,7 +343,7 @@ function demo () {
                 icon_fill: 'var(--color-green)',
                 icon_fill_hover: 'var(--color-light-green)'
         }
-    }}, make_protocol('confirm'))
+    }}, contacts.add('confirm'))
     const previous = i_button(
     {
         name: 'previous', 
@@ -379,7 +358,7 @@ function demo () {
                 color_hover: 'var(--color-purple)',
                 icon_fill_hover: 'var(--color-purple)'
         }
-    }}, make_protocol('previous'))
+    }}, contacts.add('previous'))
     const next = i_button(
     {
         name: 'next',
@@ -398,7 +377,7 @@ function demo () {
             grid: {
                 icon: {column: '2'}
             }
-    }}, make_protocol('next'))
+    }}, contacts.add('next'))
 
     const listbox = i_button(
     {
@@ -419,7 +398,7 @@ function demo () {
                 listbox_expanded_icon_fill_hover: 'var(--color-amaranth-pink)',
             }
         }
-    }, make_protocol('filter'))
+    }, contacts.add('filter'))
 
     const listbox1 = i_button(
         {
@@ -443,7 +422,7 @@ function demo () {
                     border_width: '1px'
                 },
             }
-        }, make_protocol('single-selector'))
+        }, contacts.add('single-selector'))
 
     const option = i_button(
     {
@@ -462,7 +441,7 @@ function demo () {
                 current_bg_color: 'var(--color-blue)'
             }
         }
-    }, make_protocol('option-star'))
+    }, contacts.add('option-star'))
     const option1 = i_button(
     {
         name: 'datdot app', 
@@ -578,7 +557,7 @@ function demo () {
             //     }
             // }
         }
-    }, make_protocol('datdot app'))
+    }, contacts.add('datdot app'))
 
     const item4 = i_button(
     {
@@ -602,7 +581,7 @@ function demo () {
                 avatar_radius: '50%',
             }
         }
-    }, make_protocol('item4'))
+    }, contacts.add('item4'))
     // content
     const content = bel`
     <div class=${css.content}>
@@ -673,26 +652,20 @@ function demo () {
         </section>     
     </div>`
     const container = bel`<div class="${css.container}">${content}</div>`
-    const app = bel`<div class="${css.wrap}">${container}${logs}</div>`
+    const app = bel`<div class="${css.wrap}">${container}</div>`
 
     return app
 
     // handle events
     function handle_click_event ({head, type, refs, data}) {
         const [from, to, msg_id] = head
-        const name = names[from].name
+        const name = contacts.by_address[from].name
         // check if name ===...
         if (from === 'notice' || from === 'warn' || from === 'search') return handle_tab_icon_event({from, to, data})
-        if (from.match(/button|menuitem/)) return handle_triggered({type, from, data})
         if (from === 'tab') return handle_tab_event({from, to, data})
         if (from === 'switch') return handle_toggle_event(from, data)
         if (from === 'listbox') return handle_dropdown_menu_event(from, data)
         if (from === 'option') return handle_select_event({from, to, data})
-    }
-
-    function handle_triggered () {
-        const { notify, address, make } = recipients['logs']
-        notify(make({ to: address, type: 'triggered' }))
     }
 
     function handle_panel_change(id) {
@@ -709,17 +682,15 @@ function demo () {
     function handle_tab_event ({from, to, data}) {
         const {name, selected} = data
         handle_text_panel_change(to, '.panel1')
-        Object.entries(recipients).forEach(([key, value]) => {
+        Object.entries(contacts.by_name).forEach(([key, value]) => {
             if (key === name) {
-                const { address: name_address, notify: name_notify, make: name_make } = recipients[name]
-                name_notify(name_make({ to: name_address, type: 'tab-selected', data: { selected } }))
-                const { address: logs_address, notify: logs_notify, make: logs_make } = recipients['logs']
-                logs_notify(logs_make({ to: logs_address, type: 'tab-selected', data: { name } }) )
-                return name_notify(name_make({ to: name_address, type: 'current', data: selected }))
+                const $name = contacts.by_name[name]
+                $name.notify($name.make({ to: $name.address, type: 'tab-selected', data: { selected } }))
+                return $name.notify($name.make({ to: $name.address, type: 'current', data: selected }))
             }
-            const { address: key_address, notify: key_notify, make: key_make } = recipients[key]
-            key_notify(key_make({ to: key_address, type: 'tab-selected', data: { selected: !selected } }))
-            return key_notify(key_make({ to: key_address, type: 'current', data: !selected }))
+            const $key = contacts.by_name[key]
+            $key.notify($key.make({ to: $key.address, type: 'tab-selected', data: { selected: !selected } }))
+            return $key.notify($key.make({ to: $key.address, type: 'current', data: !selected }))
         }) 
     }
 
@@ -728,17 +699,15 @@ function demo () {
         // change contante in panel
         handle_text_panel_change(to, '.panel2')
         // if not target is from, then make tab current and selected changed to false
-        Object.entries(recipients).forEach(([key, value]) => {
+        Object.entries(contacts.by_name).forEach(([key, value]) => {
             if (key === name) {
-                const { address: name_address, notify: name_notify, make: name_make } = recipients[name]
-                name_notify(name_make({ to: name_address, type: 'tab-selected', data: { selected } }))
-                const { address: logs_address, notify: logs_notify, make: logs_make } = recipients['logs']
-                logs_notify(logs_make({ to: logs_address, type: 'tab-selected', data: { name } }) )
-                return name_notify(name_make({ to: name_address, type: 'current', data: selected }))
+                const $name = contacts.by_name[name]
+                $name.notify($name.make({ to: $name.address, type: 'tab-selected', data: { selected } }))
+                return $name.notify($name.make({ to: $name.address, type: 'current', data: selected }))
             }
-            const { address: key_address, notify: key_notify, make: key_make } = recipients[key]
-            key_notify(key_make({ to: key_address, type: 'tab-selected', data: { selected: !selected } }))
-            return key_notify(key_make({ to: key_address, type: 'current', data: !selected }))
+            const $key = contacts.by_name[key]
+            $key.notify($key.make({ to: $key.address, type: 'tab-selected', data: { selected: !selected } }))
+            return $key.notify($key.make({ to: $key.address, type: 'current', data: !selected }))
         }) 
     }
 
@@ -760,33 +729,27 @@ function demo () {
         const cover = state ? 'https://cdn.pixabay.com/photo/2019/05/11/02/33/cherry-blossom-4194997_960_720.jpg' : 'https://cdn.pixabay.com/photo/2016/02/19/11/07/japanese-cherry-blossoms-1209577_960_720.jpg'
         const icon = state ? {name: 'star'} : {name: 'edit'}
         const content =  {text: body, cover: from === 'thumb-blossom' ? cover : undefined, icon, title: undefined}
-        const { address, notify, make } = names[from]
-        notify(make({ to: address, type: 'switched', data: { checked: state } }))
-        notify(make({ to: address, type: 'changed', data: content }))
-        const { address: logs_address, notify: logs_notify, make: logs_make } = recipients['logs']
-        logs_notify(logs_make({to: logs_address, type: 'triggered', data: { checked: state } }) )
-        logs_notify(logs_make({to: logs_address, type: 'changed', data: content }) )
+        const $from = contacts.by_address[from]
+        $from.notify($from.make({ to: $from.address, type: 'switched', data: { checked: state } }))
+        $from.notify($from.make({ to: $from.address, type: 'changed', data: content }))
     }
 
     function handle_dropdown_menu_event (from, data) {
         const state = data.expanded
         const type = state ? 'expanded' : 'collapsed'
-        const { address, notify, make } = names[from]
-        notify(make({ to: address, type, data: state }))
-        const { address: logs_address, notify: logs_notify, make: logs_make } = recipients['logs']
-        logs_notify(logs_make({ to: logs_address, type }) )
+        const $from = contacts.by_address[from]
+        $from.notify($from.make({ to: $from.address, type, data: state }))
     }
 
     function handle_select_event ({to, data}) {
         const {name, selected, content} = data
         const type = selected ? 'selected' : 'unselected'
-        recipients[name]({type, data: selected})
-        const { address: logs_address, notify: logs_notify, make: logs_make } = recipients['logs']
-        logs_notify(logs_make({to: logs_address, type, data: { content } }))
+        const $name = contacts.by_name[name]
+        $name.notify($name.make({ to: $name.address, type, data: selected }))
     }
     function handle_changed_event (type, data) {
-        const { notify, make, address } = recipients['single-selector']
-        notify(make({ to: address, type, data }))
+        const $selector = contacts.by_name['single-selector']
+        $selector.notify($selector.make({ to: $selector.address, type, data }))
     }
 }
 
