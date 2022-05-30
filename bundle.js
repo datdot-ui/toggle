@@ -188,7 +188,6 @@ function demo () {
         page: 'PLAN', 
         name: 'tab1', 
         role: 'tab',
-        controls: 'panel1', 
         body: 'Tab1',
         current: true, 
         theme: tab_theme 
@@ -198,7 +197,6 @@ function demo () {
         page: 'PLAN', 
         name: 'tab2', 
         role: 'tab',
-        controls: 'panel2',
         body: 'Tab2', 
         theme: tab_theme
     }, contacts.add('tab2'))
@@ -207,7 +205,6 @@ function demo () {
         page: 'PLAN', 
         name: 'tab3', 
         role: 'tab', 
-        controls: 'panel3',
         body: 'Tab3',
         theme: tab_theme
     }, contacts.add('tab3'))
@@ -219,7 +216,6 @@ function demo () {
         page: 'JOBS', 
         name: 'notice', 
         role: 'tab', 
-        controls: 'panel4',
         body: 'Notice',
         icons: {
             icon: {name: 'notice'}
@@ -254,7 +250,6 @@ function demo () {
         page: 'JOBS', 
         name: 'warning', 
         role: 'tab', 
-        controls: 'panel5',
         body: 'Warning', 
         icons: {
             icon: {name: 'warning'},
@@ -293,7 +288,6 @@ function demo () {
         page: 'JOBS', 
         name: 'search',
         role: 'tab',
-        controls: 'panel6',
         body: 'Search', 
         icons: {
             icon: {name: 'search'}
@@ -2450,7 +2444,7 @@ var icon_count = 0
 module.exports = i_button
 
 function i_button (opts, parent_wire) {
-    const {name, role = 'button', controls, body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
+    const {name, role = 'button', body = '', icons = {}, cover, classlist = null, mode = '', state, expanded = undefined, current = undefined, selected = false, checked = false, disabled = false, theme = {}} = opts
     const el = make_element({name: 'i-button', classlist, role })
     const {icon = {}, select = { name: 'check' }, list = { name: 'arrow-down'} } = icons
     var status = 'default_status'
@@ -2552,11 +2546,7 @@ function make_button () {
         if (disabled)  set_attr({aria: 'disabled', prop: disabled})
         if (expanded ) set_attr({aria: 'expanded', prop: expanded})
         if (current) set_attr({aria: 'current', prop: current})
-        if (role === 'listbox') set_attr({aria: 'haspopup', prop: role})
-        else if (role === 'tab') {
-            set_attr({aria: 'controls', prop: controls})
-            el.setAttribute('tabindex', current ? 0 : -1)
-        }
+        el.setAttribute('tabindex', current ? 0 : -1)
     }
 
     // make element to append into shadowDOM

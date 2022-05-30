@@ -187,7 +187,6 @@ function demo () {
         page: 'PLAN', 
         name: 'tab1', 
         role: 'tab',
-        controls: 'panel1', 
         body: 'Tab1',
         current: true, 
         theme: tab_theme 
@@ -197,7 +196,6 @@ function demo () {
         page: 'PLAN', 
         name: 'tab2', 
         role: 'tab',
-        controls: 'panel2',
         body: 'Tab2', 
         theme: tab_theme
     }, contacts.add('tab2'))
@@ -206,7 +204,6 @@ function demo () {
         page: 'PLAN', 
         name: 'tab3', 
         role: 'tab', 
-        controls: 'panel3',
         body: 'Tab3',
         theme: tab_theme
     }, contacts.add('tab3'))
@@ -218,7 +215,6 @@ function demo () {
         page: 'JOBS', 
         name: 'notice', 
         role: 'tab', 
-        controls: 'panel4',
         body: 'Notice',
         icons: {
             icon: {name: 'notice'}
@@ -253,7 +249,6 @@ function demo () {
         page: 'JOBS', 
         name: 'warning', 
         role: 'tab', 
-        controls: 'panel5',
         body: 'Warning', 
         icons: {
             icon: {name: 'warning'},
@@ -292,7 +287,6 @@ function demo () {
         page: 'JOBS', 
         name: 'search',
         role: 'tab',
-        controls: 'panel6',
         body: 'Search', 
         icons: {
             icon: {name: 'search'}
