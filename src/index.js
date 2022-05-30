@@ -63,7 +63,7 @@ function make_button () {
     // check icon, img and body if has value
     const add_cover = typeof cover === 'string' ? avatar : undefined
     const add_text = body ? typeof body === 'object' ? 'undefined' : text : undefined
-    avatar.append(make_img({src: cover, alt: name}))
+    if (typeof cover === 'string') avatar.append(make_img({src: cover, alt: name}))
     if (status !== 'disabled') el.onclick = handle_click
     el.setAttribute('aria-label', name)
     text.append(body)
