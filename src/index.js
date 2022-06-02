@@ -6,9 +6,7 @@ var icon_count = 0
 const sheet = new CSSStyleSheet()
 const default_state = { 
     opts: {
-        expanded: false, 
         current: false, 
-        selected: false, 
         disabled: false,
         theme: [sheet]
     },
@@ -18,7 +16,7 @@ const default_state = {
 module.exports = button
 
 function button (opts, parent_wire) {
-    const {name = 'i-button', title, icons = [], state = default_state, theme = ``} = opts
+    const {name = 'i-button', text, icons = [], state = default_state, theme = ``} = opts
     // protocol
     const initial_contacts = { 'parent': parent_wire }
     const contacts = protocol_maker('input-number', listen, initial_contacts)
@@ -41,12 +39,15 @@ function button (opts, parent_wire) {
     icons.forEach(icon => {
         shadow.append(i_icon({ name: icon.name, path: icon.path}, contacts.add(`${icon.name}-${icon_count++}`)))
     })
-    if (title) {
-        const text = document.createElement('span')
-        text.className = 'text'
-        text.append(title)
-        shadow.append(text)
+    if (text) {
+        const el = document.createElement('span')
+        el.className = 'text'
+        el.append(text)
+        shadow.append(el)
     }
+    // set arias
+    if (state.disabled) el.setAttribute(`aria-disabled`, true)
+    if (state.current) el.setAttribute(`aria-current`, true)
 
     if (!state.disabled) el.onclick = handle_click
     el.setAttribute('aria-label', name)
@@ -60,54 +61,12 @@ function button (opts, parent_wire) {
 
     // helpers
     function handle_update (data) {
-        const { theme, aria } = data
-        if (aria) el.setAttribute(`aria-${aria.type}`, aria.value)
-    }
-
-    function handle_changed_event (data) {
-        const {text, cover, icon, title} = data
-        // new element
-        const new_text = document.createElement('span')
-        new_text.className = 'text'
-        const new_avatar = document.createElement('span')
-        new_avatar.className = 'avatar'
-        // old element
-        const old_icon = shadow.querySelector('.icon')
-        const old_avatar = shadow.querySelector('.avatar')
-        const old_text = shadow.querySelector('.text')
-        // change content for button or switch or tab
-        if (role.match(/button|switch|tab/)) {
-            el.setAttribute('aria-label', text || title)
-            if (text) {
-                if (old_text) old_text.textContent = text
-            } else {
-                if (old_text) old_text.remove()
-            }
-            if (icon) {
-                const new_icon = i_icon({ name: icon.name, path: icon.path}, contacts.add(`${icon.name}-${icon_count++}`))
-                if (old_icon) old_icon.parentNode.replaceChild(new_icon, old_icon)
-                else shadow.insertBefore(new_icon, shadow.firstChild)
-            } else {
-                if (old_icon) old_icon.remove()
-            }
-        }
-        // change content for listbox
-        if (role.match(/listbox/)) {
-            listbox.innerHTML = ''
-            if (icon) {
-                const new_icon = i_icon({ name: icon.name, path: icon.path}, contacts.add(`${icon.name}-${icon_count++}`))
-                if (role.match(/listbox/)) listbox.append(new_icon)
-            }
-            if (text) {
-                new_text.append(text)
-                if (role.match(/listbox/)) listbox.append(new_text)
-            }
-        } 
+        const { text, icons = [], state, theme = `` } = data
     }
     // button click
     function handle_click () {
         const $parent = contacts.by_name['parent']
-        const type = 'click'
+        $parent.notify($parent.make({ to: $parent.address, type: 'click', data: state }))
     }
 
 }
@@ -266,7 +225,8 @@ sheet.replaceSync(`
     --color: var(--current-color);
     --bg-color: var(--current-bg-color);
 }
-:host(i-button[aria-current="true"]) .icon,  :host(i-button[aria-current="true"]:hover) .icon {
+:host(i-button[aria-current="true"]) .icon,  
+:host(i-button[aria-current="true"]:hover) .icon {
     --icon-size: var(--current-icon-size);
 }
 :host(i-button[aria-current="true"]) g {
@@ -276,7 +236,7 @@ sheet.replaceSync(`
     --color: var(--color-focus);
     --bg-color: var(--bg-color-focus);
 }
-:host(i-button[disabled]), :host(i-button[disabled]:hover) {
+:host(i-button[aria-disabled="true"]), :host(i-button[aria-disabled="true"]:hover) {
     --size: var(--primary-disabled-size);
     --color: var(--primary-disabled-color);
     --bg-color: var(--primary-disabled-bg-color);
