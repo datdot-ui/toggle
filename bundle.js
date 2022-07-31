@@ -1,7 +1,7 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const bel = require('bel')
 const csjs = require('csjs-inject')
-const button = require('..')
+const toggle = require('..')
 const protocol_maker = require('protocol-maker')
 
 var id = 0
@@ -15,154 +15,30 @@ function demo () {
         const { head, refs, type, data, meta } = msg // receive msg
         const [from] = head
         // handle
-        if (type === 'click') return handle_click_event(msg)
+        if (type === 'click') console.log({data})
         if (type === 'help') console.log({data})
     }
 //------------------------------------------    
-    console.log('Button help', button.help()) // get opts & the defaults for button component
+    console.log('toggle help', toggle.help()) // get opts & the defaults for toggle component
     
     // buttons
-    const primary = button({ name: 'primary', text: 'Hello', theme: `` }, contacts.add('primary'))
-    const current1 = button({ name: 'button1', text: 'Button1', }, contacts.add('button1'))
-    const current2 = button({ name: 'button2', text: 'Button2', }, contacts.add('button2'))
-    const disabled = button({ name: 'disable', text: 'Disabled', status: { disabled: true, }, theme: `` }, contacts.add('disable'))
+    const toggle1 = toggle({ name: 'toggle1', text: 'Hello', theme: `` }, contacts.add('toggle1'))
+    const toggle2 = toggle({ name: 'toggle2', text: 'Click me', theme: `` }, contacts.add('toggle2'))
 
-    // Tab element
-    const tab1 = button({ name: 'tab1', text: 'Tab1', 
-        theme: `
-            :host(i-button) {
-                --color: var(--color-green);
-                --current_color: var(--color-green);
-                --icon_fill: var(--color-green);
-                --icon_fill_hover: var(--color-green);
-                --icon_size: 24px;             
-            }
-        ` 
-    }, contacts.add('tab1'))
-    const tab2 = button({ name: 'tab2', text: 'Tab2', theme: `` }, contacts.add('tab2'))
-    const tab3 = button({ name: 'tab3', text: 'Tab3', status: { current: true, },theme: `` }, contacts.add('tab3'))
-
-    // Tab & icon
-    const tab4 = button({ name: 'notice', text: 'Notice', icons: [{name: 'notice'}], 
-        theme: ``}, contacts.add('notice'))
-    const tab5 = button({ name: 'warning', text: 'Warning', icons: [{ name: 'warning' }], status: { disabled: true, }, theme: `` }, contacts.add('warning'))
-    const tab6 = button({ name: 'search', text: 'Search', icons: [{name: 'search'}], 
-        theme: `
-            :host(i-button) {
-                --color-maya-blue: 205, 96%, 72%;
-                display: grid;
-                justify: items-center;
-                align: items-center;
-            }
-            :host(i-button) g {
-                --icon-fill: var(--color-maya-blue); 
-            }
-            :host(i-button:hover) g {
-                --icon-fill: var(--color-maya-blue); 
-            }
-            :host(i-button) .text {
-                color: var(--color-maya-blue);
-            }
-        `  
-    }, contacts.add('search'))
-
-    // buttons
-    const cancel = button({ name: 'cancel', icons: [{name: 'cross'}],
-        theme: `
-            :host(i-button) {
-                --color-flame: 15, 80%, 50%;
-                --color-red: 358, 99%, 53%;
-            }
-            :host(i-button) g {
-                --icon-fill: var(--color-red);            
-            }
-            :host(i-button:hover) {
-                --bg-color: var(--color-flame);
-            }
-        `
-    }, contacts.add('cancel'))
-
-    const confirm = button({ name: 'confirm', icons: [{name: 'check'}], 
-        theme: `
-        :host(i-button) {
-            --color-lincoln-green: 97, 100%, 18%;
-            --color-green: 136, 82%, 38%;
-        }
-        :host(i-button) g {
-            --icon-fill: var(--color-green);            
-        }
-        :host(i-button:hover) {
-            --bg-color: var(--color-lincoln-green);
-        }
-    `
-    }, contacts.add('confirm'))
-    const previous = button({ name: 'previous', text: 'Previous', icons: [{name: 'arrow-left'}], theme: ``}, contacts.add('previous'))
-    const next = button({ name: 'next', icons: [{name: 'arrow-right'}], text: 'Next', theme: `` }, contacts.add('next'))
-    const filter = button({ name: 'filter', text: 'Filter', icons: [{ name: 'filter' }], status: { current: true }, theme: ``}, contacts.add('filter'))
-    const dropdown = button({ name: 'dropdown', text: 'Dropdown', icons: [{name: 'star'}, {name: 'arrow-down'},], theme: `` }, contacts.add('single-selector'))
-    const option = button({ name: 'option-star', icons: [{ name: 'star' }, { name: 'check' }], theme: ``}, contacts.add('option-star'))
-    const option1 = button({ name: 'datdot app', text: 'DatDot app', icons: [{ name: 'datdot-white' }, { name: 'check' }], theme: `` }, contacts.add('datdot app'))
-
-    // get help about button1 (current state etc.)
-    const $button1 = contacts.by_name['button1']
-    $button1.notify($button1.make({ to: $button1.address, type: 'help'}))
-    
     // content
     const content = bel`
     <div class=${css.content}>
-        <a name="top"></a>
         <section>
-            <h2>Text buttons</h2>
+            <h2>Toggle buttons</h2>
             <div class=${css.text}>
-                ${primary}${disabled}${current1}${current2}
+                ${toggle1} ${toggle2}
             </div>
         </section>
-        <section>
-            <h2>Text and icon buttons</h2>
-            <div class=${css.icon}>
-                ${cancel}${confirm}${previous}${next}${filter}
-                ${dropdown}${option}
-                ${option1}
-            </div>
-        </section>
-        <section>
-            <h2>Tab buttons</h2>
-            <nav class=${css.tabs} role="tablist" aria-label="tabs"> ${tab1}${tab2}${tab3} </nav>
-        </section>
-        <section>
-            <h2>Tab & icon buttons</h2>
-            <nav class=${css.tabs} role="tablist" aria-label="tabs"> ${tab4}${tab5}${tab6} </nav>
-        </section>     
     </div>`
     const container = bel`<div class="${css.container}">${content}</div>`
     const app = bel`<div class="${css.wrap}">${container}</div>`
 
     return app
-
-    
-    // handle events
-    function handle_click_event ({head, type, refs, data}) {
-        console.log('New click', {head, type, refs, data} )
-        const [from, to, msg_id] = head
-        const $from = contacts.by_address[from]
-        if (contacts.by_address[from].name === 'button1') {
-            const new_theme = `
-                :host(i-button) {
-                    --color-flame: 15, 80%, 50%;
-                    --color-red: 358, 99%, 53%;
-                }
-                :host(i-button) g {
-                    --icon-fill: var(--color-red);            
-                }
-                :host(i-button:hover) {
-                    --bg-color: var(--color-flame);
-                }
-            `
-            $from.notify($from.make({ to: $from.address, type: 'update', data: { 
-                text: 'Updated', icons: [{ name: 'play' }], sheets: [0, 1, new_theme] // keep current shadow.adoptedStyleSheets[0] on pos 0, shadow.adoptedStyleSheets[1] on pos 1 and add new_theme on shadow.adoptedStyleSheets[2]
-             } }))                         
-        }
-    }
 
 }
 
@@ -1768,30 +1644,33 @@ var id = 0
 var icon_count = 0
 const sheet = new CSSStyleSheet()
 const default_opts = { 
-	name: 'i-button',
+	name: 'toggle',
 	text: '',
 	icons: [],
 	status: {
-		current: false, 
 		disabled: false,
+		pressed: false,
 	},
 	theme: get_theme()
 }
 sheet.replaceSync(default_opts.theme)
 
-module.exports = button
+module.exports = toggle
 
-button.help = () => { return { opts: default_opts } }
+toggle.help = () => { return { opts: default_opts } }
 
-function button (opts, parent_wire) {
+function toggle (opts, parent_wire) {
 	const {
 		name = default_opts.name, 
 		text = default_opts.text, 
 		icons = default_opts.icons, 
-		status = default_opts.status, 
+		status: {
+			disabled = default_opts.status.disabled,
+			pressed = default_opts.status.on,
+		} = {},
 		theme = `` } = opts		
 	
-	const current_state =  { opts: { name, text,	icons, status, sheets: [default_opts.theme, theme] } }
+	const current_state =  { opts: { name, text,	icons, status: { disabled, pressed }, sheets: [default_opts.theme, theme] } }
 
 	// protocol
 	const initial_contacts = { 'parent': parent_wire }
@@ -1808,7 +1687,7 @@ function button (opts, parent_wire) {
 	}
 
 	// make button
-	const el = document.createElement('i-button')
+	const el = document.createElement('toggle-button')
 	const shadow = el.attachShadow({mode: 'closed'})
 
 	let text_field = document.createElement('span')
@@ -1822,11 +1701,11 @@ function button (opts, parent_wire) {
 			shadow.append(text_field)
 	}
 
-	if (status.disabled) el.setAttribute(`aria-disabled`, true)
-	if (status.current) el.setAttribute(`aria-current`, true)
+	if (disabled) el.setAttribute(`aria-disabled`, true)
 
-	if (!status.disabled) el.onclick = handle_click
+	if (!disabled) el.onclick = handle_click
 	el.setAttribute('aria-label', name)
+	el.setAttribute('aria-pressed', current_state.opts.status.pressed )
 	el.setAttribute('tabindex', 0) // indicates that its element can be focused, and where it participates in sequential keyboard navigation 
 
 	const custom_theme = new CSSStyleSheet()
@@ -1865,8 +1744,10 @@ function button (opts, parent_wire) {
 	}
 	// button click
 	function handle_click () {
-			const $parent = contacts.by_name['parent'] // { notify, make, address }
-			$parent.notify($parent.make({ to: $parent.address, type: 'click' }))
+		current_state.opts.status.pressed = !current_state.opts.status.pressed
+		el.setAttribute('aria-pressed', current_state.opts.status.pressed )
+		const $parent = contacts.by_name['parent'] // { notify, make, address }
+		$parent.notify($parent.make({ to: $parent.address, type: 'click', data: { pressed: current_state.opts.status.pressed } }))
 	}
 	// get current state
 	function get_current_state () {
@@ -1891,7 +1772,7 @@ function get_theme () {
 			--primary-bg-color: var(--color-greyF2);
 			--primary-size: var(--size16);
 	}
-	:host(i-button) {
+	:host(toggle-button) {
 			--size: var(--primary-size);
 			--weight: var(--weight300);
 			--color: var(--primary-color);
@@ -1933,7 +1814,7 @@ function get_theme () {
 			cursor: pointer;
 			-webkit-mask-image: -webkit-radial-gradient(white, black);
 	}
-	:host(i-button:hover) {
+	:host(toggle-button:hover) {
 			--size: var(--primary-size-hover);
 			--weight: var(--primary-weight-hover);
 			--color: var(--primary-color-hover);
@@ -1945,59 +1826,47 @@ function get_theme () {
 			--shadow-color: var(--primary-color-hover);
 			--shadow-opacity: 0;
 	}
-	:host(i-button:hover:focus:active) {
+	:host(toggle-button[aria-pressed="true"]:hover) {
 			--bg-color: var(--primary-bg-color);
 	}
-	:host(i-button:focus) {
+	:host(toggle-button[aria-pressed="true"]) {
 			--color: var(--color-focus);
 			--bg-color: var(--bg-color-focus);
 			background-color: hsla(var(--bg-color));
 	}
-	:host(i-button) g {
+	:host(toggle-button) g {
 			--icon-fill: var(--primary-icon-fill);
 			fill: hsl(var(--icon-fill));
 			transition: fill 0.05s ease-in-out;
 	}
-	:host(i-button:hover) g {
+	:host(toggle-button:hover) g {
 		--icon-fill: var(--primary-icon-fill-hover);
 	}
-	:host(i-button[aria-disabled="true"]) .icon, 
-	:host(i-button[aria-disabled="true"]:hover) .icon,
-	:host(i-button[aria-current="true"]), :host(i-button[aria-current="true"]:hover) {
-			--size: var(--current-size);
+	:host(toggle-button[aria-disabled="true"]) .icon, 
+	:host(toggle-button[aria-disabled="true"]:hover) .icon {
+			--size: var(--primary-disabled-size);
 			--weight: var(--current-weight);
-			--color: var(--current-color);
-			--bg-color: var(--current-bg-color);
+			--color: var(--primary-disabled-color);
+			--bg-color: var(--primary-disabled-bg-color);
 	}
-	:host(i-button[aria-current="true"]) .icon,  
-	:host(i-button[aria-current="true"]:hover) .icon {
-			--icon-size: var(--current-icon-size);
-	}
-	:host(i-button[aria-current="true"]) g {
-			--icon-fill: var(--current-icon-fill);
-	}
-	:host(i-button[aria-current="true"]:focus) {
-			--color: var(--color-focus);
-			--bg-color: var(--bg-color-focus);
-	}
-	:host(i-button[aria-disabled="true"]), :host(i-button[aria-disabled="true"]:hover) {
+	:host(toggle-button[aria-disabled="true"]), :host(toggle-button[aria-disabled="true"]:hover) {
 			--size: var(--primary-disabled-size);
 			--color: var(--primary-disabled-color);
 			--bg-color: var(--primary-disabled-bg-color);
 			cursor: not-allowed;
 	}
-	:host(i-button[disabled]) g, 
-	:host(i-button[disabled]:hover) g, 
-	:host(i-button) .text {
+	:host(toggle-button[disabled]) g, 
+	:host(toggle-button[disabled]:hover) g, 
+	:host(toggle-button) .text {
 			
 	}
-	:host(i-button) .icon {
+	:host(toggle-button) .icon {
 			--icon-size: var(--primary-icon-size);
 			display: block;
 			width: var(--icon-size);
 			transition: width 0.25s ease-in-out;
 	}
-	:host(i-button:hover) .icon {
+	:host(toggle-button:hover) .icon {
 			--icon-size: var(--primary-icon-size-hover);
 	}
 	`

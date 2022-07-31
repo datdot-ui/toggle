@@ -1,6 +1,6 @@
 const bel = require('bel')
 const csjs = require('csjs-inject')
-const button = require('..')
+const toggle = require('..')
 const protocol_maker = require('protocol-maker')
 
 var id = 0
@@ -14,154 +14,30 @@ function demo () {
         const { head, refs, type, data, meta } = msg // receive msg
         const [from] = head
         // handle
-        if (type === 'click') return handle_click_event(msg)
+        if (type === 'click') console.log({data})
         if (type === 'help') console.log({data})
     }
 //------------------------------------------    
-    console.log('Button help', button.help()) // get opts & the defaults for button component
+    console.log('toggle help', toggle.help()) // get opts & the defaults for toggle component
     
     // buttons
-    const primary = button({ name: 'primary', text: 'Hello', theme: `` }, contacts.add('primary'))
-    const current1 = button({ name: 'button1', text: 'Button1', }, contacts.add('button1'))
-    const current2 = button({ name: 'button2', text: 'Button2', }, contacts.add('button2'))
-    const disabled = button({ name: 'disable', text: 'Disabled', status: { disabled: true, }, theme: `` }, contacts.add('disable'))
+    const toggle1 = toggle({ name: 'toggle1', text: 'Hello', theme: `` }, contacts.add('toggle1'))
+    const toggle2 = toggle({ name: 'toggle2', text: 'Click me', theme: `` }, contacts.add('toggle2'))
 
-    // Tab element
-    const tab1 = button({ name: 'tab1', text: 'Tab1', 
-        theme: `
-            :host(i-button) {
-                --color: var(--color-green);
-                --current_color: var(--color-green);
-                --icon_fill: var(--color-green);
-                --icon_fill_hover: var(--color-green);
-                --icon_size: 24px;             
-            }
-        ` 
-    }, contacts.add('tab1'))
-    const tab2 = button({ name: 'tab2', text: 'Tab2', theme: `` }, contacts.add('tab2'))
-    const tab3 = button({ name: 'tab3', text: 'Tab3', status: { current: true, },theme: `` }, contacts.add('tab3'))
-
-    // Tab & icon
-    const tab4 = button({ name: 'notice', text: 'Notice', icons: [{name: 'notice'}], 
-        theme: ``}, contacts.add('notice'))
-    const tab5 = button({ name: 'warning', text: 'Warning', icons: [{ name: 'warning' }], status: { disabled: true, }, theme: `` }, contacts.add('warning'))
-    const tab6 = button({ name: 'search', text: 'Search', icons: [{name: 'search'}], 
-        theme: `
-            :host(i-button) {
-                --color-maya-blue: 205, 96%, 72%;
-                display: grid;
-                justify: items-center;
-                align: items-center;
-            }
-            :host(i-button) g {
-                --icon-fill: var(--color-maya-blue); 
-            }
-            :host(i-button:hover) g {
-                --icon-fill: var(--color-maya-blue); 
-            }
-            :host(i-button) .text {
-                color: var(--color-maya-blue);
-            }
-        `  
-    }, contacts.add('search'))
-
-    // buttons
-    const cancel = button({ name: 'cancel', icons: [{name: 'cross'}],
-        theme: `
-            :host(i-button) {
-                --color-flame: 15, 80%, 50%;
-                --color-red: 358, 99%, 53%;
-            }
-            :host(i-button) g {
-                --icon-fill: var(--color-red);            
-            }
-            :host(i-button:hover) {
-                --bg-color: var(--color-flame);
-            }
-        `
-    }, contacts.add('cancel'))
-
-    const confirm = button({ name: 'confirm', icons: [{name: 'check'}], 
-        theme: `
-        :host(i-button) {
-            --color-lincoln-green: 97, 100%, 18%;
-            --color-green: 136, 82%, 38%;
-        }
-        :host(i-button) g {
-            --icon-fill: var(--color-green);            
-        }
-        :host(i-button:hover) {
-            --bg-color: var(--color-lincoln-green);
-        }
-    `
-    }, contacts.add('confirm'))
-    const previous = button({ name: 'previous', text: 'Previous', icons: [{name: 'arrow-left'}], theme: ``}, contacts.add('previous'))
-    const next = button({ name: 'next', icons: [{name: 'arrow-right'}], text: 'Next', theme: `` }, contacts.add('next'))
-    const filter = button({ name: 'filter', text: 'Filter', icons: [{ name: 'filter' }], status: { current: true }, theme: ``}, contacts.add('filter'))
-    const dropdown = button({ name: 'dropdown', text: 'Dropdown', icons: [{name: 'star'}, {name: 'arrow-down'},], theme: `` }, contacts.add('single-selector'))
-    const option = button({ name: 'option-star', icons: [{ name: 'star' }, { name: 'check' }], theme: ``}, contacts.add('option-star'))
-    const option1 = button({ name: 'datdot app', text: 'DatDot app', icons: [{ name: 'datdot-white' }, { name: 'check' }], theme: `` }, contacts.add('datdot app'))
-
-    // get help about button1 (current state etc.)
-    const $button1 = contacts.by_name['button1']
-    $button1.notify($button1.make({ to: $button1.address, type: 'help'}))
-    
     // content
     const content = bel`
     <div class=${css.content}>
-        <a name="top"></a>
         <section>
-            <h2>Text buttons</h2>
+            <h2>Toggle buttons</h2>
             <div class=${css.text}>
-                ${primary}${disabled}${current1}${current2}
+                ${toggle1} ${toggle2}
             </div>
         </section>
-        <section>
-            <h2>Text and icon buttons</h2>
-            <div class=${css.icon}>
-                ${cancel}${confirm}${previous}${next}${filter}
-                ${dropdown}${option}
-                ${option1}
-            </div>
-        </section>
-        <section>
-            <h2>Tab buttons</h2>
-            <nav class=${css.tabs} role="tablist" aria-label="tabs"> ${tab1}${tab2}${tab3} </nav>
-        </section>
-        <section>
-            <h2>Tab & icon buttons</h2>
-            <nav class=${css.tabs} role="tablist" aria-label="tabs"> ${tab4}${tab5}${tab6} </nav>
-        </section>     
     </div>`
     const container = bel`<div class="${css.container}">${content}</div>`
     const app = bel`<div class="${css.wrap}">${container}</div>`
 
     return app
-
-    
-    // handle events
-    function handle_click_event ({head, type, refs, data}) {
-        console.log('New click', {head, type, refs, data} )
-        const [from, to, msg_id] = head
-        const $from = contacts.by_address[from]
-        if (contacts.by_address[from].name === 'button1') {
-            const new_theme = `
-                :host(i-button) {
-                    --color-flame: 15, 80%, 50%;
-                    --color-red: 358, 99%, 53%;
-                }
-                :host(i-button) g {
-                    --icon-fill: var(--color-red);            
-                }
-                :host(i-button:hover) {
-                    --bg-color: var(--color-flame);
-                }
-            `
-            $from.notify($from.make({ to: $from.address, type: 'update', data: { 
-                text: 'Updated', icons: [{ name: 'play' }], sheets: [0, 1, new_theme] // keep current shadow.adoptedStyleSheets[0] on pos 0, shadow.adoptedStyleSheets[1] on pos 1 and add new_theme on shadow.adoptedStyleSheets[2]
-             } }))                         
-        }
-    }
 
 }
 

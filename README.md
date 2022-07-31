@@ -1,14 +1,14 @@
-# datdot-ui-button
+# datdot-ui-toggle
 DatDot vanilla js UI component
 
 Opts
 ---
 
-`{name = 'i-button', text, icons = [], state = default_state, theme = ``}`
+`{name = 'toggle', text, icons = [], state = default_state, theme = ``}`
 
 Help
 ---
-`button.help()` returns opts & the defaults for button component
+`toggle.help()` returns opts & the defaults for toggle component
 
 
 Incoming message types
@@ -22,4 +22,4 @@ Outgoing message types
 
 **parent**
 - `help` sends info on current state
-- `click`
+- `click` // sends info about the state (data.pressed true/false)

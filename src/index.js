@@ -5,30 +5,33 @@ var id = 0
 var icon_count = 0
 const sheet = new CSSStyleSheet()
 const default_opts = { 
-	name: 'i-button',
+	name: 'toggle',
 	text: '',
 	icons: [],
 	status: {
-		current: false, 
 		disabled: false,
+		pressed: false,
 	},
 	theme: get_theme()
 }
 sheet.replaceSync(default_opts.theme)
 
-module.exports = button
+module.exports = toggle
 
-button.help = () => { return { opts: default_opts } }
+toggle.help = () => { return { opts: default_opts } }
 
-function button (opts, parent_wire) {
+function toggle (opts, parent_wire) {
 	const {
 		name = default_opts.name, 
 		text = default_opts.text, 
 		icons = default_opts.icons, 
-		status = default_opts.status, 
+		status: {
+			disabled = default_opts.status.disabled,
+			pressed = default_opts.status.on,
+		} = {},
 		theme = `` } = opts		
 	
-	const current_state =  { opts: { name, text,	icons, status, sheets: [default_opts.theme, theme] } }
+	const current_state =  { opts: { name, text,	icons, status: { disabled, pressed }, sheets: [default_opts.theme, theme] } }
 
 	// protocol
 	const initial_contacts = { 'parent': parent_wire }
@@ -45,7 +48,7 @@ function button (opts, parent_wire) {
 	}
 
 	// make button
-	const el = document.createElement('i-button')
+	const el = document.createElement('toggle-button')
 	const shadow = el.attachShadow({mode: 'closed'})
 
 	let text_field = document.createElement('span')
@@ -59,11 +62,11 @@ function button (opts, parent_wire) {
 			shadow.append(text_field)
 	}
 
-	if (status.disabled) el.setAttribute(`aria-disabled`, true)
-	if (status.current) el.setAttribute(`aria-current`, true)
+	if (disabled) el.setAttribute(`aria-disabled`, true)
 
-	if (!status.disabled) el.onclick = handle_click
+	if (!disabled) el.onclick = handle_click
 	el.setAttribute('aria-label', name)
+	el.setAttribute('aria-pressed', current_state.opts.status.pressed )
 	el.setAttribute('tabindex', 0) // indicates that its element can be focused, and where it participates in sequential keyboard navigation 
 
 	const custom_theme = new CSSStyleSheet()
@@ -102,8 +105,10 @@ function button (opts, parent_wire) {
 	}
 	// button click
 	function handle_click () {
-			const $parent = contacts.by_name['parent'] // { notify, make, address }
-			$parent.notify($parent.make({ to: $parent.address, type: 'click' }))
+		current_state.opts.status.pressed = !current_state.opts.status.pressed
+		el.setAttribute('aria-pressed', current_state.opts.status.pressed )
+		const $parent = contacts.by_name['parent'] // { notify, make, address }
+		$parent.notify($parent.make({ to: $parent.address, type: 'click', data: { pressed: current_state.opts.status.pressed } }))
 	}
 	// get current state
 	function get_current_state () {
@@ -128,7 +133,7 @@ function get_theme () {
 			--primary-bg-color: var(--color-greyF2);
 			--primary-size: var(--size16);
 	}
-	:host(i-button) {
+	:host(toggle-button) {
 			--size: var(--primary-size);
 			--weight: var(--weight300);
 			--color: var(--primary-color);
@@ -170,7 +175,7 @@ function get_theme () {
 			cursor: pointer;
 			-webkit-mask-image: -webkit-radial-gradient(white, black);
 	}
-	:host(i-button:hover) {
+	:host(toggle-button:hover) {
 			--size: var(--primary-size-hover);
 			--weight: var(--primary-weight-hover);
 			--color: var(--primary-color-hover);
@@ -182,59 +187,47 @@ function get_theme () {
 			--shadow-color: var(--primary-color-hover);
 			--shadow-opacity: 0;
 	}
-	:host(i-button:hover:focus:active) {
+	:host(toggle-button[aria-pressed="true"]:hover) {
 			--bg-color: var(--primary-bg-color);
 	}
-	:host(i-button:focus) {
+	:host(toggle-button[aria-pressed="true"]) {
 			--color: var(--color-focus);
 			--bg-color: var(--bg-color-focus);
 			background-color: hsla(var(--bg-color));
 	}
-	:host(i-button) g {
+	:host(toggle-button) g {
 			--icon-fill: var(--primary-icon-fill);
 			fill: hsl(var(--icon-fill));
 			transition: fill 0.05s ease-in-out;
 	}
-	:host(i-button:hover) g {
+	:host(toggle-button:hover) g {
 		--icon-fill: var(--primary-icon-fill-hover);
 	}
-	:host(i-button[aria-disabled="true"]) .icon, 
-	:host(i-button[aria-disabled="true"]:hover) .icon,
-	:host(i-button[aria-current="true"]), :host(i-button[aria-current="true"]:hover) {
-			--size: var(--current-size);
+	:host(toggle-button[aria-disabled="true"]) .icon, 
+	:host(toggle-button[aria-disabled="true"]:hover) .icon {
+			--size: var(--primary-disabled-size);
 			--weight: var(--current-weight);
-			--color: var(--current-color);
-			--bg-color: var(--current-bg-color);
+			--color: var(--primary-disabled-color);
+			--bg-color: var(--primary-disabled-bg-color);
 	}
-	:host(i-button[aria-current="true"]) .icon,  
-	:host(i-button[aria-current="true"]:hover) .icon {
-			--icon-size: var(--current-icon-size);
-	}
-	:host(i-button[aria-current="true"]) g {
-			--icon-fill: var(--current-icon-fill);
-	}
-	:host(i-button[aria-current="true"]:focus) {
-			--color: var(--color-focus);
-			--bg-color: var(--bg-color-focus);
-	}
-	:host(i-button[aria-disabled="true"]), :host(i-button[aria-disabled="true"]:hover) {
+	:host(toggle-button[aria-disabled="true"]), :host(toggle-button[aria-disabled="true"]:hover) {
 			--size: var(--primary-disabled-size);
 			--color: var(--primary-disabled-color);
 			--bg-color: var(--primary-disabled-bg-color);
 			cursor: not-allowed;
 	}
-	:host(i-button[disabled]) g, 
-	:host(i-button[disabled]:hover) g, 
-	:host(i-button) .text {
+	:host(toggle-button[disabled]) g, 
+	:host(toggle-button[disabled]:hover) g, 
+	:host(toggle-button) .text {
 			
 	}
-	:host(i-button) .icon {
+	:host(toggle-button) .icon {
 			--icon-size: var(--primary-icon-size);
 			display: block;
 			width: var(--icon-size);
 			transition: width 0.25s ease-in-out;
 	}
-	:host(i-button:hover) .icon {
+	:host(toggle-button:hover) .icon {
 			--icon-size: var(--primary-icon-size-hover);
 	}
 	`
