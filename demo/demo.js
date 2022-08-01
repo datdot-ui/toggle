@@ -21,7 +21,7 @@ function demo () {
     console.log('toggle help', toggle.help()) // get opts & the defaults for toggle component
     
     // buttons
-    const toggle1 = toggle({ name: 'toggle1', text: 'Hello', theme: `` }, contacts.add('toggle1'))
+    const toggle1 = toggle({ name: 'toggle1', text: 'Help', icons: [{ name: 'help'}], theme: `` }, contacts.add('toggle1'))
     const toggle2 = toggle({ name: 'toggle2', text: 'Click me', theme: `` }, contacts.add('toggle2'))
 
     // content

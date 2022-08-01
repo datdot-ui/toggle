@@ -22,7 +22,7 @@ function demo () {
     console.log('toggle help', toggle.help()) // get opts & the defaults for toggle component
     
     // buttons
-    const toggle1 = toggle({ name: 'toggle1', text: 'Hello', theme: `` }, contacts.add('toggle1'))
+    const toggle1 = toggle({ name: 'toggle1', text: 'Help', icons: [{ name: 'help'}], theme: `` }, contacts.add('toggle1'))
     const toggle2 = toggle({ name: 'toggle2', text: 'Click me', theme: `` }, contacts.add('toggle2'))
 
     // content
@@ -1666,7 +1666,7 @@ function toggle (opts, parent_wire) {
 		icons = default_opts.icons, 
 		status: {
 			disabled = default_opts.status.disabled,
-			pressed = default_opts.status.on,
+			pressed = default_opts.status.pressed,
 		} = {},
 		theme = `` } = opts		
 	
@@ -1697,13 +1697,16 @@ function toggle (opts, parent_wire) {
 	i_icons.forEach(i_icon => { shadow.append(i_icon) })
 	
 	if (text) {
-			text_field.innerText = text
-			shadow.append(text_field)
+		text_field.innerText = text
+		shadow.append(text_field)
 	}
 
 	if (disabled) el.setAttribute(`aria-disabled`, true)
 
 	if (!disabled) el.onclick = handle_click
+
+	el.classList.add('foo')
+	el.classList.add('solid')
 	el.setAttribute('aria-label', name)
 	el.setAttribute('aria-pressed', current_state.opts.status.pressed )
 	el.setAttribute('tabindex', 0) // indicates that its element can be focused, and where it participates in sequential keyboard navigation 
@@ -1713,6 +1716,21 @@ function toggle (opts, parent_wire) {
 	shadow.adoptedStyleSheets = [sheet, custom_theme]
 
 	return el
+
+	// button click
+	function handle_click () {
+		current_state.opts.status.pressed = !current_state.opts.status.pressed
+		el.setAttribute('aria-pressed', current_state.opts.status.pressed )
+		const $parent = contacts.by_name['parent'] // { notify, make, address }
+		$parent.notify($parent.make({ to: $parent.address, type: 'click', data: { pressed: current_state.opts.status.pressed } }))
+	}
+	// get current state
+	function get_current_state () {
+		return  {
+			opts: current_state.opts,
+			contacts
+		}
+	}
 
 	// helpers
 	function handle_update (data) {
@@ -1742,33 +1760,21 @@ function toggle (opts, parent_wire) {
 			shadow.adoptedStyleSheets = new_sheets
 		}
 	}
-	// button click
-	function handle_click () {
-		current_state.opts.status.pressed = !current_state.opts.status.pressed
-		el.setAttribute('aria-pressed', current_state.opts.status.pressed )
-		const $parent = contacts.by_name['parent'] // { notify, make, address }
-		$parent.notify($parent.make({ to: $parent.address, type: 'click', data: { pressed: current_state.opts.status.pressed } }))
-	}
-	// get current state
-	function get_current_state () {
-		return  {
-			opts: current_state.opts,
-			contacts
-		}
-	}
 
 }
 
 function get_theme () {
 	return `
-	:root {
+		:root {
 			--b: 0, 0%;
 			--r: 100%, 50%;
 			--color-black: var(--b), 0%;
 			--color-greyF2: var(--b), 95%;
+			--color-orange: 32, var(--r);
 			--size16: 1.6rem;
 			--weight300: 300;
 			--primary-color: var(--color-black);
+			--primary-color-focus: var(--color-orange);
 			--primary-bg-color: var(--color-greyF2);
 			--primary-size: var(--size16);
 	}
@@ -1826,11 +1832,8 @@ function get_theme () {
 			--shadow-color: var(--primary-color-hover);
 			--shadow-opacity: 0;
 	}
-	:host(toggle-button[aria-pressed="true"]:hover) {
-			--bg-color: var(--primary-bg-color);
-	}
 	:host(toggle-button[aria-pressed="true"]) {
-			--color: var(--color-focus);
+			--color: var(--primary-color-focus);
 			--bg-color: var(--bg-color-focus);
 			background-color: hsla(var(--bg-color));
 	}
@@ -1842,14 +1845,11 @@ function get_theme () {
 	:host(toggle-button:hover) g {
 		--icon-fill: var(--primary-icon-fill-hover);
 	}
-	:host(toggle-button[aria-disabled="true"]) .icon, 
-	:host(toggle-button[aria-disabled="true"]:hover) .icon {
-			--size: var(--primary-disabled-size);
-			--weight: var(--current-weight);
-			--color: var(--primary-disabled-color);
-			--bg-color: var(--primary-disabled-bg-color);
+	:host(toggle-button[aria-pressed="true"]:hover) g {
+		--icon-fill: var(--primary-color-hover);
 	}
-	:host(toggle-button[aria-disabled="true"]), :host(toggle-button[aria-disabled="true"]:hover) {
+	:host(toggle-button[aria-disabled="true"]), 
+	:host(toggle-button[aria-disabled="true"]:hover) {
 			--size: var(--primary-disabled-size);
 			--color: var(--primary-disabled-color);
 			--bg-color: var(--primary-disabled-bg-color);
@@ -1858,16 +1858,6 @@ function get_theme () {
 	:host(toggle-button[disabled]) g, 
 	:host(toggle-button[disabled]:hover) g, 
 	:host(toggle-button) .text {
-			
-	}
-	:host(toggle-button) .icon {
-			--icon-size: var(--primary-icon-size);
-			display: block;
-			width: var(--icon-size);
-			transition: width 0.25s ease-in-out;
-	}
-	:host(toggle-button:hover) .icon {
-			--icon-size: var(--primary-icon-size-hover);
 	}
 	`
 }
