@@ -26,7 +26,7 @@
     "budo": "^11.6.4"
   },
   "dependencies": {
-    "datdot-ui-icon": "github:datdot-ui/icon#v0.0.1-alpha",
+    "bel": "^6.0.0",
     "protocol-maker": "github:datdotorg/protocol-maker#v0.0.1-alpha"
   }
 }
